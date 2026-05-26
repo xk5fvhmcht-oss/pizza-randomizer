@@ -1,37 +1,32 @@
 // ============================================================
-// OMAR'S PIE — data.js
-// v1.1.1
+// OMAR'S PIE — data.js v1.2.0
 // Neapolitan style · Biga dough · Gozney Dome + Baking Steel
-// Pork-free by design
-// Cuisines: Neapolitan, Levantine, Turkish, Greek,
-//           Mexican, American, North African, Indian
-// Layers: base → sauce → cheese → protein → veg → finish
+// Pork-free by design · All cuisines · Three stores
 // ============================================================
 
-const APP_VERSION = "1.1.2";
+const APP_VERSION = "1.2.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
 const STORES = {
-  cm:    { id: "cm",    name: "Central Market",  short: "CM",  color: "#2d6a2d" },
+  cm:    { id: "cm",    name: "Central Market",  short: "CM",     color: "#2d6a2d" },
   sara:  { id: "sara",  name: "Sara's Market",   short: "Sara's", color: "#8b2020" },
   altin: { id: "altin", name: "Altin Grocery",   short: "Altin",  color: "#1a4a7a" },
 };
 
 // ── CUISINES ────────────────────────────────────────────────
 const CUISINES = [
-  { id: "neapolitan",   label: "Neapolitan",   emoji: "🍅", desc: "San Marzano · fior di latte · basil · EVOO" },
-  { id: "levantine",    label: "Levantine",    emoji: "🫓", desc: "Labneh · za'atar · sumac · pomegranate" },
-  { id: "turkish",      label: "Turkish",      emoji: "🫕", desc: "Spiced lamb · kashkaval · peppers · yogurt" },
-  { id: "greek",        label: "Greek",        emoji: "🫒", desc: "Feta · kalamata · oregano · lemon" },
-  { id: "mexican",      label: "Mexican",      emoji: "🌶️", desc: "Chipotle · cotija · jalapeño · cilantro" },
-  { id: "american",     label: "American",     emoji: "🧀", desc: "BBQ · aged cheddar · pickled · hot honey" },
-  { id: "northafrican", label: "North African",emoji: "🪔", desc: "Harissa · preserved lemon · chermoula · dukkah" },
-  { id: "indian",       label: "Indian",       emoji: "🫚", desc: "Tikka masala · paneer · chaat masala · chutney" },
+  { id: "neapolitan",   label: "Neapolitan",    emoji: "🍅", desc: "San Marzano · fior di latte · basil · EVOO" },
+  { id: "levantine",    label: "Levantine",     emoji: "🫓", desc: "Labneh · za'atar · sumac · pomegranate" },
+  { id: "turkish",      label: "Turkish",       emoji: "🫕", desc: "Spiced lamb · kashkaval · peppers · yogurt" },
+  { id: "greek",        label: "Greek",         emoji: "🫒", desc: "Feta · kalamata · oregano · lemon" },
+  { id: "mexican",      label: "Mexican",       emoji: "🌶️", desc: "Chipotle · cotija · jalapeño · cilantro" },
+  { id: "american",     label: "American",      emoji: "🧀", desc: "BBQ · aged cheddar · pickled · hot honey" },
+  { id: "northafrican", label: "North African", emoji: "🪔", desc: "Harissa · preserved lemon · chermoula · dukkah" },
+  { id: "indian",       label: "Indian",        emoji: "🫚", desc: "Tikka masala · paneer · chaat masala · chutney" },
 ];
 
 // ── AFFINITIES & CLASHES ────────────────────────────────────
-// Affinities: coherent fusions (used by Surprise Me + highlights)
 const CUISINE_AFFINITIES = [
   ["neapolitan",   "greek"],
   ["neapolitan",   "levantine"],
@@ -45,7 +40,6 @@ const CUISINE_AFFINITIES = [
   ["neapolitan",   "turkish"],
 ];
 
-// Clashes: advisory warning — not a hard block
 const CUISINE_CLASHES = [
   ["neapolitan",   "mexican"],
   ["neapolitan",   "indian"],
@@ -61,19 +55,15 @@ const CUISINE_CLASHES = [
 
 // ── SAUCE FAMILIES ──────────────────────────────────────────
 // Used to weight topping compatibility after sauce is chosen
-const SAUCE_FAMILIES = {
-  tomato:    "tomato",
-  dairy:     "dairy",
-  herb:      "herb",
-  spicepaste:"spicepaste",
-  meatbase:  "meatbase",
-  nossauce:  "nosause",
-};
+// Hard-locked sauces: only shown when their cuisine is selected
+const CUISINE_LOCKED_SAUCES = new Set([
+  "tomatillo_sauce", "shakshuka_sauce", "roja_sauce",
+  "tikka_sauce", "makhani_sauce", "lahmajun_spread",
+  "chipotle_base", "biber_salcasi",
+]);
 
 // ── PROFILES ────────────────────────────────────────────────
-// C = Classic (safe, proven)
-// S = Curated (elevated, approachable)
-// E = Explorer (adventurous, full range)
+// C = Classic · S = Curated · E = Explorer
 const PROFILE_INCLUDES = {
   classic:  ["C"],
   standard: ["C","S"],
@@ -85,97 +75,69 @@ const LAYER_META = {
   base:    { label: "Base",    emoji: "🫙", order: 0, note: "Applied to raw dough before sauce" },
   sauce:   { label: "Sauce",   emoji: "🍅", order: 1, note: "The identity of the pizza" },
   cheese:  { label: "Cheese",  emoji: "🧀", order: 2, note: "On the sauce, under most toppings" },
-  protein: { label: "Protein", emoji: "🥩", order: 3, note: "Check prep status — poultry always pre-cook" },
+  protein: { label: "Protein", emoji: "🥩", order: 3, note: "Check prep — poultry always pre-cook" },
   veg:     { label: "Veg",     emoji: "🫑", order: 4, note: "Some pre-bake, some post — see notes" },
-  finish:  { label: "Finish",  emoji: "✨", order: 5, note: "Post-bake garnish, drizzle, or dusting" },
+  finish:  { label: "Finish",  emoji: "✨", order: 5, note: "Post-bake garnish, drizzle or dusting" },
 };
 const LAYER_ORDER = ["base","sauce","cheese","protein","veg","finish"];
 
-// ── PREP STATUS (proteins) ───────────────────────────────────
-// raw-on     = spread/place raw, cooks with pizza
-// precook    = must be fully cooked before adding
-// readyasis  = cured/preserved, just needs heat
+// ── PREP STATUS ──────────────────────────────────────────────
 const PREP = { RAW: "raw-on", PRE: "precook", READY: "readyasis" };
 
 // ── OVEN GUIDANCE ────────────────────────────────────────────
 const OVEN_GUIDANCE = {
   dome: {
-    id: "dome",
-    label: "Gozney Dome",
-    emoji: "🔥",
-    temp: "850–950°F (450–510°C) stone",
-    time: "60–90 seconds",
+    id: "dome", label: "Gozney Dome", emoji: "🔥",
+    temp: "850–950°F (450–510°C) stone", time: "60–90 seconds",
     tips: [
       "Rotate 45° every 15–20 seconds",
       "Watch for leopard spotting on the crust edge",
       "Open dome lid slightly for even top browning",
       "High-moisture items (bufala, fresh tomato) — post-bake only",
-      "Raw-on proteins safe at this temperature — thin layer essential",
+      "Raw-on proteins safe at this temperature with thin application",
     ]
   },
   steel: {
-    id: "steel",
-    label: "Baking Steel",
-    emoji: "🪨",
-    temp: "550°F (290°C) steel · top rack · broiler on",
-    time: "4–6 minutes",
+    id: "steel", label: "Baking Steel", emoji: "🪨",
+    temp: "550°F (290°C) · top rack · broiler on", time: "4–6 minutes",
     tips: [
       "Preheat steel minimum 1 hour before launch",
       "Launch on parchment, pull paper after 90 seconds",
       "Rotate once at the 3-minute mark",
       "Finish under broiler for top colour",
-      "Raw-on shrimp and egg — add at 3-minute mark only",
+      "Egg — add at 3-minute mark only for runny yolk",
     ]
   }
 };
 
 // ── QUANTITY STANDARDS (per 270g dough ball, ~11–12 inch) ───
-const QTY = {
-  sauce_g:          75,   // grams of sauce per pizza
-  cheese_primary_g: 100,  // grams primary cheese
-  cheese_accent_g:  35,   // grams accent/secondary cheese
-  protein_g:        90,   // grams cooked weight protein
-  veg_total_g:      60,   // grams total veg
-  finish_herb_g:    8,    // grams fresh herb (shared)
+const QTY_STANDARDS = {
+  sauce_g: 75, cheese_primary_g: 100, cheese_accent_g: 35,
+  protein_g: 90, veg_total_g: 60, finish_herb_g: 8,
 };
 
-// ── SHOPPING UNITS ───────────────────────────────────────────
-// How each item is purchased — for shopping list generation
-// unit: the purchase unit label
-// yield_g: grams per purchase unit (for quantity math)
-// min_buy: minimum purchase (can't buy half a ball of mozz)
-
 // ── TOPPINGS ─────────────────────────────────────────────────
-// Fields:
-//   id, name, layer, cuisine[], profile
-//   sauceFamilies[] — which sauce families this pairs with
-//   store — primary store
-//   store2 — secondary store (optional)
-//   jarred — true if sold as a prepared/jarred product
-//   brand — brand note for jarred items
-//   prep — PREP.* (proteins only)
-//   domeOnly — true if raw-on only works at Dome temps
-//   note — cook/prep note shown on card
-//   qty — { unit, yield_g } for shopping list
-//   postbake — true if added after bake
+// Fields: id, name, layer, cuisine[], profile, sauceFamilies[],
+//         store, store2, jarred, brand, prep, domeOnly,
+//         postbake, homemade, note, desc, qty{unit,yield_g}
+// desc = "what is this ingredient" for unfamiliar items
+// homemade = true triggers expandable recipe card
 
 const TOPPINGS = [
 
-  // ══════════════════════════════════════════
-  // BASE
-  // ══════════════════════════════════════════
+  // ══ BASE ════════════════════════════════════════════════════
   {
     id: "evoo_base", name: "EVOO drizzle",
     layer: "base", cuisine: ["neapolitan","greek","levantine","turkish","northafrican"],
-    profile: "C", sauceFamilies: ["nosause","dairy","herb"],
-    store: "cm", note: "High-quality, applied before sauce on white pies",
+    profile: "C", sauceFamilies: ["nosause","dairy","herb","tomato"],
+    store: "cm", note: "High-quality — applied before sauce on white pies",
     qty: { unit: "bottle", yield_g: 750 },
   },
   {
     id: "garlic_oil", name: "Roasted garlic oil",
     layer: "base", cuisine: ["neapolitan","american","greek","levantine"],
     profile: "C", sauceFamilies: ["nosause","dairy","tomato"],
-    store: "cm", note: "Brush edge to crust for garlic bread effect",
+    store: "cm", note: "Brush edge to crust — garlic bread effect",
     qty: { unit: "bottle", yield_g: 750 },
   },
   {
@@ -183,28 +145,34 @@ const TOPPINGS = [
     layer: "base", cuisine: ["levantine","turkish","northafrican","greek"],
     profile: "C", sauceFamilies: ["nosause","herb","dairy"],
     store: "sara", store2: "altin",
-    note: "Replaces tomato on white/bianca pies — classic manakish base",
+    note: "Replaces tomato on white pies — classic manakish base",
     qty: { unit: "jar", yield_g: 200 },
   },
   {
     id: "harissa_base", name: "Harissa smear (thin)",
     layer: "base", cuisine: ["northafrican","levantine","turkish"],
     profile: "S", sauceFamilies: ["spicepaste","tomato"],
-    store: "sara", note: "Very thin layer — under sauce or solo base on bianca",
+    store: "sara",
+    desc: "North African chili paste — spicy, smoky, complex. Apply very thin under or instead of sauce.",
+    note: "Very thin layer only — intense heat",
     qty: { unit: "jar", yield_g: 180 },
   },
   {
     id: "chipotle_base", name: "Chipotle adobo smear",
     layer: "base", cuisine: ["mexican"],
     profile: "S", sauceFamilies: ["spicepaste"],
-    store: "cm", note: "Thin layer — smoke-forward, replaces tomato",
+    store: "cm",
+    desc: "Smoked dried jalapeño in tomato sauce — smoky, earthy, distinctly Mexican.",
+    note: "Thin layer — smoke-forward base for Mexican pies",
     qty: { unit: "can", yield_g: 200 },
   },
   {
     id: "tikka_base", name: "Tikka paste layer",
     layer: "base", cuisine: ["indian"],
     profile: "S", sauceFamilies: ["spicepaste"],
-    store: "cm", note: "Mix with yogurt before applying — tempers heat",
+    store: "cm",
+    desc: "Concentrated Indian spice paste — ginger, garlic, cumin, coriander, chili.",
+    note: "Mix with yogurt before applying — tempers intensity",
     qty: { unit: "jar", yield_g: 300 },
   },
   {
@@ -214,37 +182,45 @@ const TOPPINGS = [
     store: "cm", note: "Replaces tomato — bold, sweet-smoky",
     qty: { unit: "bottle", yield_g: 500 },
   },
+  {
+    id: "calabrian_oil_base", name: "Calabrian chili oil (base)",
+    layer: "base", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["tomato","nosause","spicepaste"],
+    store: "cm",
+    desc: "Italian chili oil from Calabria — fruity, oily, moderately hot. Different from dried flakes.",
+    note: "Thin layer before sauce or on bianca — adds slow heat",
+    qty: { unit: "jar", yield_g: 200 },
+  },
 
-  // ══════════════════════════════════════════
-  // SAUCE
-  // ══════════════════════════════════════════
+  // ══ SAUCE ═══════════════════════════════════════════════════
   {
     id: "san_marzano", name: "San Marzano tomato",
-    layer: "sauce", cuisine: ["neapolitan","greek","levantine","turkish","northafrican","american"],
+    layer: "sauce", cuisine: ["neapolitan","greek","levantine","turkish","northafrican","american","mexican"],
     profile: "C", sauceFamilies: ["tomato"],
-    store: "cm", note: "Crushed, uncooked, salt only — universal anchor",
-    qty: { unit: "can (400g)", yield_g: 400 }, // covers ~5 pizzas
-  },
-  {
-    id: "passata", name: "Passata (strained)",
-    layer: "sauce", cuisine: ["neapolitan","greek","american","levantine","turkish"],
-    profile: "C", sauceFamilies: ["tomato"],
-    store: "cm", note: "Smooth, slightly cooked — wider coverage than San Marzano",
-    qty: { unit: "bottle (680g)", yield_g: 680 },
+    store: "cm", note: "Crushed, uncooked, salt only — the universal anchor",
+    qty: { unit: "can (400g)", yield_g: 400 },
   },
   {
     id: "shakshuka_sauce", name: "Shakshuka sauce (jarred)",
     layer: "sauce", cuisine: ["northafrican","levantine"],
     profile: "C", sauceFamilies: ["tomato"],
     store: "sara", jarred: true, brand: "Mina or Wild Garden",
-    note: "Spiced tomato — reduce in pan 5 min before using to tighten",
-    qty: { unit: "jar (16oz)", yield_g: 450 }, // covers ~5 pizzas
+    desc: "Spiced North African tomato sauce with peppers and cumin — sold jarred at Sara's.",
+    note: "Reduce in pan 5 min before using — tighten the sauce",
+    qty: { unit: "jar (16oz)", yield_g: 450 },
+  },
+  {
+    id: "pesto", name: "Pesto (basil)",
+    layer: "sauce", cuisine: ["neapolitan","american","greek"],
+    profile: "C", sauceFamilies: ["herb","nosause"],
+    store: "cm", note: "Use as white sauce alternative — spread thin, don't over-apply",
+    qty: { unit: "jar (6oz)", yield_g: 170 },
   },
   {
     id: "white_sauce", name: "Béchamel / cream base",
     layer: "sauce", cuisine: ["neapolitan","american","greek"],
     profile: "S", sauceFamilies: ["dairy"],
-    store: "cm", note: "White pie — keep thin, don't over-sauce",
+    store: "cm", note: "White pie — keep thin, season well",
     qty: { unit: "make fresh", yield_g: 0 },
   },
   {
@@ -252,50 +228,80 @@ const TOPPINGS = [
     layer: "sauce", cuisine: ["levantine","turkish","greek","northafrican"],
     profile: "C", sauceFamilies: ["dairy"],
     store: "sara", store2: "altin",
-    note: "Tangy, thick — replaces tomato entirely, classic bianca",
-    qty: { unit: "tub (500g)", yield_g: 500 }, // covers ~5 pizzas
+    desc: "Strained yogurt cheese — thick, tangy, creamy. Middle Eastern staple. Replaces tomato entirely.",
+    note: "Tangy, thick — classic bianca base for Levantine pies",
+    qty: { unit: "tub (500g)", yield_g: 500 },
   },
   {
-    id: "yogurt_sauce", name: "Strained yogurt sauce",
-    layer: "sauce", cuisine: ["turkish","greek","indian","levantine"],
+    id: "tzatziki_sauce", name: "Tzatziki",
+    layer: "sauce", cuisine: ["greek","levantine","turkish"],
     profile: "C", sauceFamilies: ["dairy"],
-    store: "altin", store2: "sara",
-    note: "Mix with roasted garlic + mint before spreading",
-    qty: { unit: "tub (500g)", yield_g: 500 },
+    store: "cm", store2: "sara",
+    desc: "Greek yogurt with cucumber, garlic and dill — cooling, tangy dairy sauce.",
+    note: "Use thick store-bought or homemade — drain cucumber well before making",
+    qty: { unit: "tub (300g)", yield_g: 300 },
+  },
+  {
+    id: "muhammara", name: "Muhammara",
+    layer: "sauce", cuisine: ["levantine","northafrican","turkish"],
+    profile: "S", sauceFamilies: ["spicepaste","herb"],
+    store: "sara",
+    desc: "Syrian roasted red pepper and walnut spread — sweet, smoky, slightly spicy. A Levantine gem.",
+    note: "Spread directly on dough — no extra sauce needed",
+    qty: { unit: "jar or fresh (200g)", yield_g: 200 },
   },
   {
     id: "chermoula", name: "Chermoula sauce",
     layer: "sauce", cuisine: ["northafrican","levantine"],
     profile: "S", sauceFamilies: ["herb"],
-    store: "sara", note: "Herb-based, lemony — make fresh or jarred",
-    qty: { unit: "jar or fresh", yield_g: 200 },
+    store: "sara",
+    desc: "North African herb marinade — parsley, cilantro, cumin, lemon. Similar to chimichurri but warmer.",
+    note: "Spread thin — herb-forward and lemony",
+    qty: { unit: "jar or fresh (200g)", yield_g: 200 },
+  },
+  {
+    id: "biber_salcasi", name: "Biber salçası (Turkish pepper paste)",
+    layer: "sauce", cuisine: ["turkish","levantine"],
+    profile: "C", sauceFamilies: ["spicepaste","tomato"],
+    store: "altin",
+    desc: "Turkish roasted red pepper paste — deeper and earthier than harissa, less heat, rich umami.",
+    note: "Thin layer — mix with olive oil before spreading",
+    qty: { unit: "jar (400g)", yield_g: 400 },
   },
   {
     id: "tikka_sauce", name: "Tikka masala sauce",
     layer: "sauce", cuisine: ["indian"],
     profile: "C", sauceFamilies: ["spicepaste"],
-    store: "cm", note: "Pre-cooked, reduce until thick before applying",
+    store: "cm",
+    desc: "Creamy tomato-based Indian sauce with garam masala, ginger, garlic — bold and aromatic.",
+    note: "Reduce until thick before applying — never watery",
     qty: { unit: "jar (350g)", yield_g: 350 },
   },
   {
     id: "makhani_sauce", name: "Makhani (butter masala) sauce",
     layer: "sauce", cuisine: ["indian"],
     profile: "S", sauceFamilies: ["spicepaste","dairy"],
-    store: "cm", note: "Richer than tikka — reduce before use",
+    store: "cm",
+    desc: "Richer, creamier Indian sauce than tikka — butter-forward with gentle spice.",
+    note: "Reduce before use — richer than tikka, pairs with paneer",
     qty: { unit: "jar (350g)", yield_g: 350 },
   },
   {
     id: "tomatillo_sauce", name: "Tomatillo salsa verde",
     layer: "sauce", cuisine: ["mexican"],
     profile: "C", sauceFamilies: ["tomato"],
-    store: "cm", note: "Charred, thick — Mexican hard lock, not watery",
+    store: "cm",
+    desc: "Charred green tomatillo sauce — tangy, bright, distinctly Mexican. Not interchangeable with red sauce.",
+    note: "Mexican hard lock — char and reduce before using",
     qty: { unit: "jar (16oz)", yield_g: 450 },
   },
   {
     id: "roja_sauce", name: "Charred tomato roja",
     layer: "sauce", cuisine: ["mexican"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
-    store: "cm", note: "Ancho + charred tomato — smoky depth",
+    store: "cm",
+    desc: "Ancho chili and charred tomato sauce — smoky, deep, distinctly Mexican.",
+    note: "Mexican hard lock — smoky depth, reduce well",
     qty: { unit: "jar (16oz)", yield_g: 450 },
   },
   {
@@ -303,6 +309,7 @@ const TOPPINGS = [
     layer: "sauce", cuisine: ["levantine","northafrican","greek"],
     profile: "S", sauceFamilies: ["dairy"],
     store: "sara", store2: "cm",
+    desc: "Chickpea and tahini puree — earthy, nutty, creamy. Use thin or it overwhelms.",
     note: "Thin layer only — too heavy if over-applied",
     qty: { unit: "tub (400g)", yield_g: 400 },
   },
@@ -311,25 +318,26 @@ const TOPPINGS = [
     layer: "sauce", cuisine: ["turkish","levantine"],
     profile: "S", sauceFamilies: ["meatbase"],
     store: "sara", prep: PREP.RAW,
-    note: "Raw spiced lamb/beef + tomato + parsley — spread thin, cooks with pizza. No cheese traditionally.",
-    qty: { unit: "200g ground lamb from butcher", yield_g: 200 },
+    desc: "Raw spiced lamb or beef mixed with tomato, parsley, peppers and Aleppo — spread thin and baked directly on dough. Traditional Turkish street food. No cheese added traditionally.",
+    note: "Spread thin on raw dough — cooks with pizza. No cheese traditionally.",
+    qty: { unit: "200g ground lamb/beef from butcher", yield_g: 200 },
   },
   {
     id: "nosause", name: "No sauce — bianca",
     layer: "sauce", cuisine: ["neapolitan","greek","levantine","turkish","northafrican","indian","american","mexican"],
     profile: "C", sauceFamilies: ["nosause"],
-    store: null, note: "Relies on base oil and cheese for moisture — don't skip base layer",
+    store: null, note: "Relies on base oil and cheese — don't skip the base layer",
     qty: { unit: "n/a", yield_g: 0 },
   },
 
-  // ══════════════════════════════════════════
-  // CHEESE
-  // ══════════════════════════════════════════
+  // ══ CHEESE ══════════════════════════════════════════════════
   {
     id: "fior_di_latte", name: "Fior di latte",
     layer: "cheese", cuisine: ["neapolitan","greek","levantine","turkish","american"],
     profile: "C", sauceFamilies: ["tomato","dairy","nosause"],
-    store: "cm", note: "Slice thin, pat dry — low moisture essential",
+    store: "cm",
+    desc: "Fresh cow's milk mozzarella — the classic Neapolitan cheese. Lower moisture than bufala.",
+    note: "Slice thin, pat dry — essential for clean bake",
     qty: { unit: "ball (125g)", yield_g: 125 },
   },
   {
@@ -337,29 +345,58 @@ const TOPPINGS = [
     layer: "cheese", cuisine: ["neapolitan"],
     profile: "S", sauceFamilies: ["tomato","nosause"],
     store: "cm", postbake: true,
-    note: "Post-bake only — too wet for the oven, tears beautifully when hot",
+    desc: "Water buffalo milk mozzarella — richer, tangier and wetter than fior di latte. Always post-bake.",
+    note: "Post-bake only — too wet for oven, tears beautifully when hot",
+    qty: { unit: "ball (125g)", yield_g: 125 },
+  },
+  {
+    id: "burrata", name: "Burrata",
+    layer: "cheese", cuisine: ["neapolitan","greek","american"],
+    profile: "S", sauceFamilies: ["tomato","nosause","herb"],
+    store: "cm", postbake: true,
+    desc: "Fresh mozzarella shell filled with cream and stracciatella — explosively creamy when torn open post-bake.",
+    note: "Post-bake only — tear open on hot pizza, never bake",
     qty: { unit: "ball (125g)", yield_g: 125 },
   },
   {
     id: "fresh_mozz", name: "Fresh mozzarella",
     layer: "cheese", cuisine: ["neapolitan","american","greek","levantine","turkish"],
     profile: "C", sauceFamilies: ["tomato","dairy","nosause","herb"],
-    store: "cm", note: "Pat dry, slice — standard bake cheese",
+    store: "cm", note: "Pat dry, slice — reliable everyday pizza cheese",
     qty: { unit: "ball (125g)", yield_g: 125 },
   },
   {
     id: "shredded_mozz", name: "Shredded low-moisture mozz",
     layer: "cheese", cuisine: ["american","neapolitan"],
     profile: "C", sauceFamilies: ["tomato","spicepaste","dairy"],
-    store: "cm", note: "Better melt and coverage for American style",
+    store: "cm", note: "Better melt and coverage for American style builds",
     qty: { unit: "bag (225g)", yield_g: 225 },
+  },
+  {
+    id: "gorgonzola", name: "Gorgonzola (crumbled)",
+    layer: "cheese", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["nosause","dairy","tomato"],
+    store: "cm",
+    desc: "Italian blue cheese — sharp, funky, creamy. Classic quattro formaggi component. Use sparingly.",
+    note: "Strong — use small amounts, pairs beautifully with hot honey or walnuts",
+    qty: { unit: "wedge (150g)", yield_g: 150 },
+  },
+  {
+    id: "fontina", name: "Fontina",
+    layer: "cheese", cuisine: ["neapolitan","american"],
+    profile: "C", sauceFamilies: ["tomato","dairy","nosause"],
+    store: "cm",
+    desc: "Northern Italian semi-soft cheese — buttery, nutty, exceptional melt. Quattro formaggi essential.",
+    note: "Excellent melt — layer under or blend with mozz",
+    qty: { unit: "wedge (200g)", yield_g: 200 },
   },
   {
     id: "feta", name: "Feta (crumbled)",
     layer: "cheese", cuisine: ["greek","levantine","turkish","northafrican","neapolitan"],
     profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "sara", store2: "cm",
-    note: "Add last 90 seconds or fully post-bake — too salty if over-cooked",
+    desc: "Brined Greek sheep's milk cheese — salty, tangy, crumbly. Doesn't melt, adds bursts of flavor.",
+    note: "Add last 90 seconds or fully post-bake — oversalts if overbaked",
     qty: { unit: "block (200g)", yield_g: 200 },
   },
   {
@@ -367,56 +404,80 @@ const TOPPINGS = [
     layer: "cheese", cuisine: ["greek","levantine","turkish"],
     profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "sara", store2: "cm",
-    note: "Pre-sear in dry pan until golden — holds shape in oven",
+    desc: "Cypriot cheese with very high melting point — golden and squeaky when seared. Holds shape in oven.",
+    note: "Pre-sear in dry pan until golden — holds shape perfectly",
     qty: { unit: "block (225g)", yield_g: 225 },
   },
   {
     id: "kashkaval", name: "Kashkaval",
     layer: "cheese", cuisine: ["turkish","levantine","greek","northafrican"],
     profile: "S", sauceFamilies: ["tomato","dairy","spicepaste","herb","nosause"],
-    store: "altin", note: "Semi-hard, exceptional melt — Turkey's answer to mozzarella",
+    store: "altin",
+    desc: "Balkan semi-hard cheese — excellent melt, mild and buttery. Turkey's answer to mozzarella.",
+    note: "Grate or slice thin — superior melt for Turkish and Levantine pies",
     qty: { unit: "block (200g)", yield_g: 200 },
+  },
+  {
+    id: "shanklish", name: "Shanklish (crumbled)",
+    layer: "cheese", cuisine: ["levantine","turkish"],
+    profile: "S", sauceFamilies: ["tomato","herb","nosause"],
+    store: "sara",
+    desc: "Aged, spiced Levantine cheese ball rolled in dried herbs and chili — pungent, earthy, distinctive. Available at Sara's.",
+    note: "Crumble sparingly — very strong flavor, post-bake or last 60 seconds",
+    qty: { unit: "ball (150g)", yield_g: 150 },
+  },
+  {
+    id: "goat_cheese", name: "Goat cheese (chèvre)",
+    layer: "cheese", cuisine: ["northafrican","american","greek","neapolitan"],
+    profile: "S", sauceFamilies: ["herb","nosause","tomato","dairy"],
+    store: "cm",
+    desc: "Fresh soft goat cheese — tangy, creamy, lighter than ricotta. Dollop rather than spread.",
+    note: "Dollop in rounds — pairs with beet, honey, arugula",
+    qty: { unit: "log (150g)", yield_g: 150 },
   },
   {
     id: "cotija", name: "Cotija (crumbled)",
     layer: "cheese", cuisine: ["mexican"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
     store: "cm", postbake: true,
-    note: "Post-bake only — salty crumble, does not melt",
+    desc: "Mexican aged crumbly cheese — salty and dry, similar to Parmigiano but sharper. Does not melt.",
+    note: "Post-bake only — salty crumble finish",
     qty: { unit: "wedge (200g)", yield_g: 200 },
   },
   {
     id: "paneer", name: "Paneer (cubed, spiced)",
     layer: "cheese", cuisine: ["indian"],
     profile: "C", sauceFamilies: ["spicepaste","dairy"],
-    store: "cm", note: "Marinate in tikka spices + yogurt minimum 30 min, pre-cook",
+    store: "cm",
+    desc: "Indian fresh cheese — firm, mild, doesn't melt. Marinated and pre-cooked before adding to pizza.",
+    note: "Marinate in tikka spices + yogurt min 30 min, then pan-sear",
     qty: { unit: "block (200g)", yield_g: 200 },
   },
   {
     id: "aged_cheddar", name: "Aged cheddar",
     layer: "cheese", cuisine: ["american"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
-    store: "cm", note: "Sharp — always blend with mozz, never solo",
+    store: "cm", note: "Sharp — always blend with mozz, never solo on pizza",
     qty: { unit: "block (200g)", yield_g: 200 },
   },
   {
     id: "provolone", name: "Provolone (sharp)",
     layer: "cheese", cuisine: ["neapolitan","american"],
     profile: "S", sauceFamilies: ["tomato","dairy"],
-    store: "cm", note: "Layer under mozz for depth",
+    store: "cm",
+    desc: "Sharp Italian semi-hard cheese — slightly smoky, funky. Layer under mozz for depth.",
+    note: "Layer under mozz — adds background funk",
     qty: { unit: "block (150g)", yield_g: 150 },
   },
   {
     id: "ricotta_dollop", name: "Ricotta (dolloped)",
     layer: "cheese", cuisine: ["neapolitan","american","greek"],
     profile: "S", sauceFamilies: ["tomato","dairy","nosause"],
-    store: "cm", note: "Drop in spoonfuls mid-bake for creamy pockets",
+    store: "cm", note: "Drop in spoonfuls — creamy pockets mid-bake",
     qty: { unit: "tub (250g)", yield_g: 250 },
   },
 
-  // ══════════════════════════════════════════
-  // PROTEIN (all pork-free)
-  // ══════════════════════════════════════════
+  // ══ PROTEIN (all pork-free) ══════════════════════════════════
   {
     id: "beef_kofta", name: "Spiced beef kofta",
     layer: "protein", cuisine: ["turkish","levantine","northafrican","greek"],
@@ -434,12 +495,48 @@ const TOPPINGS = [
     qty: { unit: "300g ground lamb", yield_g: 300 },
   },
   {
+    id: "sujuk", name: "Sujuk (beef)",
+    layer: "protein", cuisine: ["turkish","levantine","northafrican"],
+    profile: "C", sauceFamilies: ["tomato","spicepaste","dairy"],
+    store: "sara", store2: "altin", prep: PREP.READY,
+    desc: "Turkish/Levantine dry-cured spiced beef sausage — garlic, cumin, fenugreek. Several brands at Sara's and Altin.",
+    note: "Slice thin — renders fat beautifully in Dome, crisps at edges",
+    qty: { unit: "link (200g)", yield_g: 200 },
+  },
+  {
+    id: "basturma", name: "Basturma (beef)",
+    layer: "protein", cuisine: ["turkish","levantine"],
+    profile: "S", sauceFamilies: ["tomato","spicepaste","nosause"],
+    store: "altin", prep: PREP.READY,
+    desc: "Air-dried cured beef coated in thick fenugreek-spice paste (çemen) — intensely flavored, very aromatic. Turkish and Armenian origin.",
+    note: "Slice paper-thin — very strong flavor, use sparingly. Pairs with egg.",
+    qty: { unit: "pack (150g)", yield_g: 150 },
+  },
+  {
+    id: "anchovy", name: "Anchovy (oil-packed)",
+    layer: "protein", cuisine: ["neapolitan","greek","levantine"],
+    profile: "C", sauceFamilies: ["tomato","herb","nosause"],
+    store: "cm", prep: PREP.READY,
+    desc: "Salt-cured fish fillets in olive oil — intensely savory and umami. A Neapolitan staple, not fishy when baked.",
+    note: "Add last 60 seconds — they dissolve into the pie, use 3–4 fillets max",
+    qty: { unit: "tin (50g)", yield_g: 50 },
+  },
+  {
     id: "chicken_tikka", name: "Chicken tikka (pre-cooked)",
     layer: "protein", cuisine: ["indian"],
     profile: "C", sauceFamilies: ["spicepaste","dairy"],
     store: "sara", prep: PREP.PRE,
-    note: "⚠️ Poultry — must be fully cooked before pizza. Marinate overnight.",
+    note: "⚠️ Poultry — fully cooked before pizza. Marinate overnight in yogurt and spices.",
     qty: { unit: "300g chicken breast", yield_g: 300 },
+  },
+  {
+    id: "chicken_tandoori", name: "Chicken tandoori (pre-cooked)",
+    layer: "protein", cuisine: ["indian"],
+    profile: "S", sauceFamilies: ["spicepaste","dairy"],
+    store: "sara", prep: PREP.PRE,
+    desc: "Tandoori marinade is drier and smokier than tikka — yogurt, Kashmiri chili, cumin, charred finish.",
+    note: "⚠️ Poultry — fully cooked. Slice thin off the bone before adding.",
+    qty: { unit: "300g chicken thighs", yield_g: 300 },
   },
   {
     id: "chicken_bbq", name: "BBQ chicken (shredded)",
@@ -454,39 +551,52 @@ const TOPPINGS = [
     layer: "protein", cuisine: ["american","neapolitan"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
     store: "cm", prep: PREP.READY,
-    note: "Halal beef pepperoni — cups and crisps at Dome temp",
+    note: "Halal beef pepperoni — cups and crisps beautifully at Dome temp",
     qty: { unit: "pack (150g)", yield_g: 150 },
   },
   {
-    id: "shrimp", name: "Shrimp (marinated)",
-    layer: "protein", cuisine: ["american","greek","levantine"],
-    profile: "S", sauceFamilies: ["tomato","herb","dairy","nosause"],
-    store: "cm", prep: PREP.RAW, domeOnly: false,
-    note: "Dome: raw-on, cooks in 90s. Steel: pre-cook briefly — 550°F/5min undercooks raw shrimp",
-    qty: { unit: "200g peeled shrimp", yield_g: 200 },
+    id: "beef_salami", name: "Beef salami",
+    layer: "protein", cuisine: ["american","neapolitan"],
+    profile: "C", sauceFamilies: ["tomato","dairy","nosause"],
+    store: "sara", store2: "cm", prep: PREP.READY,
+    desc: "Halal beef salami — milder and more delicate than pepperoni. Sliced thin.",
+    note: "Slice thin — place flat, crisps at edges in Dome",
+    qty: { unit: "pack (150g)", yield_g: 150 },
   },
   {
-    id: "tuna", name: "Tuna (oil-packed)",
-    layer: "protein", cuisine: ["neapolitan","greek"],
-    profile: "S", sauceFamilies: ["tomato","dairy","herb"],
-    store: "cm", prep: PREP.READY, postbake: false,
-    note: "Drain well — add last 30 seconds to warm through only",
-    qty: { unit: "can (160g drained)", yield_g: 160 },
+    id: "beef_diavola", name: "Beef diavola salami",
+    layer: "protein", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["tomato","spicepaste"],
+    store: "cm", prep: PREP.READY,
+    desc: "Spicy beef salami — hotter and more aggressively seasoned than regular salami. Diavola means 'devil'.",
+    note: "Slice thin — intense heat, pairs with honey or cream cheese to balance",
+    qty: { unit: "pack (150g)", yield_g: 150 },
+  },
+  {
+    id: "bresaola", name: "Bresaola (beef)",
+    layer: "protein", cuisine: ["neapolitan","american","greek"],
+    profile: "S", sauceFamilies: ["nosause","dairy","herb","tomato"],
+    store: "cm", prep: PREP.READY, postbake: true,
+    desc: "Italian air-dried salted beef — lean, delicate, deep red. Always post-bake. Classic with arugula and Parmigiano.",
+    note: "Post-bake only — drape over hot pizza, pairs with arugula and lemon",
+    qty: { unit: "pack (100g)", yield_g: 100 },
   },
   {
     id: "chicken_shawarma", name: "Chicken shawarma strips",
     layer: "protein", cuisine: ["levantine","turkish","northafrican"],
     profile: "C", sauceFamilies: ["tomato","dairy","herb","spicepaste"],
     store: "sara", prep: PREP.PRE,
-    note: "⚠️ Poultry — marinate in shawarma spice, grill or broil fully before pizza",
-    qty: { unit: "300g chicken thighs", yield_g: 300 },
+    desc: "Middle Eastern spiced rotisserie chicken — available pre-cooked from Sara's deli fridge. Just slice and warm through.",
+    note: "⚠️ Poultry — Sara's deli fridge has pre-cooked. Slice and warm before adding.",
+    qty: { unit: "300g or grab pre-cooked from Sara's deli", yield_g: 300 },
   },
   {
     id: "lamb_merguez", name: "Lamb merguez (sliced)",
     layer: "protein", cuisine: ["northafrican","levantine"],
     profile: "S", sauceFamilies: ["tomato","spicepaste","herb"],
     store: "sara", prep: PREP.PRE,
-    note: "Par-cook, slice on bias — spicy and aromatic",
+    desc: "Spicy North African lamb sausage — red from paprika, harissa and chili. Algerian and Tunisian staple.",
+    note: "Par-cook, slice on bias — fiery and aromatic",
     qty: { unit: "pack (200g)", yield_g: 200 },
   },
   {
@@ -494,7 +604,7 @@ const TOPPINGS = [
     layer: "protein", cuisine: ["mexican"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
     store: "cm", prep: PREP.PRE,
-    note: "Fully cooked before adding — thin slices, season with lime",
+    note: "Fully cooked before adding — thin slices, season with lime and cumin",
     qty: { unit: "300g skirt steak", yield_g: 300 },
   },
   {
@@ -506,11 +616,19 @@ const TOPPINGS = [
     qty: { unit: "pack (225g)", yield_g: 225 },
   },
   {
+    id: "beef_meatballs", name: "Beef meatballs (sliced)",
+    layer: "protein", cuisine: ["neapolitan","american"],
+    profile: "C", sauceFamilies: ["tomato","dairy"],
+    store: "cm", prep: PREP.PRE,
+    note: "Pre-cook fully, slice in half — classic American-Neapolitan combination",
+    qty: { unit: "300g ground beef", yield_g: 300 },
+  },
+  {
     id: "egg", name: "Egg (whole, cracked)",
     layer: "protein", cuisine: ["neapolitan","turkish","levantine","northafrican"],
     profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause","spicepaste"],
     store: "cm", prep: PREP.RAW,
-    note: "Dome: crack in last 20s — yolk stays runny. Steel: add at 3-min mark, yolk will set more.",
+    note: "Dome: crack in last 20s — runny yolk. Steel: add at 3-min mark, yolk sets more.",
     qty: { unit: "1 egg per pizza", yield_g: 60 },
   },
   {
@@ -518,13 +636,40 @@ const TOPPINGS = [
     layer: "protein", cuisine: ["levantine","northafrican"],
     profile: "E", sauceFamilies: ["dairy","herb","nosause"],
     store: "sara", prep: PREP.READY, postbake: true,
-    note: "Post-bake only — herb-rolled, adds tang and richness",
+    desc: "Labneh rolled into balls and preserved in olive oil with herbs — tangy, creamy, beautiful post-bake.",
+    note: "Post-bake only — tear and scatter over hot pizza",
     qty: { unit: "jar (300g)", yield_g: 300 },
   },
+  {
+    id: "nduja_homemade", name: "Homemade Beef Nduja",
+    layer: "protein", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["tomato","spicepaste","nosause"],
+    store: "sara", prep: PREP.PRE, homemade: true,
+    desc: "Beef version of Calabrian spreadable chili sausage — made from sujuk rendered with EVOO and Aleppo pepper. Spreadable, fiery, deeply savory.",
+    note: "Make ahead — spread thin on dough before or after sauce. Post-bake dot also works.",
+    recipe: {
+      makes: "enough for 3–4 pizzas",
+      ingredients: [
+        "2–3 sujuk links, casing removed",
+        "4 tbsp high-quality EVOO",
+        "1 tsp Aleppo pepper (or Isot biber for smokier result)",
+        "½ tsp smoked paprika",
+        "1 small roasted red pepper (optional — adds body)",
+      ],
+      method: [
+        "Remove casing from sujuk and break meat into a cold dry pan.",
+        "Render on medium heat until fat releases and meat is fully cooked, about 8 minutes.",
+        "Transfer to a small food processor or mortar. Add EVOO, Aleppo pepper and smoked paprika.",
+        "Blend or pound until a spreadable paste forms — rough texture is fine.",
+        "Stir in roasted red pepper if using. Taste and adjust heat.",
+        "Store in a jar covered with EVOO. Refrigerates for up to 1 week.",
+        "Use: spread thin on raw dough before sauce, or dot post-bake with residual heat.",
+      ]
+    },
+    qty: { unit: "2–3 sujuk links from Sara's or Altin", yield_g: 200 },
+  },
 
-  // ══════════════════════════════════════════
-  // VEG
-  // ══════════════════════════════════════════
+  // ══ VEG ═════════════════════════════════════════════════════
   {
     id: "cherry_tom", name: "Cherry tomatoes (halved)",
     layer: "veg", cuisine: ["neapolitan","greek","american","levantine","turkish","northafrican"],
@@ -546,29 +691,40 @@ const TOPPINGS = [
     layer: "veg", cuisine: ["greek","levantine","neapolitan","northafrican"],
     profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "sara", store2: "cm",
-    note: "Pit and halve — slice if using many",
+    note: "Pit and halve — strong brine flavor",
     qty: { unit: "jar (350g)", yield_g: 200 },
   },
   {
     id: "green_olives", name: "Castelvetrano olives",
     layer: "veg", cuisine: ["neapolitan","northafrican","greek"],
     profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause"],
-    store: "cm", note: "Buttery, mild — pit and halve",
+    store: "cm",
+    desc: "Sicilian buttery green olive — mild, meaty, nothing like a regular green olive.",
+    note: "Pit and halve — buttery and mild",
     qty: { unit: "jar (290g)", yield_g: 180 },
   },
   {
     id: "artichoke", name: "Artichoke hearts",
     layer: "veg", cuisine: ["neapolitan","greek","levantine"],
     profile: "S", sauceFamilies: ["tomato","dairy","nosause","herb"],
-    store: "cm", note: "Pat dry, quarter — jarred in water, not oil",
+    store: "cm", note: "Pat dry, quarter — use jarred in water not oil",
     qty: { unit: "can (400g)", yield_g: 200 },
+  },
+  {
+    id: "capers", name: "Capers",
+    layer: "veg", cuisine: ["neapolitan","greek","levantine"],
+    profile: "C", sauceFamilies: ["tomato","herb","nosause","dairy"],
+    store: "cm", store2: "sara",
+    desc: "Pickled flower buds — briny, pungent, intensely savory. A Neapolitan staple on the alla Napoletana pizza.",
+    note: "Rinse before using — salt-packed are best if available",
+    qty: { unit: "jar (100g)", yield_g: 100 },
   },
   {
     id: "caramelized_onion", name: "Caramelized onions",
     layer: "veg", cuisine: ["turkish","american","greek","levantine","northafrican"],
     profile: "C", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
     store: "cm", store2: "sara",
-    note: "Cook fully before adding — 30+ minutes low heat",
+    note: "Cook fully before adding — minimum 30 minutes low heat",
     qty: { unit: "2 large onions", yield_g: 300 },
   },
   {
@@ -591,28 +747,39 @@ const TOPPINGS = [
     layer: "veg", cuisine: ["mexican","american"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
     store: "cm", postbake: true,
-    note: "Post-bake — preserves tang and texture",
+    note: "Post-bake — preserves tang and crunch",
+    qty: { unit: "jar (300g)", yield_g: 150 },
+  },
+  {
+    id: "pickled_cabbage", name: "Pickled red cabbage",
+    layer: "veg", cuisine: ["mexican","american"],
+    profile: "S", sauceFamilies: ["tomato","spicepaste"],
+    store: "cm", postbake: true,
+    desc: "Vinegar-pickled shredded red cabbage — crunchy, tangy, vibrant purple color.",
+    note: "Post-bake only — loses color and crunch in oven",
     qty: { unit: "jar (300g)", yield_g: 150 },
   },
   {
     id: "corn_charred", name: "Charred corn",
     layer: "veg", cuisine: ["mexican","american"],
     profile: "S", sauceFamilies: ["tomato","spicepaste","dairy"],
-    store: "cm", note: "Cast iron or open flame — don't use canned without charring",
+    store: "cm", note: "Cast iron or open flame — never use canned without charring first",
     qty: { unit: "2 ears corn", yield_g: 200 },
   },
   {
     id: "mushroom_cremini", name: "Cremini mushrooms",
     layer: "veg", cuisine: ["neapolitan","american","turkish"],
     profile: "C", sauceFamilies: ["tomato","dairy","nosause"],
-    store: "cm", note: "Sauté first until golden — raw mushrooms steam and waterlog",
+    store: "cm", note: "Sauté first until golden — raw mushrooms steam and waterlog the base",
     qty: { unit: "punnet (250g)", yield_g: 250 },
   },
   {
     id: "mushroom_wild", name: "Wild mushrooms (roasted)",
     layer: "veg", cuisine: ["neapolitan"],
     profile: "E", sauceFamilies: ["nosause","dairy","tomato"],
-    store: "cm", note: "Maitake or oyster — roast at 425°F first with EVOO and thyme",
+    store: "cm",
+    desc: "Maitake, oyster or chanterelle — earthy, complex, nothing like cremini.",
+    note: "Roast at 425°F with EVOO and thyme first — never add raw",
     qty: { unit: "punnet (150g)", yield_g: 150 },
   },
   {
@@ -635,14 +802,17 @@ const TOPPINGS = [
     id: "preserved_lemon", name: "Preserved lemon (rinsed)",
     layer: "veg", cuisine: ["northafrican","levantine"],
     profile: "E", sauceFamilies: ["tomato","herb","dairy"],
-    store: "sara", note: "Rinse thoroughly — very salty, use sparingly",
+    store: "sara",
+    desc: "Salt-cured whole lemon — intensely lemony, salty, fermented flavor. Use the rind only, rinse well.",
+    note: "Rinse thoroughly, use rind only — tiny amounts, very salty",
     qty: { unit: "jar (200g)", yield_g: 200 },
   },
   {
     id: "potato_thin", name: "Thinly sliced potato",
     layer: "veg", cuisine: ["neapolitan"],
     profile: "E", sauceFamilies: ["nosause","dairy"],
-    store: "cm", note: "Classic Neapolitan bianca — blanch first or slice paper thin",
+    store: "cm",
+    note: "Classic Neapolitan bianca — slice paper thin or blanch first",
     qty: { unit: "2 medium potatoes", yield_g: 300 },
   },
   {
@@ -650,7 +820,7 @@ const TOPPINGS = [
     layer: "veg", cuisine: ["greek","northafrican"],
     profile: "E", sauceFamilies: ["dairy","nosause","herb"],
     store: "cm", store2: "sara",
-    note: "Pre-roast and slice — pairs with feta or labneh",
+    note: "Pre-roast and slice thin — pairs with feta or goat cheese",
     qty: { unit: "3 medium beets", yield_g: 300 },
   },
   {
@@ -664,7 +834,9 @@ const TOPPINGS = [
     id: "piquillo_peppers", name: "Piquillo peppers",
     layer: "veg", cuisine: ["neapolitan","northafrican"],
     profile: "S", sauceFamilies: ["tomato","dairy","spicepaste"],
-    store: "cm", note: "Sweet and smoky — drain and pat dry",
+    store: "cm",
+    desc: "Spanish roasted sweet-smoky peppers — more intense than regular roasted peppers.",
+    note: "Drain and pat dry",
     qty: { unit: "jar (290g)", yield_g: 180 },
   },
   {
@@ -674,25 +846,117 @@ const TOPPINGS = [
     store: "sara", note: "Roast at 400°F with za'atar + olive oil first",
     qty: { unit: "2 medium onions", yield_g: 250 },
   },
+  {
+    id: "broccoli_rabe", name: "Broccoli rabe (rapini)",
+    layer: "veg", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["tomato","dairy","nosause","herb"],
+    store: "cm",
+    desc: "Bitter Italian greens — not broccoli, more pungent and leafy. Blanch first to tame bitterness.",
+    note: "Blanch 2 min in salted water, sauté with garlic and chili before adding",
+    qty: { unit: "bunch (250g)", yield_g: 250 },
+  },
+  {
+    id: "zucchini_roasted", name: "Zucchini (roasted)",
+    layer: "veg", cuisine: ["neapolitan","greek","northafrican","levantine"],
+    profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
+    store: "cm", store2: "sara",
+    note: "Slice thin, roast at 400°F until edges brown — never raw on pizza",
+    qty: { unit: "1 medium zucchini", yield_g: 200 },
+  },
+  {
+    id: "fennel_roasted", name: "Fennel (shaved or roasted)",
+    layer: "veg", cuisine: ["neapolitan","northafrican"],
+    profile: "S", sauceFamilies: ["tomato","dairy","nosause","herb"],
+    store: "cm",
+    desc: "Anise-flavored bulb vegetable — sweet and aromatic when roasted, becomes mild and caramelized.",
+    note: "Roast until caramelized or shave raw paper-thin for white pies",
+    qty: { unit: "1 fennel bulb", yield_g: 200 },
+  },
+  {
+    id: "roasted_garlic_cloves", name: "Roasted garlic cloves",
+    layer: "veg", cuisine: ["neapolitan","american","greek","levantine","turkish"],
+    profile: "C", sauceFamilies: ["tomato","dairy","nosause","herb","spicepaste"],
+    store: "cm",
+    note: "Roast whole head at 400°F for 40 min — cloves squeeze out sweet and jammy",
+    qty: { unit: "1 head garlic", yield_g: 50 },
+  },
+  {
+    id: "dried_apricots", name: "Dried apricots (chopped)",
+    layer: "veg", cuisine: ["northafrican","turkish","levantine"],
+    profile: "S", sauceFamilies: ["spicepaste","herb","dairy"],
+    store: "sara", store2: "cm",
+    desc: "Moroccan sweet-savory tradition — chopped apricots add sweetness against spiced lamb or merguez.",
+    note: "Chop small — sweet contrast against harissa or spiced meats only",
+    qty: { unit: "bag (200g)", yield_g: 200 },
+  },
+  {
+    id: "cauliflower_roasted", name: "Cauliflower (roasted)",
+    layer: "veg", cuisine: ["indian","neapolitan","levantine"],
+    profile: "S", sauceFamilies: ["spicepaste","dairy","tomato","nosause"],
+    store: "cm",
+    note: "Roast at 425°F until deeply golden — season with cumin for Indian pies",
+    qty: { unit: "½ head cauliflower", yield_g: 300 },
+  },
+  {
+    id: "green_pepper", name: "Green bell pepper",
+    layer: "veg", cuisine: ["american","mexican","turkish","levantine"],
+    profile: "C", sauceFamilies: ["tomato","spicepaste","dairy"],
+    store: "cm",
+    note: "Slice thin — pre-roast for sweetness or use raw for crunch",
+    qty: { unit: "1 pepper", yield_g: 150 },
+  },
+  {
+    id: "crispy_onions", name: "Crispy fried onions",
+    layer: "veg", cuisine: ["american","turkish","levantine","indian"],
+    profile: "C", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
+    store: "cm", postbake: true,
+    desc: "Packaged fried onions (French's or similar) — crunchy, savory, instant texture.",
+    note: "Post-bake only — add just before serving to keep crunch",
+    qty: { unit: "can (100g)", yield_g: 100 },
+  },
+  {
+    id: "pomegranate_arils", name: "Pomegranate arils",
+    layer: "veg", cuisine: ["levantine","turkish","northafrican","greek"],
+    profile: "S", sauceFamilies: ["dairy","herb","nosause","tomato"],
+    store: "sara", store2: "cm", postbake: true,
+    desc: "Fresh pomegranate seeds — burst of sweet-tart juice, jewel-like color. Post-bake garnish.",
+    note: "Post-bake only — scatter over finished pizza for color and acid pop",
+    qty: { unit: "1 pomegranate", yield_g: 150 },
+  },
 
-  // ══════════════════════════════════════════
-  // FINISH (post-bake or last 30s)
-  // ══════════════════════════════════════════
+  // ══ FINISH ══════════════════════════════════════════════════
   {
     id: "fresh_basil", name: "Fresh basil",
     layer: "finish", cuisine: ["neapolitan","greek","american","levantine","turkish"],
     profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "cm", postbake: true,
-    note: "Post-bake always — wilts and blackens in the oven",
+    note: "Post-bake always — wilts and blackens in oven",
     qty: { unit: "bunch", yield_g: 30 },
+  },
+  {
+    id: "dried_oregano", name: "Dried oregano",
+    layer: "finish", cuisine: ["neapolitan","greek","american","levantine","turkish"],
+    profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
+    store: "cm", postbake: true,
+    note: "Post-bake or last 30s — essential on marinara and Greek pies",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
     id: "fresh_mint", name: "Fresh mint",
     layer: "finish", cuisine: ["levantine","turkish","greek","northafrican"],
     profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause","spicepaste"],
     store: "sara", store2: "cm", postbake: true,
-    note: "Post-bake — Turkish and Levantine classic",
+    note: "Post-bake — Turkish and Levantine classic finish",
     qty: { unit: "bunch", yield_g: 20 },
+  },
+  {
+    id: "dried_mint", name: "Dried mint",
+    layer: "finish", cuisine: ["levantine","turkish","greek","northafrican"],
+    profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
+    store: "sara", store2: "altin", postbake: true,
+    desc: "Dried and crumbled mint — more concentrated than fresh, used differently in Levantine cooking.",
+    note: "Rub between fingers before sprinkling — releases oils",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
     id: "fresh_cilantro", name: "Fresh cilantro",
@@ -715,6 +979,7 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["levantine","turkish","northafrican","greek"],
     profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "sara", store2: "altin", postbake: true,
+    desc: "Ground dried sumac berry — intensely lemony and tart. Essential Levantine spice.",
     note: "Post-bake — lemony, essential on Levantine and Turkish pies",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
@@ -723,6 +988,7 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["levantine","turkish","northafrican"],
     profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "sara", store2: "altin", postbake: true,
+    desc: "Blend of dried thyme, sumac, sesame and salt — earthy, herbaceous, nutty.",
     note: "Post-bake or last 30 seconds",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
@@ -731,6 +997,7 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["indian"],
     profile: "C", sauceFamilies: ["spicepaste","dairy"],
     store: "cm", postbake: true,
+    desc: "Indian spice blend — tangy, salty, cumin-forward with amchur (dried mango powder). Transformative finish.",
     note: "Post-bake — tangy, umami, essential on Indian pies",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
@@ -747,15 +1014,24 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["greek","levantine","northafrican","neapolitan"],
     profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "cm", postbake: true,
-    note: "Post-bake — brightens everything, underused finish",
+    note: "Post-bake — brightens everything, criminally underused",
     qty: { unit: "1 lemon per 2–3 pizzas", yield_g: 0 },
   },
   {
     id: "hot_honey", name: "Hot honey drizzle",
     layer: "finish", cuisine: ["american","neapolitan"],
-    profile: "S", sauceFamilies: ["tomato","dairy","spicepaste"],
+    profile: "S", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
     store: "cm", postbake: true,
-    note: "Calabrian chili style — post-bake drizzle",
+    note: "Calabrian style — post-bake drizzle. Essential with gorgonzola.",
+    qty: { unit: "bottle (pantry)", yield_g: 0 },
+  },
+  {
+    id: "balsamic_glaze", name: "Balsamic glaze (Modena)",
+    layer: "finish", cuisine: ["neapolitan","american","greek"],
+    profile: "S", sauceFamilies: ["tomato","dairy","nosause","herb"],
+    store: "cm", postbake: true,
+    desc: "Reduced balsamic vinegar from Modena — thick, sweet-sour syrup. Not regular balsamic vinegar.",
+    note: "Post-bake drizzle — classic with burrata, bresaola, arugula",
     qty: { unit: "bottle (pantry)", yield_g: 0 },
   },
   {
@@ -763,7 +1039,8 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["levantine","northafrican","turkish"],
     profile: "E", sauceFamilies: ["tomato","dairy","herb","spicepaste"],
     store: "sara", postbake: true,
-    note: "Post-bake — sweet-sour depth, use sparingly",
+    desc: "Reduced pomegranate juice — thick, intensely sweet-sour. Used across Levantine and Turkish cooking.",
+    note: "Post-bake — use sparingly, very concentrated",
     qty: { unit: "bottle (pantry)", yield_g: 0 },
   },
   {
@@ -771,15 +1048,43 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["levantine","northafrican","turkish"],
     profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause"],
     store: "sara", postbake: true,
+    desc: "Sesame paste thinned with lemon juice — nutty, rich, pairs with almost any Levantine pie.",
     note: "Thin with lemon juice before drizzling — post-bake",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
-    id: "red_chili_flakes", name: "Dried chili flakes",
+    id: "red_chili_flakes", name: "Dried red chili flakes",
     layer: "finish", cuisine: ["neapolitan","american","indian","turkish","levantine"],
     profile: "C", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
     store: "cm", postbake: true,
-    note: "Post-bake — Calabrian preferred for Neapolitan, Aleppo for Levantine",
+    note: "Calabrian preferred for Neapolitan, Aleppo for Levantine — post-bake",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
+  },
+  {
+    id: "calabrian_chili_oil", name: "Calabrian chili oil (finish)",
+    layer: "finish", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
+    store: "cm", postbake: true,
+    desc: "Oily, fruity Calabrian chili condiment — different from dried flakes. Spreadable and intensely flavored.",
+    note: "Post-bake drizzle — a little goes far",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
+  },
+  {
+    id: "aleppo_pepper", name: "Aleppo pepper flakes",
+    layer: "finish", cuisine: ["levantine","turkish","northafrican","american"],
+    profile: "C", sauceFamilies: ["tomato","dairy","herb","spicepaste","nosause"],
+    store: "sara", store2: "altin", postbake: true,
+    desc: "Syrian dried chili — fruity, moderately hot, oily texture. Completely different from regular chili flakes. A Levantine and American crossover staple.",
+    note: "Post-bake — use instead of regular chili flakes on Levantine and Turkish pies",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
+  },
+  {
+    id: "kashmiri_chili", name: "Kashmiri chili (dusted)",
+    layer: "finish", cuisine: ["indian"],
+    profile: "S", sauceFamilies: ["spicepaste","dairy"],
+    store: "cm", postbake: true,
+    desc: "Mild Indian chili with deep red color — more about color and gentle warmth than heat. Used in tandoori and tikka.",
+    note: "Post-bake dust — vibrant red color, mild warmth",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
@@ -787,15 +1092,17 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["northafrican","levantine","greek"],
     profile: "E", sauceFamilies: ["dairy","herb","nosause","tomato"],
     store: "sara", postbake: true,
-    note: "Nut-herb-spice blend — post-bake, pairs with labneh or feta",
+    desc: "Egyptian blend of roasted nuts, sesame, coriander and cumin — crunchy, aromatic, textural.",
+    note: "Post-bake — pairs with labneh or goat cheese pies",
     qty: { unit: "bag (pantry)", yield_g: 0 },
   },
   {
-    id: "urfa_biber", name: "Urfa biber flakes",
+    id: "urfa_biber", name: "Urfa biber / Isot pepper flakes",
     layer: "finish", cuisine: ["turkish","levantine"],
     profile: "S", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
     store: "altin", postbake: true,
-    note: "Dark, smoky, raisin-forward heat — post-bake",
+    desc: "Turkish dried chili from Urfa — also sold as Isot biber or Isot pepper. Dark burgundy, smoky, raisin-like sweetness. Very different from Aleppo.",
+    note: "Post-bake — dark, smoky, complex. Look for 'Isot biber' if you can't find Urfa",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
@@ -803,7 +1110,7 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["mexican","american","indian","levantine"],
     profile: "S", sauceFamilies: ["tomato","spicepaste","dairy"],
     store: "cm", store2: "sara", postbake: true,
-    note: "Post-bake contrast — make or buy",
+    note: "Post-bake contrast — make or buy jarred",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
@@ -811,7 +1118,7 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["neapolitan","greek","american"],
     profile: "S", sauceFamilies: ["tomato","dairy","nosause"],
     store: "cm", postbake: true,
-    note: "Toss in lemon + EVOO — post-bake on top",
+    note: "Toss in lemon + EVOO — drape over hot pizza post-bake. Classic with bresaola.",
     qty: { unit: "bag (80g)", yield_g: 80 },
   },
   {
@@ -819,15 +1126,15 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["indian"],
     profile: "S", sauceFamilies: ["spicepaste","dairy"],
     store: "cm", postbake: true,
-    note: "Thin with warm water — post-bake drizzle",
+    note: "Thin with warm water — post-bake drizzle only",
     qty: { unit: "jar (pantry)", yield_g: 0 },
   },
   {
-    id: "lime_crema", name: "Lime crema (dolloped)",
+    id: "lime_crema", name: "Lime crema",
     layer: "finish", cuisine: ["mexican"],
     profile: "C", sauceFamilies: ["tomato","spicepaste"],
     store: "cm", postbake: true,
-    note: "Sour cream + fresh lime juice — post-bake",
+    note: "Sour cream + fresh lime juice — post-bake dollop",
     qty: { unit: "sour cream (200g)", yield_g: 200 },
   },
   {
@@ -835,7 +1142,95 @@ const TOPPINGS = [
     layer: "finish", cuisine: ["northafrican","levantine","turkish"],
     profile: "E", sauceFamilies: ["herb","tomato","spicepaste"],
     store: "sara", postbake: true,
-    note: "Herb-forward, fresher than red — post-bake drizzle",
+    desc: "Herb-based harissa — fresher, greener and less smoky than red harissa.",
+    note: "Post-bake drizzle — herb-forward contrast",
     qty: { unit: "jar (pantry)", yield_g: 0 },
+  },
+  {
+    id: "parmigiano", name: "Parmigiano-Reggiano (shaved)",
+    layer: "finish", cuisine: ["neapolitan","american","greek"],
+    profile: "C", sauceFamilies: ["tomato","dairy","nosause","herb"],
+    store: "cm", postbake: true,
+    desc: "Aged Italian hard cheese — deep umami, nutty, complex. Always shaved post-bake, never melted on pizza.",
+    note: "Post-bake always — shave with peeler over hot pizza",
+    qty: { unit: "wedge (100g covers 4–5 pizzas)", yield_g: 100 },
+  },
+  {
+    id: "pecorino", name: "Pecorino Romano (shaved)",
+    layer: "finish", cuisine: ["neapolitan","american"],
+    profile: "C", sauceFamilies: ["tomato","dairy","nosause"],
+    store: "cm", postbake: true,
+    desc: "Aged Italian sheep's milk cheese — saltier and sharper than Parmigiano. Traditional in Southern Italian and Neapolitan cooking.",
+    note: "Post-bake shave — saltier than Parmigiano, use less",
+    qty: { unit: "wedge (100g covers 4–5 pizzas)", yield_g: 100 },
+  },
+  {
+    id: "toasted_walnuts", name: "Toasted walnuts",
+    layer: "finish", cuisine: ["neapolitan","american","northafrican","greek"],
+    profile: "S", sauceFamilies: ["dairy","nosause","tomato"],
+    store: "cm", postbake: true,
+    note: "Toast in dry pan first — essential with gorgonzola and honey",
+    qty: { unit: "bag (100g)", yield_g: 100 },
+  },
+  {
+    id: "toasted_pine_nuts", name: "Toasted pine nuts",
+    layer: "finish", cuisine: ["neapolitan","levantine","northafrican","greek"],
+    profile: "S", sauceFamilies: ["tomato","dairy","herb","nosause"],
+    store: "cm", store2: "sara", postbake: true,
+    note: "Toast until golden — scatter post-bake",
+    qty: { unit: "bag (100g)", yield_g: 100 },
+  },
+  {
+    id: "pistachios", name: "Pistachios (crushed)",
+    layer: "finish", cuisine: ["levantine","northafrican","neapolitan"],
+    profile: "S", sauceFamilies: ["dairy","nosause","herb"],
+    store: "cm", store2: "sara", postbake: true,
+    desc: "Crushed pistachios as finish — Sicilian pistachio pizza is a real and wonderful thing. Pairs with ricotta or burrata.",
+    note: "Crush roughly — post-bake scatter over ricotta or burrata pies",
+    qty: { unit: "bag (100g)", yield_g: 100 },
+  },
+  {
+    id: "sesame_seeds", name: "Toasted sesame seeds",
+    layer: "finish", cuisine: ["turkish","levantine","northafrican","indian"],
+    profile: "C", sauceFamilies: ["tomato","dairy","herb","nosause","spicepaste"],
+    store: "altin", store2: "sara", postbake: true,
+    desc: "Toasted white or black sesame — nutty, subtle, essential in Turkish and Levantine baking.",
+    note: "Post-bake scatter — toast first in dry pan",
+    qty: { unit: "bag (pantry)", yield_g: 0 },
+  },
+  {
+    id: "nigella_seeds", name: "Nigella seeds (kalonji)",
+    layer: "finish", cuisine: ["turkish","indian","levantine"],
+    profile: "E", sauceFamilies: ["spicepaste","dairy","nosause"],
+    store: "altin", store2: "sara", postbake: true,
+    desc: "Black seeds with onion-like, slightly smoky flavor — used in Turkish bread and Indian cooking. Also called black cumin or kalonji.",
+    note: "Post-bake scatter — very small amount, distinctive flavor",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
+  },
+  {
+    id: "smoked_paprika", name: "Smoked paprika (dusted)",
+    layer: "finish", cuisine: ["northafrican","turkish","american","greek"],
+    profile: "C", sauceFamilies: ["tomato","dairy","spicepaste","nosause"],
+    store: "cm", postbake: true,
+    note: "Post-bake dust — Spanish smoked, not sweet paprika",
+    qty: { unit: "jar (pantry)", yield_g: 0 },
+  },
+  {
+    id: "truffle_oil", name: "Truffle oil (drizzle)",
+    layer: "finish", cuisine: ["neapolitan","american"],
+    profile: "S", sauceFamilies: ["nosause","dairy","tomato"],
+    store: "cm", postbake: true,
+    desc: "Truffle-infused olive oil — earthy, aromatic, luxurious. Classic on bianca with mushrooms or potato.",
+    note: "Post-bake only — a few drops, heat kills the aroma",
+    qty: { unit: "bottle (pantry)", yield_g: 0 },
+  },
+  {
+    id: "maldon_salt", name: "Maldon salt flakes",
+    layer: "finish", cuisine: ["neapolitan","american","greek","levantine"],
+    profile: "C", sauceFamilies: ["tomato","dairy","nosause","herb","spicepaste"],
+    store: "cm", postbake: true,
+    desc: "English sea salt with large, crunchy flakes — adds mineral pop and texture. Different from regular salt.",
+    note: "Post-bake — crumble over burrata, bresaola or any bianca pie",
+    qty: { unit: "box (pantry)", yield_g: 0 },
   },
 ];

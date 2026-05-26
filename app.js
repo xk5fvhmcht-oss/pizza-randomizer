@@ -1,6 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js
-// v1.1.0
+// OMAR'S PIE — app.js v1.2.0
 // ============================================================
 
 // ── THEME ───────────────────────────────────────────────────
@@ -17,30 +16,28 @@ function applyTheme(t) {
 
 // ── STATE ────────────────────────────────────────────────────
 const state = {
-  selectedCuisines: [],    // max 2
-  selectedSauce:    null,  // topping object
+  selectedCuisines: [],
+  selectedSauce:    null,
   ovenMode:         "dome",
   complexity:       "classic",
   currentPizza:     null,
-  pinnedItems: new Set(JSON.parse(localStorage.getItem("op_pinned")  || "[]")),
-  bannedItems: new Set(JSON.parse(localStorage.getItem("op_banned")  || "[]")),
-  history:           JSON.parse(localStorage.getItem("op_history") || "[]"),
+  anchoredItems: new Set(JSON.parse(localStorage.getItem("op_anchored") || "[]")),
+  excludedItems:  new Set(JSON.parse(localStorage.getItem("op_excluded")  || "[]")),
+  history:        JSON.parse(localStorage.getItem("op_history")  || "[]"),
+  libraryFilter:  null, // null | "anchored" | "excluded"
 };
 
 const $ = id => document.getElementById(id);
 
 // ── PERSIST ──────────────────────────────────────────────────
-function savePinned()  { localStorage.setItem("op_pinned",  JSON.stringify([...state.pinnedItems])); }
-function saveBanned()  { localStorage.setItem("op_banned",  JSON.stringify([...state.bannedItems])); }
-function saveHistory() { localStorage.setItem("op_history", JSON.stringify(state.history.slice(-20))); }
+function saveAnchored() { localStorage.setItem("op_anchored", JSON.stringify([...state.anchoredItems])); }
+function saveExcluded()  { localStorage.setItem("op_excluded",  JSON.stringify([...state.excludedItems]));  }
+function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(-20))); }
 
 // ── SCREEN NAV ───────────────────────────────────────────────
-function showScreen(name, direction) {
-  const all = document.querySelectorAll(".screen");
-  all.forEach(s => {
-    const isNext = s.id === "screen-" + name;
-    s.classList.toggle("active", isNext);
-    s.classList.toggle("slide-out", !isNext && s.classList.contains("active"));
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => {
+    s.classList.toggle("active", s.id === "screen-" + name);
   });
   window.scrollTo(0, 0);
 }
@@ -68,7 +65,6 @@ function toggleCuisine(id) {
   const idx = state.selectedCuisines.indexOf(id);
   if (idx === -1) {
     if (state.selectedCuisines.length >= 2) {
-      // Hard cap — pulse the existing selections as feedback
       document.querySelectorAll(".cuisine-tile.selected").forEach(t => {
         t.classList.add("shake");
         setTimeout(() => t.classList.remove("shake"), 400);
@@ -84,19 +80,16 @@ function toggleCuisine(id) {
 
 function updateCuisineUI() {
   const sel = state.selectedCuisines;
-
   document.querySelectorAll(".cuisine-tile").forEach(tile => {
     const id = tile.dataset.id;
     const isSelected = sel.includes(id);
     tile.classList.toggle("selected", isSelected);
     tile.setAttribute("aria-pressed", isSelected ? "true" : "false");
-
-    // Affinity highlight when one cuisine is chosen
-    if (sel.length === 1) {
+    if (sel.length === 1 && !isSelected) {
       const isAffinity = CUISINE_AFFINITIES.some(
-        pair => pair.includes(sel[0]) && pair.includes(id) && id !== sel[0]
+        pair => pair.includes(sel[0]) && pair.includes(id)
       );
-      tile.classList.toggle("affinity", isAffinity && !isSelected);
+      tile.classList.toggle("affinity", isAffinity);
     } else {
       tile.classList.remove("affinity");
     }
@@ -118,22 +111,32 @@ function updateCuisineUI() {
   warn.style.display = clashText ? "flex" : "none";
   $("clash-text").textContent = clashText;
 
-  // Update roll-to-sauce button
   const canProceed = sel.length > 0;
   $("btn-to-sauce").disabled = !canProceed;
-  const label = sel.length === 0
+  $("proceed-hint").textContent = sel.length === 0
     ? "Pick a cuisine to continue"
     : sel.length === 1
-      ? `${CUISINES.find(c=>c.id===sel[0]).label} · Choose your sauce`
-      : `${CUISINES.find(c=>c.id===sel[0]).label} + ${CUISINES.find(c=>c.id===sel[1]).label} fusion`;
-  $("proceed-hint").textContent = label;
+      ? `${CUISINES.find(c => c.id === sel[0]).label} · Choose your sauce →`
+      : `${CUISINES.find(c => c.id === sel[0]).label} + ${CUISINES.find(c => c.id === sel[1]).label} fusion`;
 }
 
-// Surprise Me — pick from affinity pairs only
+// Surprise Me
 $("btn-surprise").addEventListener("click", () => {
   const pick = CUISINE_AFFINITIES[Math.floor(Math.random() * CUISINE_AFFINITIES.length)];
   state.selectedCuisines = [...pick];
   updateCuisineUI();
+});
+
+// Reset
+$("btn-reset").addEventListener("click", () => {
+  state.selectedCuisines = [];
+  state.selectedSauce = null;
+  state.ovenMode = "dome";
+  state.complexity = "classic";
+  document.querySelectorAll(".oven-btn").forEach(b => b.classList.toggle("active", b.dataset.oven === "dome"));
+  document.querySelectorAll(".complexity-btn").forEach(b => b.classList.toggle("active", b.dataset.complexity === "classic"));
+  updateCuisineUI();
+  showToast("Selections cleared");
 });
 
 // ── OVEN TOGGLE ───────────────────────────────────────────────
@@ -154,7 +157,7 @@ document.querySelectorAll(".complexity-btn").forEach(btn => {
   });
 });
 
-// ── PROCEED TO SAUCE SCREEN ──────────────────────────────────
+// ── PROCEED TO SAUCE ─────────────────────────────────────────
 $("btn-to-sauce").addEventListener("click", () => {
   buildSauceScreen();
   showScreen("sauce");
@@ -167,44 +170,26 @@ function buildSauceScreen() {
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const cuisines   = state.selectedCuisines;
 
-  // Is there a clash? Determine if we should nudge tomato
   const hasClash = cuisines.length === 2 && CUISINE_CLASHES.some(
     pair => pair.includes(cuisines[0]) && pair.includes(cuisines[1])
   );
-
-  const clashBanner = $("sauce-clash-banner");
-  clashBanner.style.display = hasClash ? "flex" : "none";
-
-  // Get eligible sauces
-  // A sauce is eligible if:
-  // 1. It matches the selected cuisine(s) — always
-  // 2. It's "nosause" — always
-  // 3. It's tomato-family AND not cuisine-locked — universal tomato sauces only
-  //    Cuisine-locked: tomatillo (mexican), shakshuka (northafrican/levantine), 
-  //                    roja (mexican), tikka/makhani (indian), lahmajun (turkish/levantine)
-  //    Universal tomato: san_marzano, passata (broad cuisine arrays)
-  const cuisineLockedSauces = new Set([
-    "tomatillo_sauce", "shakshuka_sauce", "roja_sauce",
-    "tikka_sauce", "makhani_sauce", "lahmajun_spread",
-    "chipotle_base",
-  ]);
+  $("sauce-clash-banner").style.display = hasClash ? "flex" : "none";
 
   const sauces = TOPPINGS.filter(t =>
     t.layer === "sauce" &&
     profileSet.includes(t.profile) &&
-    !state.bannedItems.has(t.id) &&
+    !state.excludedItems.has(t.id) &&
     (
-      // Always: match selected cuisine
       (cuisines.length > 0 && t.cuisine.some(c => cuisines.includes(c))) ||
-      // Always: no-sauce option
       t.id === "nosause" ||
-      // Universal tomato (not cuisine-locked, broad availability)
-      (t.sauceFamilies.includes("tomato") && !cuisineLockedSauces.has(t.id)) ||
-      // Universal dairy/herb bases (labneh, yogurt, hummus, chermoula, bechamel)
-      // only if they match cuisine
-      false
+      (t.sauceFamilies.includes("tomato") && !CUISINE_LOCKED_SAUCES.has(t.id))
     )
   );
+
+  const familyEmoji = {
+    tomato: "🍅", dairy: "🥛", herb: "🌿",
+    spicepaste: "🌶️", meatbase: "🥩", nosause: "🍞",
+  };
 
   sauces.forEach(sauce => {
     const card = document.createElement("button");
@@ -213,22 +198,9 @@ function buildSauceScreen() {
     if (hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id !== "nosause") {
       card.classList.add("nudged");
     }
-
-    const familyEmoji = {
-      tomato:    "🍅",
-      dairy:     "🥛",
-      herb:      "🌿",
-      spicepaste:"🌶️",
-      meatbase:  "🥩",
-      nosause:   "🍞",
-    };
     const family = sauce.sauceFamilies[0];
-    const storeLabel = sauce.store ? STORES[sauce.store]?.name : "";
     const jarBadge = sauce.jarred
-      ? `<span class="sauce-badge jar">Jarred · ${sauce.brand || storeLabel}</span>`
-      : sauce.store
-        ? `<span class="sauce-badge store">${storeLabel}</span>`
-        : "";
+      ? `<span class="sauce-badge jar">Jarred · ${sauce.brand || ""}</span>` : "";
 
     card.innerHTML = `
       <div class="sauce-card-top">
@@ -237,33 +209,28 @@ function buildSauceScreen() {
         ${hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id !== "nosause"
           ? '<span class="safe-anchor-tag">safe anchor</span>' : ""}
       </div>
-      <p class="sauce-desc">${sauce.note}</p>
+      ${sauce.desc ? `<p class="sauce-desc">${sauce.desc}</p>` : `<p class="sauce-desc">${sauce.note || ""}</p>`}
       ${jarBadge}
     `;
-
     card.addEventListener("click", () => {
       state.selectedSauce = sauce;
       document.querySelectorAll(".sauce-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       $("btn-roll").disabled = false;
     });
-
     container.appendChild(card);
   });
 
-  $("btn-roll").disabled = state.selectedSauce === null;
+  $("btn-roll").disabled = !state.selectedSauce ||
+    !sauces.find(s => s.id === state.selectedSauce?.id);
 }
 
-$("btn-back-sauce").addEventListener("click", () => {
-  showScreen("setup");
-});
+$("btn-back-sauce").addEventListener("click", () => showScreen("setup"));
 
-// Surprise sauce
 $("btn-surprise-sauce").addEventListener("click", () => {
   const cards = document.querySelectorAll(".sauce-card");
   if (!cards.length) return;
-  const r = Math.floor(Math.random() * cards.length);
-  cards[r].click();
+  cards[Math.floor(Math.random() * cards.length)].click();
 });
 
 // ── ROLL ──────────────────────────────────────────────────────
@@ -273,7 +240,6 @@ $("btn-roll").addEventListener("click", () => {
   state.history.unshift({
     pizza: state.currentPizza,
     cuisines: [...state.selectedCuisines],
-    sauce: state.selectedSauce?.id,
     ts: Date.now(),
   });
   saveHistory();
@@ -288,100 +254,75 @@ function rollPizza() {
   const sauceFam   = sauce?.sauceFamilies || [];
   const pizza      = {};
 
-  // Base layer
+  // Base — optional
   const baseCandidates = TOPPINGS.filter(t =>
     t.layer === "base" &&
-    !state.bannedItems.has(t.id) &&
+    !state.excludedItems.has(t.id) &&
     profileSet.includes(t.profile) &&
     (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c))) &&
-    (sauceFam.length === 0 || t.sauceFamilies.some(f => sauceFam.includes(f)))
+    t.sauceFamilies.some(f => sauceFam.includes(f))
   );
-  const pinnedBase = baseCandidates.filter(t => state.pinnedItems.has(t.id));
-  const freeBase   = baseCandidates.filter(t => !state.pinnedItems.has(t.id));
-  // Base is optional — 50% chance if no pins
+  const pinnedBase = baseCandidates.filter(t => state.anchoredItems.has(t.id));
+  const freeBase   = baseCandidates.filter(t => !state.anchoredItems.has(t.id));
   pizza.base = pinnedBase.length > 0
     ? [...pinnedBase, ...weightedPick(freeBase, Math.max(0, 1 - pinnedBase.length))]
-    : Math.random() < 0.5 ? weightedPick(freeBase, 1) : [];
+    : Math.random() < 0.45 ? weightedPick(freeBase, 1) : [];
 
-  // Sauce is already chosen
+  // Sauce — already chosen
   pizza.sauce = [sauce];
 
-  // Remaining layers
+  // Lahmajun special — no cheese, no protein
+  const isLahmajun = sauce?.id === "lahmajun_spread";
+
   const layerConfig = {
-    cheese: {
-      count: state.complexity === "explorer" && Math.random() < 0.4 ? 2 : 1,
-    },
-    protein: {
-      count: Math.random() < 0.25 ? 0 : 1, // 75% chance of protein
-    },
-    veg: {
-      count: state.complexity === "classic" ? 2
-           : state.complexity === "standard" ? 3
-           : Math.floor(Math.random() * 2) + 3,
-    },
-    finish: {
-      count: state.complexity === "classic" ? 2
-           : state.complexity === "standard" ? 3
-           : 4,
-    },
+    cheese:  { count: isLahmajun ? 0 : (state.complexity === "explorer" && Math.random() < 0.35 ? 2 : 1) },
+    protein: { count: isLahmajun ? 0 : (Math.random() < 0.25 ? 0 : 1) },
+    veg:     { count: state.complexity === "classic" ? 2 : state.complexity === "standard" ? 3 : Math.floor(Math.random() * 2) + 3 },
+    finish:  { count: state.complexity === "classic" ? 2 : state.complexity === "standard" ? 3 : 4 },
   };
 
   ["cheese","protein","veg","finish"].forEach(layer => {
+    const n = layerConfig[layer].count;
+    if (n === 0) { pizza[layer] = []; return; }
+
     const candidates = TOPPINGS.filter(t =>
       t.layer === layer &&
-      !state.bannedItems.has(t.id) &&
+      !state.excludedItems.has(t.id) &&
       profileSet.includes(t.profile) &&
-      (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c))) &&
-      // Sauce affinity weighting — prefer items that match sauce family
-      true // filtering done below with weighting
+      (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
     );
 
-    const pinned   = candidates.filter(t => state.pinnedItems.has(t.id));
-    const unpinned = candidates.filter(t => !state.pinnedItems.has(t.id));
+    const anchored = candidates.filter(t => state.anchoredItems.has(t.id));
+    const free     = candidates.filter(t => !state.anchoredItems.has(t.id));
+    const matched  = free.filter(t => t.sauceFamilies.some(f => sauceFam.includes(f)));
+    const fallback = free.filter(t => !t.sauceFamilies.some(f => sauceFam.includes(f)));
 
-    // Split into affinity-matched vs. rest for weighted pick
-    const matched  = unpinned.filter(t => t.sauceFamilies.some(f => sauceFam.includes(f)));
-    const fallback = unpinned.filter(t => !t.sauceFamilies.some(f => sauceFam.includes(f)));
-
-    const n = layerConfig[layer].count;
-    if (n === 0) { pizza[layer] = [...pinned]; return; }
-
-    const needed = Math.max(0, n - pinned.length);
-    // 80% of picks from matched, 20% from fallback for variety
+    const needed       = Math.max(0, n - anchored.length);
     const fromMatched  = Math.min(needed, matched.length > 0 ? Math.ceil(needed * 0.8) : 0);
-    const fromFallback = needed - fromMatched;
+    const fromFallback = Math.min(needed - fromMatched, fallback.length);
+
     pizza[layer] = [
-      ...pinned,
+      ...anchored,
       ...weightedPick(matched, fromMatched),
-      ...weightedPick(fallback, Math.min(fromFallback, fallback.length)),
+      ...weightedPick(fallback, fromFallback),
     ];
   });
 
-  // Lahmajun special rule: if lahmajun spread chosen as sauce, remove protein
-  if (sauce?.id === "lahmajun_spread") {
-    pizza.protein = [];
-  }
-
-  // Oven-specific protein warnings are handled at render time
-  pizza._ovenMode  = state.ovenMode;
-  pizza._cuisines  = [...cuisines];
+  pizza._ovenMode   = state.ovenMode;
+  pizza._cuisines   = [...cuisines];
   pizza._complexity = state.complexity;
-  pizza._sauceId   = sauce?.id;
-
   return pizza;
 }
 
 function weightedPick(arr, n) {
-  if (n <= 0 || arr.length === 0) return [];
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(n, shuffled.length));
+  if (n <= 0 || !arr.length) return [];
+  return [...arr].sort(() => Math.random() - 0.5).slice(0, Math.min(n, arr.length));
 }
 
 // ── RENDER PIZZA ─────────────────────────────────────────────
 function renderPizza(pizza) {
   const container = $("pizza-layers");
   container.innerHTML = "";
-
   const oven = OVEN_GUIDANCE[pizza._ovenMode];
   const cuisineLabels = pizza._cuisines.map(id => {
     const c = CUISINES.find(x => x.id === id);
@@ -393,8 +334,7 @@ function renderPizza(pizza) {
 
   LAYER_ORDER.forEach(layer => {
     const items = pizza[layer];
-    if (!items || items.length === 0) return;
-
+    if (!items?.length) return;
     const meta    = LAYER_META[layer];
     const section = document.createElement("div");
     section.className = "layer-section";
@@ -410,79 +350,85 @@ function renderPizza(pizza) {
     items.forEach(item => {
       const card = document.createElement("div");
       card.className = "topping-card";
-      if (state.pinnedItems.has(item.id)) card.classList.add("pinned");
+      if (state.anchoredItems.has(item.id)) card.classList.add("anchored");
 
-      // Prep badge for proteins
+      // Prep badge
       let prepBadge = "";
       if (item.prep) {
-        const badgeClass = item.prep === PREP.RAW   ? "badge-raw"
-                         : item.prep === PREP.PRE   ? "badge-pre"
-                         : "badge-ready";
-        const badgeLabel = item.prep === PREP.RAW   ? "🟡 Raw-on"
-                         : item.prep === PREP.PRE   ? "🔴 Pre-cook"
-                         : "🟢 Ready";
-        prepBadge = `<span class="prep-badge ${badgeClass}">${badgeLabel}</span>`;
-
-        // Extra oven warning
-        if (item.prep === PREP.RAW && pizza._ovenMode === "steel" && (item.id === "shrimp" || item.id === "egg")) {
+        const cls   = item.prep === PREP.RAW ? "badge-raw" : item.prep === PREP.PRE ? "badge-pre" : "badge-ready";
+        const label = item.prep === PREP.RAW ? "🟡 Raw-on" : item.prep === PREP.PRE ? "🔴 Pre-cook" : "🟢 Ready";
+        prepBadge = `<span class="prep-badge ${cls}">${label}</span>`;
+        if (item.prep === PREP.RAW && pizza._ovenMode === "steel" && item.id === "egg") {
           prepBadge += `<span class="prep-badge badge-warn">⚠️ Check steel note</span>`;
         }
       }
-
-      // Post-bake flag
-      const postbakeFlag = item.postbake
-        ? `<span class="postbake-tag">Post-bake</span>` : "";
-
-      // Store tags shown in library only, not on result cards
-      const storeTag = "";
+      const postbakeFlag = item.postbake ? `<span class="postbake-tag">Post-bake</span>` : "";
+      const homemadeFlag = item.homemade ? `<span class="homemade-tag">📋 Recipe</span>` : "";
 
       card.innerHTML = `
         <div class="topping-top">
           <span class="topping-name">${item.name}</span>
           <div class="topping-actions">
-            <button class="act-btn pin-btn${state.pinnedItems.has(item.id) ? " is-pinned" : ""}"
-              data-id="${item.id}" title="${state.pinnedItems.has(item.id) ? "Unpin" : "Pin always"}" aria-label="Pin">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="${state.pinnedItems.has(item.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <button class="act-btn anchor-btn${state.anchoredItems.has(item.id) ? " is-anchored" : ""}"
+              data-id="${item.id}" title="${state.anchoredItems.has(item.id) ? "Remove anchor" : "Anchor always"}" aria-label="Anchor">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="${state.anchoredItems.has(item.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H8V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
             </button>
             <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" title="Swap" aria-label="Swap">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
             </button>
-            <button class="act-btn ban-btn" data-id="${item.id}" title="Never show" aria-label="Ban">
+            <button class="act-btn exclude-btn" data-id="${item.id}" title="Exclude always" aria-label="Exclude">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
             </button>
           </div>
         </div>
         <div class="topping-meta">
-          ${prepBadge}${postbakeFlag}${storeTag}
+          ${prepBadge}${postbakeFlag}${homemadeFlag}
         </div>
+        ${item.desc ? `<div class="topping-desc">${item.desc}</div>` : ""}
         ${item.note ? `<div class="topping-note">${item.note}</div>` : ""}
+        ${item.homemade && item.recipe ? renderRecipe(item.recipe) : ""}
       `;
 
-      // Events
-      card.querySelector(".pin-btn").addEventListener("click", e => {
+      // Anchor
+      card.querySelector(".anchor-btn").addEventListener("click", e => {
         e.stopPropagation();
         const id = e.currentTarget.dataset.id;
-        if (state.pinnedItems.has(id)) state.pinnedItems.delete(id);
-        else state.pinnedItems.add(id);
-        savePinned();
+        if (state.anchoredItems.has(id)) state.anchoredItems.delete(id);
+        else { state.anchoredItems.add(id); state.excludedItems.delete(id); }
+        saveAnchored(); saveExcluded();
         renderPizza(state.currentPizza);
       });
+      // Swap
       card.querySelector(".swap-btn").addEventListener("click", e => {
         e.stopPropagation();
         swapItem(e.currentTarget.dataset.id, e.currentTarget.dataset.layer);
       });
-      card.querySelector(".ban-btn").addEventListener("click", e => {
+      // Exclude
+      card.querySelector(".exclude-btn").addEventListener("click", e => {
         e.stopPropagation();
         const id = e.currentTarget.dataset.id;
-        state.bannedItems.add(id);
+        state.excludedItems.add(id);
         state.currentPizza[layer] = state.currentPizza[layer].filter(t => t.id !== id);
-        saveBanned();
+        saveExcluded();
         renderPizza(state.currentPizza);
+        showToast("Excluded from future rolls");
       });
+
+      // Recipe expand toggle
+      if (item.homemade && item.recipe) {
+        const recipeSection = card.querySelector(".recipe-section");
+        const toggle = card.querySelector(".recipe-toggle");
+        if (toggle && recipeSection) {
+          toggle.addEventListener("click", e => {
+            e.stopPropagation();
+            const isOpen = recipeSection.classList.toggle("open");
+            toggle.textContent = isOpen ? "Hide recipe ▲" : "Show recipe ▼";
+          });
+        }
+      }
 
       section.appendChild(card);
     });
-
     container.appendChild(section);
   });
 
@@ -501,23 +447,37 @@ function renderPizza(pizza) {
   container.appendChild(ovenSection);
 }
 
+function renderRecipe(recipe) {
+  return `
+    <button class="recipe-toggle">Show recipe ▼</button>
+    <div class="recipe-section">
+      <div class="recipe-makes">Makes: ${recipe.makes}</div>
+      <div class="recipe-heading">Ingredients</div>
+      <ul class="recipe-list">
+        ${recipe.ingredients.map(i => `<li>${i}</li>`).join("")}
+      </ul>
+      <div class="recipe-heading">Method</div>
+      <ol class="recipe-list recipe-method">
+        ${recipe.method.map(m => `<li>${m}</li>`).join("")}
+      </ol>
+    </div>
+  `;
+}
+
 function swapItem(oldId, layer) {
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const cuisines   = state.currentPizza._cuisines;
-  const sauceFam   = state.selectedSauce?.sauceFamilies || [];
-
   const candidates = TOPPINGS.filter(t =>
     t.layer === layer &&
-    !state.bannedItems.has(t.id) &&
-    !state.pinnedItems.has(t.id) &&
+    !state.excludedItems.has(t.id) &&
+    !state.anchoredItems.has(t.id) &&
     profileSet.includes(t.profile) &&
     (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
   );
   const currentIds = state.currentPizza[layer].map(t => t.id);
-  const alternatives = candidates.filter(t => !currentIds.includes(t.id));
-  if (!alternatives.length) { showToast("Nothing left to swap to"); return; }
-
-  const replacement = alternatives[Math.floor(Math.random() * alternatives.length)];
+  const alts = candidates.filter(t => !currentIds.includes(t.id));
+  if (!alts.length) { showToast("Nothing left to swap to"); return; }
+  const replacement = alts[Math.floor(Math.random() * alts.length)];
   state.currentPizza[layer] = state.currentPizza[layer].map(t => t.id === oldId ? replacement : t);
   renderPizza(state.currentPizza);
 }
@@ -531,7 +491,6 @@ $("btn-copy").addEventListener("click", () => {
     const c = CUISINES.find(x => x.id === id);
     return c ? `${c.emoji} ${c.label}` : id;
   }).join(" × ") || "Freestyle";
-
   const lines = [`🍕 ${cuisineLabels} — Omar's Pie`, `${oven.emoji} ${oven.label} · ${oven.time}`, ""];
   LAYER_ORDER.forEach(layer => {
     const items = p[layer];
@@ -544,10 +503,9 @@ $("btn-copy").addEventListener("click", () => {
     });
     lines.push("");
   });
-  lines.push("Built with Omar's Pie · https://xk5fvhmcht-oss.github.io/pizza-randomizer/");
-
+  lines.push("Omar's Pie · https://xk5fvhmcht-oss.github.io/pizza-randomizer/");
   navigator.clipboard.writeText(lines.join("\n"))
-    .then(()  => showToast("Copied to clipboard ✓"))
+    .then(()  => showToast("Copied ✓"))
     .catch(()  => showToast("Copy failed"));
 });
 
@@ -555,24 +513,17 @@ $("btn-copy").addEventListener("click", () => {
 $("btn-reroll").addEventListener("click", () => {
   state.currentPizza = rollPizza();
   renderPizza(state.currentPizza);
-  state.history.unshift({
-    pizza: state.currentPizza,
-    cuisines: [...state.selectedCuisines],
-    ts: Date.now(),
-  });
+  state.history.unshift({ pizza: state.currentPizza, cuisines: [...state.selectedCuisines], ts: Date.now() });
   saveHistory();
 });
 
 // ── BACK BUTTONS ──────────────────────────────────────────────
-$("btn-back-pizza").addEventListener("click", () => showScreen("sauce"));
+$("btn-back-pizza").addEventListener("click",   () => showScreen("sauce"));
 $("btn-back-history").addEventListener("click", () => showScreen("setup"));
-$("btn-back-library").addEventListener("click", () => showScreen("setup"));
+$("btn-back-library").addEventListener("click", () => { state.libraryFilter = null; showScreen("setup"); });
 
 // ── HISTORY ───────────────────────────────────────────────────
-$("btn-history").addEventListener("click", () => {
-  renderHistory();
-  showScreen("history");
-});
+$("btn-history").addEventListener("click", () => { renderHistory(); showScreen("history"); });
 
 function renderHistory() {
   const container = $("history-list");
@@ -586,13 +537,11 @@ function renderHistory() {
       const c = CUISINES.find(x => x.id === id);
       return c ? `${c.emoji} ${c.label}` : id;
     }).join(" × ") || "Freestyle";
-
     const summary = LAYER_ORDER.map(layer => {
       const items = entry.pizza[layer];
       if (!items?.length) return null;
       return `${LAYER_META[layer].emoji} ${items.map(t => t.name).join(", ")}`;
     }).filter(Boolean).join(" · ");
-
     const row = document.createElement("div");
     row.className = "history-entry";
     row.innerHTML = `
@@ -612,63 +561,101 @@ function renderHistory() {
 
 // ── LIBRARY ───────────────────────────────────────────────────
 $("btn-library").addEventListener("click", () => {
+  state.libraryFilter = null;
   renderLibrary();
   showScreen("library");
 });
 
 function renderLibrary() {
+  // Summary bar
+  const anchoredCount = state.anchoredItems.size;
+  const excludedCount  = state.excludedItems.size;
+  const summary = $("library-summary");
+  summary.innerHTML = `
+    <button class="lib-summary-btn ${state.libraryFilter === "anchored" ? "active" : ""}" data-filter="anchored">
+      📌 ${anchoredCount} Anchored
+    </button>
+    <button class="lib-summary-btn ${state.libraryFilter === "excluded" ? "active" : ""}" data-filter="excluded">
+      🚫 ${excludedCount} Excluded
+    </button>
+    ${state.libraryFilter ? '<button class="lib-summary-btn lib-clear-filter">← All toppings</button>' : ""}
+  `;
+  summary.querySelectorAll(".lib-summary-btn[data-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const f = btn.dataset.filter;
+      state.libraryFilter = state.libraryFilter === f ? null : f;
+      renderLibrary();
+    });
+  });
+  const clearBtn = summary.querySelector(".lib-clear-filter");
+  if (clearBtn) clearBtn.addEventListener("click", () => { state.libraryFilter = null; renderLibrary(); });
+
+  // Items
   const container = $("library-list");
   container.innerHTML = "";
+
+  let itemsToShow = TOPPINGS;
+  if (state.libraryFilter === "anchored") itemsToShow = TOPPINGS.filter(t => state.anchoredItems.has(t.id));
+  if (state.libraryFilter === "excluded")  itemsToShow = TOPPINGS.filter(t => state.excludedItems.has(t.id));
+
+  if (!itemsToShow.length) {
+    container.innerHTML = `<p class="empty-state">${state.libraryFilter === "anchored" ? "No anchored items." : "No excluded items."}</p>`;
+    return;
+  }
+
+  // Group by layer
   LAYER_ORDER.forEach(layer => {
-    const items = TOPPINGS.filter(t => t.layer === layer);
-    const meta  = LAYER_META[layer];
-    const sec   = document.createElement("div");
+    const items = itemsToShow.filter(t => t.layer === layer);
+    if (!items.length) return;
+    const meta = LAYER_META[layer];
+    const sec  = document.createElement("div");
     sec.className = "lib-section";
     sec.innerHTML = `<h3 class="lib-layer-title">${meta.emoji} ${meta.label}</h3>`;
 
     items.forEach(item => {
       const row = document.createElement("div");
       row.className = "lib-row";
-      if (state.bannedItems.has(item.id)) row.classList.add("is-banned");
-      if (state.pinnedItems.has(item.id)) row.classList.add("is-pinned");
+      if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
+      if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
 
       const cuisineFlags = item.cuisine.map(id => {
         const c = CUISINES.find(x => x.id === id);
         return c ? c.emoji : "";
       }).join(" ");
 
-      const storeTag = item.store
-        ? `<span class="lib-store" data-store="${item.store}">${STORES[item.store]?.short}</span>` : "";
-      const jarTag = item.jarred ? `<span class="lib-jar">jarred</span>` : "";
+      const storeTag  = item.store  ? `<span class="lib-store" data-store="${item.store}">${STORES[item.store]?.short}</span>` : "";
+      const store2Tag = item.store2 ? `<span class="lib-store" data-store="${item.store2}">${STORES[item.store2]?.short}</span>` : "";
+      const jarTag    = item.jarred ? `<span class="lib-jar">jarred</span>` : "";
+      const homemadeTag = item.homemade ? `<span class="lib-homemade">📋 recipe</span>` : "";
 
       row.innerHTML = `
         <div class="lib-row-top">
           <span class="lib-name">${item.name}</span>
           <span class="lib-cuisines">${cuisineFlags}</span>
           <span class="lib-profile">${item.profile}</span>
-          ${storeTag}${jarTag}
+          ${storeTag}${store2Tag}${jarTag}${homemadeTag}
         </div>
-        ${item.note ? `<div class="lib-note">${item.note}</div>` : ""}
+        ${item.desc ? `<div class="lib-note">${item.desc}</div>` : item.note ? `<div class="lib-note">${item.note}</div>` : ""}
         <div class="lib-actions">
-          <button class="lib-btn${state.pinnedItems.has(item.id) ? " active" : ""}" data-action="pin" data-id="${item.id}">
-            ${state.pinnedItems.has(item.id) ? "📌 Pinned" : "Pin"}
+          <button class="lib-btn${state.anchoredItems.has(item.id) ? " active" : ""}" data-action="anchor" data-id="${item.id}">
+            ${state.anchoredItems.has(item.id) ? "📌 Anchored" : "Anchor"}
           </button>
-          <button class="lib-btn${state.bannedItems.has(item.id) ? " active ban" : ""}" data-action="ban" data-id="${item.id}">
-            ${state.bannedItems.has(item.id) ? "🚫 Banned" : "Ban"}
+          <button class="lib-btn${state.excludedItems.has(item.id) ? " active ban" : ""}" data-action="exclude" data-id="${item.id}">
+            ${state.excludedItems.has(item.id) ? "🚫 Excluded" : "Exclude"}
           </button>
         </div>`;
 
       row.querySelectorAll(".lib-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const { action, id } = btn.dataset;
-          if (action === "pin") {
-            if (state.pinnedItems.has(id)) state.pinnedItems.delete(id);
-            else { state.pinnedItems.add(id); state.bannedItems.delete(id); }
-            savePinned(); saveBanned();
+          if (action === "anchor") {
+            if (state.anchoredItems.has(id)) state.anchoredItems.delete(id);
+            else { state.anchoredItems.add(id); state.excludedItems.delete(id); }
+            saveAnchored(); saveExcluded();
           } else {
-            if (state.bannedItems.has(id)) state.bannedItems.delete(id);
-            else { state.bannedItems.add(id); state.pinnedItems.delete(id); }
-            saveBanned(); savePinned();
+            if (state.excludedItems.has(id)) state.excludedItems.delete(id);
+            else { state.excludedItems.add(id); state.anchoredItems.delete(id); }
+            saveExcluded(); saveAnchored();
           }
           renderLibrary();
         });
@@ -679,24 +666,7 @@ function renderLibrary() {
   });
 }
 
-// ── RESET ─────────────────────────────────────────────────────
-$("btn-reset").addEventListener("click", () => {
-  // Clear cuisines
-  state.selectedCuisines = [];
-  // Clear sauce
-  state.selectedSauce = null;
-  // Reset oven to dome
-  state.ovenMode = "dome";
-  document.querySelectorAll(".oven-btn").forEach(b => b.classList.toggle("active", b.dataset.oven === "dome"));
-  // Reset complexity to classic
-  state.complexity = "classic";
-  document.querySelectorAll(".complexity-btn").forEach(b => b.classList.toggle("active", b.dataset.complexity === "classic"));
-  // Update UI
-  updateCuisineUI();
-  showToast("Selections cleared");
-});
-
-// ── THEME TOGGLE ─────────────────────────────────────────────
+// ── THEME ─────────────────────────────────────────────────────
 $("btn-theme").addEventListener("click", () => {
   applyTheme(currentTheme === "day" ? "night" : "day");
 });
@@ -709,13 +679,11 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("visible"), 2200);
 }
 
-// ── VERSION LABEL ────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────
 function init() {
   applyTheme(currentTheme);
   const vl = $("version-label");
-  if (vl && typeof APP_VERSION !== "undefined") {
-    vl.textContent = `v${APP_VERSION}`;
-  }
+  if (vl && typeof APP_VERSION !== "undefined") vl.textContent = `v${APP_VERSION}`;
   initCuisineGrid();
   updateCuisineUI();
 }

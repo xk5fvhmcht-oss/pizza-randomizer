@@ -11,62 +11,57 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <title>Omar's Pie</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <script>
-    // Set theme before first paint to prevent flash
     (function(){
       var t = localStorage.getItem("omars_pie_theme") || "day";
       document.documentElement.setAttribute("data-theme", t);
     })();
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="preload">
 
-<!-- UPDATE BANNER -->
 <div id="update-banner" style="display:none">
   <span>🍕 New version available</span>
   <button id="btn-update">Reload</button>
 </div>
 
-<!-- ════════════════════════════════════════
-     SCREEN 1 — SETUP
-════════════════════════════════════════ -->
+<!-- ═══════════ SCREEN 1 — SETUP ═══════════ -->
 <div id="screen-setup" class="screen active">
   <header class="app-header">
     <div class="header-brand">
       <span class="app-name">Omar's <em>Pie</em></span>
-      <span class="version-label" id="version-label">v1.1.2</span>
+      <span class="version-label" id="version-label">v1.2.0</span>
     </div>
-    <button class="btn-icon" id="btn-reset" title="Reset all selections" aria-label="Reset">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    <button class="btn-icon" id="btn-reset" title="Reset selections" aria-label="Reset">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
     </button>
     <button class="btn-icon" id="btn-theme" title="Toggle day/night" aria-label="Toggle theme">🌙</button>
     <button class="btn-icon" id="btn-history" title="History" aria-label="History">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </button>
     <button class="btn-icon" id="btn-library" title="Topping Library" aria-label="Library">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
     </button>
   </header>
 
   <main class="setup-main">
 
     <section class="section">
-      <h2 class="section-label">Flavor direction</h2>
-      <p class="section-sub">Pick up to 2 — green glow means a natural pairing</p>
+      <h2 class="section-heading">Flavor Direction</h2>
+      <p class="section-sub">Pick up to 2 cuisines — a soft green glow signals a natural pairing</p>
       <div class="cuisine-grid" id="cuisine-grid"></div>
       <div class="clash-warning" id="clash-warning" style="display:none">
-        <span>⚠️</span>
-        <span id="clash-text"></span>
+        <span>⚠️</span><span id="clash-text"></span>
       </div>
     </section>
 
     <div class="divider"></div>
 
     <section class="section">
-      <h2 class="section-label">Oven</h2>
+      <h2 class="section-heading">Oven</h2>
       <div class="toggle-row">
         <button class="toggle-btn oven-btn active" data-oven="dome">
           <span class="t-icon">🔥</span>
@@ -84,12 +79,13 @@
     <div class="divider"></div>
 
     <section class="section">
-      <h2 class="section-label">Range</h2>
+      <h2 class="section-heading">Range</h2>
+      <p class="section-sub">From traditional to novel</p>
       <div class="toggle-row">
         <button class="toggle-btn complexity-btn active" data-complexity="classic">
           <span class="t-icon">🍕</span>
           <span class="t-label">Classic</span>
-          <span class="t-note">Proven combos</span>
+          <span class="t-note">Traditional</span>
         </button>
         <button class="toggle-btn complexity-btn" data-complexity="standard">
           <span class="t-icon">🌿</span>
@@ -99,7 +95,7 @@
         <button class="toggle-btn complexity-btn" data-complexity="explorer">
           <span class="t-icon">🔥</span>
           <span class="t-label">Explorer</span>
-          <span class="t-note">Full range</span>
+          <span class="t-note">Novel</span>
         </button>
       </div>
     </section>
@@ -110,35 +106,29 @@
 
   <div class="roll-bar">
     <div class="roll-bar-inner">
-      <button class="btn-proceed" id="btn-to-sauce" disabled>
-        Choose your sauce →
-      </button>
+      <button class="btn-proceed" id="btn-to-sauce" disabled>Choose your sauce →</button>
       <span class="proceed-hint" id="proceed-hint">Pick a cuisine to continue</span>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════
-     SCREEN 2 — SAUCE
-════════════════════════════════════════ -->
+<!-- ═══════════ SCREEN 2 — SAUCE ═══════════ -->
 <div id="screen-sauce" class="screen">
   <header class="app-header">
     <button class="btn-icon" id="btn-back-sauce" aria-label="Back">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <div class="header-brand">
       <span class="app-name" style="font-size:1.1rem">Choose your <em>sauce</em></span>
     </div>
   </header>
-
   <main class="sauce-screen-main">
     <div class="sauce-clash-banner" id="sauce-clash-banner" style="display:none">
       <span>⚠️</span>
-      <span>Flavor clash detected — tomato-based sauces highlighted as safe anchors.</span>
+      <span>Flavor clash detected — tomato-based sauces are highlighted as safe anchors.</span>
     </div>
     <div class="sauce-grid" id="sauce-grid"></div>
   </main>
-
   <div class="sauce-bar">
     <div class="sauce-bar-inner">
       <button class="btn-ghost-sm" id="btn-surprise-sauce">🎲 Surprise</button>
@@ -147,72 +137,62 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════
-     SCREEN 3 — PIZZA RESULT
-════════════════════════════════════════ -->
+<!-- ═══════════ SCREEN 3 — PIZZA RESULT ═══════════ -->
 <div id="screen-pizza" class="screen">
   <header class="pizza-header">
     <button class="btn-icon" id="btn-back-pizza" aria-label="Back">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <div class="pizza-header-text">
       <div id="pizza-title">Your Pie</div>
       <div id="pizza-oven-label"></div>
     </div>
     <button class="btn-icon" id="btn-copy" aria-label="Copy recipe" title="Copy to clipboard">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
   </header>
-
   <main class="pizza-main" id="pizza-layers"></main>
-
   <div class="pizza-bar">
     <div class="pizza-bar-inner">
-      <button class="btn-ghost" id="btn-back-pizza-sauce" onclick="showScreen('sauce')">← Sauce</button>
+      <button class="btn-ghost" onclick="showScreen('sauce')">← Sauce</button>
       <button class="btn-primary" id="btn-reroll">Reroll 🎲</button>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════
-     SCREEN 4 — HISTORY
-════════════════════════════════════════ -->
+<!-- ═══════════ SCREEN 4 — HISTORY ═══════════ -->
 <div id="screen-history" class="screen">
   <header class="sub-header">
     <button class="btn-icon" id="btn-back-history" aria-label="Back">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <h2>History</h2>
   </header>
   <main class="sub-main" id="history-list"></main>
 </div>
 
-<!-- ════════════════════════════════════════
-     SCREEN 5 — LIBRARY
-════════════════════════════════════════ -->
+<!-- ═══════════ SCREEN 5 — LIBRARY ═══════════ -->
 <div id="screen-library" class="screen">
   <header class="sub-header">
     <button class="btn-icon" id="btn-back-library" aria-label="Back">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <h2>Topping Library</h2>
   </header>
+  <div class="library-summary" id="library-summary"></div>
   <main class="sub-main" id="library-list"></main>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ── SCRIPTS ── -->
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script>
-(function () {
+(function(){
+  document.body.classList.remove("preload");
   if (!("serviceWorker" in navigator)) return;
   navigator.serviceWorker.register("sw.js").then(reg => {
-    function checkWaiting(r) {
-      if (r.waiting) showBanner(r.waiting);
-    }
+    function checkWaiting(r) { if (r.waiting) showBanner(r.waiting); }
     checkWaiting(reg);
     reg.addEventListener("updatefound", () => {
       const w = reg.installing;
@@ -230,9 +210,6 @@
       window.location.reload();
     });
   }
-
-  // Remove preload class to re-enable transitions
-  document.body.classList.remove('preload');
   let refreshing = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!refreshing) { refreshing = true; window.location.reload(); }
