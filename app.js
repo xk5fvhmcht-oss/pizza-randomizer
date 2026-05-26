@@ -176,17 +176,33 @@ function buildSauceScreen() {
   clashBanner.style.display = hasClash ? "flex" : "none";
 
   // Get eligible sauces
+  // A sauce is eligible if:
+  // 1. It matches the selected cuisine(s) — always
+  // 2. It's "nosause" — always
+  // 3. It's tomato-family AND not cuisine-locked — universal tomato sauces only
+  //    Cuisine-locked: tomatillo (mexican), shakshuka (northafrican/levantine), 
+  //                    roja (mexican), tikka/makhani (indian), lahmajun (turkish/levantine)
+  //    Universal tomato: san_marzano, passata (broad cuisine arrays)
+  const cuisineLockedSauces = new Set([
+    "tomatillo_sauce", "shakshuka_sauce", "roja_sauce",
+    "tikka_sauce", "makhani_sauce", "lahmajun_spread",
+    "chipotle_base",
+  ]);
+
   const sauces = TOPPINGS.filter(t =>
     t.layer === "sauce" &&
     profileSet.includes(t.profile) &&
     !state.bannedItems.has(t.id) &&
     (
-      // Universal: tomato family always eligible
-      t.sauceFamilies.includes("tomato") ||
-      // "nosause" always eligible
+      // Always: match selected cuisine
+      (cuisines.length > 0 && t.cuisine.some(c => cuisines.includes(c))) ||
+      // Always: no-sauce option
       t.id === "nosause" ||
-      // Otherwise must match cuisine
-      (cuisines.length > 0 && t.cuisine.some(c => cuisines.includes(c)))
+      // Universal tomato (not cuisine-locked, broad availability)
+      (t.sauceFamilies.includes("tomato") && !cuisineLockedSauces.has(t.id)) ||
+      // Universal dairy/herb bases (labneh, yogurt, hummus, chermoula, bechamel)
+      // only if they match cuisine
+      false
     )
   );
 

@@ -1,6 +1,6 @@
 // ============================================================
 // OMAR'S PIE — data.js
-// v1.1.0
+// v1.1.1
 // Neapolitan style · Biga dough · Gozney Dome + Baking Steel
 // Pork-free by design
 // Cuisines: Neapolitan, Levantine, Turkish, Greek,
@@ -8,7 +8,7 @@
 // Layers: base → sauce → cheese → protein → veg → finish
 // ============================================================
 
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.1.1";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -316,7 +316,7 @@ const TOPPINGS = [
   },
   {
     id: "nosause", name: "No sauce — bianca",
-    layer: "sauce", cuisine: ["neapolitan","greek","levantine","turkish","northafrican","indian","american"],
+    layer: "sauce", cuisine: ["neapolitan","greek","levantine","turkish","northafrican","indian","american","mexican"],
     profile: "C", sauceFamilies: ["nosause"],
     store: null, note: "Relies on base oil and cheese for moisture — don't skip base layer",
     qty: { unit: "n/a", yield_g: 0 },

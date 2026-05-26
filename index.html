@@ -13,9 +13,16 @@
   <title>Omar's Pie</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    // Set theme before first paint to prevent flash
+    (function(){
+      var t = localStorage.getItem("omars_pie_theme") || "day";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="preload">
 
 <!-- UPDATE BANNER -->
 <div id="update-banner" style="display:none">
@@ -30,7 +37,7 @@
   <header class="app-header">
     <div class="header-brand">
       <span class="app-name">Omar's <em>Pie</em></span>
-      <span class="version-label" id="version-label">v1.1.0</span>
+      <span class="version-label" id="version-label">v1.1.1</span>
     </div>
     <button class="btn-icon" id="btn-theme" title="Toggle day/night" aria-label="Toggle theme">🌙</button>
     <button class="btn-icon" id="btn-history" title="History" aria-label="History">
@@ -220,6 +227,9 @@
       window.location.reload();
     });
   }
+
+  // Remove preload class to re-enable transitions
+  document.body.classList.remove('preload');
   let refreshing = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!refreshing) { refreshing = true; window.location.reload(); }

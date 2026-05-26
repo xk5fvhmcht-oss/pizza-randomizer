@@ -1,3 +1,6 @@
+/* Prevent theme flash on load */
+.preload * { transition: none !important; }
+
 /* ============================================================
    OMAR'S PIE — style.css v1.1.0
    Day mode: warm parchment, flour-dusted, terracotta
