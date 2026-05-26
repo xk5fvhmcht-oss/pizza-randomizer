@@ -1,12 +1,12 @@
 {
-  "name": "Pizza Randomizer",
-  "short_name": "Pizza",
-  "description": "Neapolitan pizza topping randomizer — pork-free, cuisine-themed, biga dough",
+  "name": "Omar's Pie",
+  "short_name": "Omar's Pie",
+  "description": "Neapolitan pizza topping randomizer — pork-free, cuisine-themed, biga dough, Gozney Dome",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
-  "background_color": "#0f0d0b",
-  "theme_color": "#0f0d0b",
+  "background_color": "#f5f0e8",
+  "theme_color": "#f5f0e8",
   "icons": [
     { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
     { "src": "icon-192.png",         "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },

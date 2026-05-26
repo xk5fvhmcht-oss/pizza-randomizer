@@ -4,58 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Pizza Randomizer">
-  <meta name="description" content="Neapolitan pizza topping randomizer — pork-free, cuisine-themed, biga dough">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Omar's Pie">
+  <meta name="description" content="Omar's Pie — Neapolitan pizza topping randomizer. Pork-free. Cuisine-themed. Biga dough.">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <title>Pizza Randomizer</title>
+  <title>Omar's Pie</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
+<!-- UPDATE BANNER -->
+<div id="update-banner" style="display:none">
+  <span>🍕 New version available</span>
+  <button id="btn-update">Reload</button>
+</div>
+
+<!-- ════════════════════════════════════════
      SCREEN 1 — SETUP
-════════════════════════════════════════════ -->
+════════════════════════════════════════ -->
 <div id="screen-setup" class="screen active">
   <header class="app-header">
-    <div style="flex:1">
-      <h1 class="app-title">Pizza <span class="ember">Randomizer</span></h1>
-      <span class="app-sub" id="version-label">Neapolitan · Biga · Pork-free</span>
+    <div class="header-brand">
+      <span class="app-name">Omar's <em>Pie</em></span>
+      <span class="version-label" id="version-label">v1.1.0</span>
     </div>
-    <button class="btn-icon" id="btn-history" aria-label="History" title="Pizza History">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <button class="btn-icon" id="btn-theme" title="Toggle day/night" aria-label="Toggle theme">🌙</button>
+    <button class="btn-icon" id="btn-history" title="History" aria-label="History">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </button>
-    <button class="btn-icon" id="btn-library" aria-label="Topping Library" title="Topping Library">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <button class="btn-icon" id="btn-library" title="Topping Library" aria-label="Library">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
     </button>
   </header>
 
-  <!-- UPDATE BANNER — shown when a new SW is waiting -->
-  <div id="update-banner" style="display:none">
-    <span>🍕 New version available</span>
-    <button id="btn-update">Reload</button>
-  </div>
-
   <main class="setup-main">
 
-    <!-- CUISINE SELECTION -->
     <section class="section">
-      <h2 class="section-label">Choose cuisine</h2>
-      <p class="section-hint">Select one or more — or let the app pick</p>
+      <h2 class="section-label">Flavor direction</h2>
+      <p class="section-sub">Pick up to 2 — green glow means a natural pairing</p>
       <div class="cuisine-grid" id="cuisine-grid"></div>
       <div class="clash-warning" id="clash-warning" style="display:none">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>⚠️</span>
         <span id="clash-text"></span>
       </div>
     </section>
 
     <div class="divider"></div>
 
-    <!-- OVEN MODE -->
     <section class="section">
       <h2 class="section-label">Oven</h2>
       <div class="toggle-row">
@@ -74,12 +73,11 @@
 
     <div class="divider"></div>
 
-    <!-- COMPLEXITY -->
     <section class="section">
-      <h2 class="section-label">Complexity</h2>
+      <h2 class="section-label">Range</h2>
       <div class="toggle-row">
         <button class="toggle-btn complexity-btn active" data-complexity="classic">
-          <span class="t-icon">🧺</span>
+          <span class="t-icon">🍕</span>
           <span class="t-label">Classic</span>
           <span class="t-note">Proven combos</span>
         </button>
@@ -89,137 +87,144 @@
           <span class="t-note">Elevated</span>
         </button>
         <button class="toggle-btn complexity-btn" data-complexity="explorer">
-          <span class="t-icon">🌶️</span>
+          <span class="t-icon">🔥</span>
           <span class="t-label">Explorer</span>
           <span class="t-note">Full range</span>
         </button>
       </div>
     </section>
 
-    <button class="btn-surprise" id="btn-surprise">🎲 Surprise me — pick a coherent combo</button>
+    <button class="btn-surprise" id="btn-surprise">🎲 Surprise me — pick a natural pairing</button>
 
   </main>
 
   <div class="roll-bar">
-    <div style="max-width:560px;margin:0 auto">
-      <button class="btn-roll" id="btn-roll" disabled>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-        Roll Pizza
+    <div class="roll-bar-inner">
+      <button class="btn-proceed" id="btn-to-sauce" disabled>
+        Choose your sauce →
       </button>
-      <span class="roll-hint" id="roll-hint">Select at least one cuisine</span>
+      <span class="proceed-hint" id="proceed-hint">Pick a cuisine to continue</span>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     SCREEN 2 — PIZZA RESULT
-════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     SCREEN 2 — SAUCE
+════════════════════════════════════════ -->
+<div id="screen-sauce" class="screen">
+  <header class="app-header">
+    <button class="btn-icon" id="btn-back-sauce" aria-label="Back">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-brand">
+      <span class="app-name" style="font-size:1.1rem">Choose your <em>sauce</em></span>
+    </div>
+  </header>
+
+  <main class="sauce-screen-main">
+    <div class="sauce-clash-banner" id="sauce-clash-banner" style="display:none">
+      <span>⚠️</span>
+      <span>Flavor clash detected — tomato-based sauces highlighted as safe anchors.</span>
+    </div>
+    <div class="sauce-grid" id="sauce-grid"></div>
+  </main>
+
+  <div class="sauce-bar">
+    <div class="sauce-bar-inner">
+      <button class="btn-ghost-sm" id="btn-surprise-sauce">🎲 Surprise</button>
+      <button class="btn-roll-main" id="btn-roll" disabled>Roll the Pie 🍕</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 3 — PIZZA RESULT
+════════════════════════════════════════ -->
 <div id="screen-pizza" class="screen">
   <header class="pizza-header">
     <button class="btn-icon" id="btn-back-pizza" aria-label="Back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <div class="pizza-header-text">
-      <div id="pizza-title">Pizza</div>
+      <div id="pizza-title">Your Pie</div>
       <div id="pizza-oven-label"></div>
     </div>
-    <button class="btn-icon" id="btn-copy" aria-label="Copy to clipboard" title="Copy recipe">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    <button class="btn-icon" id="btn-copy" aria-label="Copy recipe" title="Copy to clipboard">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
   </header>
 
-  <main class="pizza-main">
-    <div id="pizza-layers"></div>
-  </main>
+  <main class="pizza-main" id="pizza-layers"></main>
 
   <div class="pizza-bar">
-    <button class="btn-primary" id="btn-reroll">Reroll</button>
+    <div class="pizza-bar-inner">
+      <button class="btn-ghost" id="btn-back-pizza-sauce" onclick="showScreen('sauce')">← Sauce</button>
+      <button class="btn-primary" id="btn-reroll">Reroll 🎲</button>
+    </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     SCREEN 3 — HISTORY
-════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     SCREEN 4 — HISTORY
+════════════════════════════════════════ -->
 <div id="screen-history" class="screen">
-  <header class="sub-screen-header">
+  <header class="sub-header">
     <button class="btn-icon" id="btn-back-history" aria-label="Back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <h2>History</h2>
   </header>
-  <main class="sub-screen-main" id="history-list"></main>
+  <main class="sub-main" id="history-list"></main>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     SCREEN 4 — LIBRARY
-════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     SCREEN 5 — LIBRARY
+════════════════════════════════════════ -->
 <div id="screen-library" class="screen">
-  <header class="sub-screen-header">
+  <header class="sub-header">
     <button class="btn-icon" id="btn-back-library" aria-label="Back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <h2>Topping Library</h2>
   </header>
-  <main class="sub-screen-main" id="library-list"></main>
+  <main class="sub-main" id="library-list"></main>
 </div>
 
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ── SCRIPTS ─────────────────────────────── -->
-<!-- data.js must load first — defines APP_VERSION -->
+<!-- ── SCRIPTS ── -->
 <script src="data.js"></script>
 <script src="app.js"></script>
-
-<!-- Service Worker — registered after APP_VERSION is available -->
 <script>
 (function () {
-  // Show version in subtitle
-  const versionEl = document.getElementById("version-label");
-  if (versionEl && typeof APP_VERSION !== "undefined") {
-    versionEl.textContent = "Neapolitan · Biga · Pork-free · v" + APP_VERSION;
-  }
-
   if (!("serviceWorker" in navigator)) return;
-
-  // Pass version to SW scope so it names the cache correctly
-  if ("serviceWorker" in navigator) {
-    // Store version where SW can read it via postMessage after activation
-  }
-
   navigator.serviceWorker.register("sw.js").then(reg => {
-    // If a new SW is waiting (user already has an older version cached)
     function checkWaiting(r) {
-      if (r.waiting) showUpdateBanner(r.waiting);
+      if (r.waiting) showBanner(r.waiting);
     }
     checkWaiting(reg);
     reg.addEventListener("updatefound", () => {
-      const newWorker = reg.installing;
-      newWorker.addEventListener("statechange", () => {
-        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-          showUpdateBanner(newWorker);
-        }
+      const w = reg.installing;
+      w.addEventListener("statechange", () => {
+        if (w.state === "installed" && navigator.serviceWorker.controller) showBanner(w);
       });
     });
   });
-
-  function showUpdateBanner(worker) {
-    const banner = document.getElementById("update-banner");
-    if (!banner) return;
-    banner.style.display = "flex";
+  function showBanner(worker) {
+    const b = document.getElementById("update-banner");
+    if (!b) return;
+    b.style.display = "flex";
     document.getElementById("btn-update").addEventListener("click", () => {
       worker.postMessage({ type: "SKIP_WAITING" });
       window.location.reload();
     });
   }
-
-  // Reload page when SW takes control (after SKIP_WAITING)
   let refreshing = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!refreshing) { refreshing = true; window.location.reload(); }
   });
 })();
 </script>
-
 </body>
 </html>
