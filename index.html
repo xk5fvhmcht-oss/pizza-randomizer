@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pizza Randomizer">
+  <meta name="description" content="Neapolitan pizza topping randomizer — pork-free, cuisine-themed, biga dough">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <title>Pizza Randomizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 1 — SETUP
+════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen active">
+  <header class="app-header">
+    <div style="flex:1">
+      <h1 class="app-title">Pizza <span class="ember">Randomizer</span></h1>
+      <span class="app-sub" id="version-label">Neapolitan · Biga · Pork-free</span>
+    </div>
+    <button class="btn-icon" id="btn-history" aria-label="History" title="Pizza History">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </button>
+    <button class="btn-icon" id="btn-library" aria-label="Topping Library" title="Topping Library">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+  </header>
+
+  <!-- UPDATE BANNER — shown when a new SW is waiting -->
+  <div id="update-banner" style="display:none">
+    <span>🍕 New version available</span>
+    <button id="btn-update">Reload</button>
+  </div>
+
+  <main class="setup-main">
+
+    <!-- CUISINE SELECTION -->
+    <section class="section">
+      <h2 class="section-label">Choose cuisine</h2>
+      <p class="section-hint">Select one or more — or let the app pick</p>
+      <div class="cuisine-grid" id="cuisine-grid"></div>
+      <div class="clash-warning" id="clash-warning" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="clash-text"></span>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- OVEN MODE -->
+    <section class="section">
+      <h2 class="section-label">Oven</h2>
+      <div class="toggle-row">
+        <button class="toggle-btn oven-btn active" data-oven="dome">
+          <span class="t-icon">🔥</span>
+          <span class="t-label">Gozney Dome</span>
+          <span class="t-note">850–950°F · 60–90s</span>
+        </button>
+        <button class="toggle-btn oven-btn" data-oven="steel">
+          <span class="t-icon">🪨</span>
+          <span class="t-label">Baking Steel</span>
+          <span class="t-note">550°F broil · 4–6 min</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- COMPLEXITY -->
+    <section class="section">
+      <h2 class="section-label">Complexity</h2>
+      <div class="toggle-row">
+        <button class="toggle-btn complexity-btn active" data-complexity="classic">
+          <span class="t-icon">🧺</span>
+          <span class="t-label">Classic</span>
+          <span class="t-note">Proven combos</span>
+        </button>
+        <button class="toggle-btn complexity-btn" data-complexity="standard">
+          <span class="t-icon">🌿</span>
+          <span class="t-label">Curated</span>
+          <span class="t-note">Elevated</span>
+        </button>
+        <button class="toggle-btn complexity-btn" data-complexity="explorer">
+          <span class="t-icon">🌶️</span>
+          <span class="t-label">Explorer</span>
+          <span class="t-note">Full range</span>
+        </button>
+      </div>
+    </section>
+
+    <button class="btn-surprise" id="btn-surprise">🎲 Surprise me — pick a coherent combo</button>
+
+  </main>
+
+  <div class="roll-bar">
+    <div style="max-width:560px;margin:0 auto">
+      <button class="btn-roll" id="btn-roll" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Roll Pizza
+      </button>
+      <span class="roll-hint" id="roll-hint">Select at least one cuisine</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2 — PIZZA RESULT
+════════════════════════════════════════════ -->
+<div id="screen-pizza" class="screen">
+  <header class="pizza-header">
+    <button class="btn-icon" id="btn-back-pizza" aria-label="Back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="pizza-header-text">
+      <div id="pizza-title">Pizza</div>
+      <div id="pizza-oven-label"></div>
+    </div>
+    <button class="btn-icon" id="btn-copy" aria-label="Copy to clipboard" title="Copy recipe">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </button>
+  </header>
+
+  <main class="pizza-main">
+    <div id="pizza-layers"></div>
+  </main>
+
+  <div class="pizza-bar">
+    <button class="btn-primary" id="btn-reroll">Reroll</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 3 — HISTORY
+════════════════════════════════════════════ -->
+<div id="screen-history" class="screen">
+  <header class="sub-screen-header">
+    <button class="btn-icon" id="btn-back-history" aria-label="Back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <h2>History</h2>
+  </header>
+  <main class="sub-screen-main" id="history-list"></main>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 4 — LIBRARY
+════════════════════════════════════════════ -->
+<div id="screen-library" class="screen">
+  <header class="sub-screen-header">
+    <button class="btn-icon" id="btn-back-library" aria-label="Back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <h2>Topping Library</h2>
+  </header>
+  <main class="sub-screen-main" id="library-list"></main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ── SCRIPTS ─────────────────────────────── -->
+<!-- data.js must load first — defines APP_VERSION -->
+<script src="data.js"></script>
+<script src="app.js"></script>
+
+<!-- Service Worker — registered after APP_VERSION is available -->
+<script>
+(function () {
+  // Show version in subtitle
+  const versionEl = document.getElementById("version-label");
+  if (versionEl && typeof APP_VERSION !== "undefined") {
+    versionEl.textContent = "Neapolitan · Biga · Pork-free · v" + APP_VERSION;
+  }
+
+  if (!("serviceWorker" in navigator)) return;
+
+  // Pass version to SW scope so it names the cache correctly
+  if ("serviceWorker" in navigator) {
+    // Store version where SW can read it via postMessage after activation
+  }
+
+  navigator.serviceWorker.register("sw.js").then(reg => {
+    // If a new SW is waiting (user already has an older version cached)
+    function checkWaiting(r) {
+      if (r.waiting) showUpdateBanner(r.waiting);
+    }
+    checkWaiting(reg);
+    reg.addEventListener("updatefound", () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener("statechange", () => {
+        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+          showUpdateBanner(newWorker);
+        }
+      });
+    });
+  });
+
+  function showUpdateBanner(worker) {
+    const banner = document.getElementById("update-banner");
+    if (!banner) return;
+    banner.style.display = "flex";
+    document.getElementById("btn-update").addEventListener("click", () => {
+      worker.postMessage({ type: "SKIP_WAITING" });
+      window.location.reload();
+    });
+  }
+
+  // Reload page when SW takes control (after SKIP_WAITING)
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!refreshing) { refreshing = true; window.location.reload(); }
+  });
+})();
+</script>
+
+</body>
+</html>
