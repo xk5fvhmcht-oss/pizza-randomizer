@@ -433,10 +433,8 @@ function renderPizza(pizza) {
       const postbakeFlag = item.postbake
         ? `<span class="postbake-tag">Post-bake</span>` : "";
 
-      // Store tag
-      const storeTag = item.store
-        ? `<span class="store-tag" data-store="${item.store}">${STORES[item.store]?.short || item.store}</span>`
-        : "";
+      // Store tags shown in library only, not on result cards
+      const storeTag = "";
 
       card.innerHTML = `
         <div class="topping-top">
@@ -680,6 +678,23 @@ function renderLibrary() {
     container.appendChild(sec);
   });
 }
+
+// ── RESET ─────────────────────────────────────────────────────
+$("btn-reset").addEventListener("click", () => {
+  // Clear cuisines
+  state.selectedCuisines = [];
+  // Clear sauce
+  state.selectedSauce = null;
+  // Reset oven to dome
+  state.ovenMode = "dome";
+  document.querySelectorAll(".oven-btn").forEach(b => b.classList.toggle("active", b.dataset.oven === "dome"));
+  // Reset complexity to classic
+  state.complexity = "classic";
+  document.querySelectorAll(".complexity-btn").forEach(b => b.classList.toggle("active", b.dataset.complexity === "classic"));
+  // Update UI
+  updateCuisineUI();
+  showToast("Selections cleared");
+});
 
 // ── THEME TOGGLE ─────────────────────────────────────────────
 $("btn-theme").addEventListener("click", () => {

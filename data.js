@@ -8,7 +8,7 @@
 // Layers: base → sauce → cheese → protein → veg → finish
 // ============================================================
 
-const APP_VERSION = "1.1.1";
+const APP_VERSION = "1.1.2";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -20,14 +20,14 @@ const STORES = {
 
 // ── CUISINES ────────────────────────────────────────────────
 const CUISINES = [
-  { id: "neapolitan",   label: "Neapolitan",   emoji: "🍕", desc: "San Marzano · fior di latte · basil · EVOO" },
-  { id: "levantine",    label: "Levantine",    emoji: "🫙", desc: "Labneh · za'atar · sumac · pomegranate" },
+  { id: "neapolitan",   label: "Neapolitan",   emoji: "🍅", desc: "San Marzano · fior di latte · basil · EVOO" },
+  { id: "levantine",    label: "Levantine",    emoji: "🫓", desc: "Labneh · za'atar · sumac · pomegranate" },
   { id: "turkish",      label: "Turkish",      emoji: "🫕", desc: "Spiced lamb · kashkaval · peppers · yogurt" },
   { id: "greek",        label: "Greek",        emoji: "🫒", desc: "Feta · kalamata · oregano · lemon" },
   { id: "mexican",      label: "Mexican",      emoji: "🌶️", desc: "Chipotle · cotija · jalapeño · cilantro" },
   { id: "american",     label: "American",     emoji: "🧀", desc: "BBQ · aged cheddar · pickled · hot honey" },
   { id: "northafrican", label: "North African",emoji: "🪔", desc: "Harissa · preserved lemon · chermoula · dukkah" },
-  { id: "indian",       label: "Indian",       emoji: "🫙", desc: "Tikka masala · paneer · chaat masala · chutney" },
+  { id: "indian",       label: "Indian",       emoji: "🫚", desc: "Tikka masala · paneer · chaat masala · chutney" },
 ];
 
 // ── AFFINITIES & CLASHES ────────────────────────────────────
