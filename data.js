@@ -1,10 +1,10 @@
 // ============================================================
-// OMAR'S PIE — data.js v1.2.0
+// OMAR'S PIE — data.js v1.2.1
 // Neapolitan style · Biga dough · Gozney Dome + Baking Steel
 // Pork-free by design · All cuisines · Three stores
 // ============================================================
 
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.2.1";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────

@@ -293,17 +293,20 @@ body::before {
   display: block;
   width: 100%;
   background: none;
-  border: 1.5px dashed var(--border2);
+  border: 1.5px solid var(--border2);
   border-radius: var(--r-sm);
-  color: var(--text3);
-  font-family: var(--font-body);
-  font-size: 0.83rem;
-  padding: 11px;
+  color: var(--text2);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  font-weight: 500;
+  padding: 14px;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
   text-align: center;
+  letter-spacing: 0.01em;
 }
-.btn-surprise:hover { border-color: var(--terra); color: var(--terra); }
+.btn-surprise:hover { border-color: var(--terra); color: var(--terra); background: var(--terra-light); }
 
 /* ── ROLL BAR ── */
 .roll-bar {
@@ -950,3 +953,22 @@ body::before {
   font-family: var(--font-mono);
 }
 #toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Sauce screen surprise button — matches setup screen style, fits bottom bar */
+.btn-surprise-sauce-btn {
+  background: none;
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r-sm);
+  color: var(--text2);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+.btn-surprise-sauce-btn:hover { border-color: var(--terra); color: var(--terra); background: var(--terra-light); }
