@@ -1,5 +1,6 @@
 // ============================================================
-// OMAR'S PIE — app.js v1.3.0
+// OMAR'S PIE — app.js v1.4.0
+// Smart roll engine: flavor contrast · moisture · weight · presence
 // ============================================================
 
 // ── THEME ───────────────────────────────────────────────────
@@ -19,7 +20,7 @@ const state = {
   selectedCuisines: [],
   selectedSauce:    null,
   ovenMode:         "dome",
-  complexity:       "classic",
+  complexity:       "traditional",
   currentPizza:     null,
   anchoredItems: new Set(JSON.parse(localStorage.getItem("op_anchored") || "[]")),
   excludedItems:  new Set(JSON.parse(localStorage.getItem("op_excluded")  || "[]")),
@@ -31,23 +32,19 @@ const state = {
 
 const $ = id => document.getElementById(id);
 
-// ── PERSIST ──────────────────────────────────────────────────
 function saveAnchored() { localStorage.setItem("op_anchored", JSON.stringify([...state.anchoredItems])); }
 function saveExcluded()  { localStorage.setItem("op_excluded",  JSON.stringify([...state.excludedItems]));  }
 function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(-20))); }
 function saveSession()   { localStorage.setItem("op_session",   JSON.stringify(state.session)); }
 function saveSaved()     { localStorage.setItem("op_saved",     JSON.stringify(state.saved)); }
 
-// ── UTILS ────────────────────────────────────────────────────
-function uid() { return Math.random().toString(36).slice(2, 9); }
-function gToOz(g) { return (g / 28.35).toFixed(1); }
+function uid() { return Math.random().toString(36).slice(2,9); }
+function gToOz(g) { return (g/28.35).toFixed(1); }
 
 // ── SCREEN NAV ───────────────────────────────────────────────
 function showScreen(name) {
-  document.querySelectorAll(".screen").forEach(s => {
-    s.classList.toggle("active", s.id === "screen-" + name);
-  });
-  window.scrollTo(0, 0);
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === "screen-"+name));
+  window.scrollTo(0,0);
 }
 
 // ── CUISINE GRID ─────────────────────────────────────────────
@@ -132,14 +129,13 @@ $("btn-reset").addEventListener("click", () => {
   state.selectedCuisines = [];
   state.selectedSauce = null;
   state.ovenMode = "dome";
-  state.complexity = "classic";
+  state.complexity = "traditional";
   document.querySelectorAll(".oven-btn").forEach(b => b.classList.toggle("active", b.dataset.oven === "dome"));
-  document.querySelectorAll(".complexity-btn").forEach(b => b.classList.toggle("active", b.dataset.complexity === "classic"));
+  document.querySelectorAll(".complexity-btn").forEach(b => b.classList.toggle("active", b.dataset.complexity === "traditional"));
   updateCuisineUI();
   showToast("Selections cleared");
 });
 
-// ── OVEN / COMPLEXITY ─────────────────────────────────────────
 document.querySelectorAll(".oven-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".oven-btn").forEach(b => b.classList.remove("active"));
@@ -147,6 +143,7 @@ document.querySelectorAll(".oven-btn").forEach(btn => {
     state.ovenMode = btn.dataset.oven;
   });
 });
+
 document.querySelectorAll(".complexity-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".complexity-btn").forEach(b => b.classList.remove("active"));
@@ -187,15 +184,15 @@ function buildSauceScreen() {
     if (state.selectedSauce?.id === sauce.id) card.classList.add("selected");
     if (hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id !== "nosause") card.classList.add("nudged");
     const family = sauce.sauceFamilies[0];
-    const jarBadge = sauce.jarred ? `<span class="sauce-badge jar">Jarred · ${sauce.brand || ""}</span>` : "";
+    const jarBadge = sauce.jarred ? `<span class="sauce-badge jar">Jarred · ${sauce.brand||""}</span>` : "";
     card.innerHTML = `
       <div class="sauce-card-top">
-        <span class="sauce-family-emoji">${familyEmoji[family] || "🍕"}</span>
+        <span class="sauce-family-emoji">${familyEmoji[family]||"🍕"}</span>
         <span class="sauce-name">${sauce.name}</span>
         ${hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id !== "nosause"
           ? '<span class="safe-anchor-tag">safe anchor</span>' : ""}
       </div>
-      ${sauce.desc ? `<p class="sauce-desc">${sauce.desc}</p>` : `<p class="sauce-desc">${sauce.note || ""}</p>`}
+      ${sauce.desc ? `<p class="sauce-desc">${sauce.desc}</p>` : `<p class="sauce-desc">${sauce.note||""}</p>`}
       ${jarBadge}`;
     card.addEventListener("click", () => {
       state.selectedSauce = sauce;
@@ -214,7 +211,6 @@ $("btn-surprise-sauce").addEventListener("click", () => {
   if (cards.length) cards[Math.floor(Math.random() * cards.length)].click();
 });
 
-// ── ROLL ──────────────────────────────────────────────────────
 $("btn-roll").addEventListener("click", () => {
   state.currentPizza = rollPizza();
   renderPizza(state.currentPizza);
@@ -223,51 +219,115 @@ $("btn-roll").addEventListener("click", () => {
   showScreen("pizza");
 });
 
-// ── RANDOMIZATION ────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// SMART ROLL ENGINE v1.4.0
+// Tracks: flavor contrast · moisture budget · weight budget · presence
+// ══════════════════════════════════════════════════════════════
+
 function rollPizza() {
   const cuisines   = state.selectedCuisines;
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const sauce      = state.selectedSauce;
-  const sauceFam   = sauce?.sauceFamilies || [];
+  const sauceFam   = sauce?.sauceFamilies?.[0] || "tomato";
+  const buildProf  = SAUCE_BUILD_PROFILES[sauceFam] || SAUCE_BUILD_PROFILES.tomato;
   const pizza      = {};
-  const isLahmajun = sauce?.id === "lahmajun_spread";
 
-  // Base
-  const baseCands = TOPPINGS.filter(t =>
-    t.layer === "base" && !state.excludedItems.has(t.id) && profileSet.includes(t.profile) &&
-    (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c))) &&
-    t.sauceFamilies.some(f => sauceFam.includes(f))
-  );
-  const pinnedBase = baseCands.filter(t => state.anchoredItems.has(t.id));
-  const freeBase   = baseCands.filter(t => !state.anchoredItems.has(t.id));
-  pizza.base = pinnedBase.length > 0
-    ? [...pinnedBase, ...weightedPick(freeBase, Math.max(0, 1 - pinnedBase.length))]
-    : Math.random() < 0.45 ? weightedPick(freeBase, 1) : [];
-
-  pizza.sauce = [sauce];
-
-  const layerConfig = {
-    cheese:  { count: isLahmajun ? 0 : (state.complexity === "explorer" && Math.random() < 0.35 ? 2 : 1) },
-    protein: { count: isLahmajun ? 0 : (Math.random() < 0.25 ? 0 : 1) },
-    veg:     { count: state.complexity === "classic" ? 2 : state.complexity === "standard" ? 3 : Math.floor(Math.random() * 2) + 3 },
-    finish:  { count: state.complexity === "classic" ? 2 : state.complexity === "standard" ? 3 : 4 },
+  // ── BUDGET TRACKER ──────────────────────────────────────────
+  const budget = {
+    flavorNotes:    {},   // note → count, max 2 of any single note
+    highMoisture:   0,    // max 2 high-moisture items pre-bake
+    weightScore:    0,    // light=1, medium=2, heavy=3 — soft cap at 8
+    presenceByLayer:{},   // layer → anchor count, max 1 per layer
   };
 
-  ["cheese","protein","veg","finish"].forEach(layer => {
-    const n = layerConfig[layer].count;
-    if (n === 0) { pizza[layer] = []; return; }
-    const candidates = TOPPINGS.filter(t =>
-      t.layer === layer && !state.excludedItems.has(t.id) && profileSet.includes(t.profile) &&
-      (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
+  // Seed budget with sauce
+  if (sauce?.flavorNotes) sauce.flavorNotes.forEach(n => { budget.flavorNotes[n] = (budget.flavorNotes[n]||0)+1; });
+  if (sauce?.moisture === "high") budget.highMoisture++;
+  budget.weightScore += weightVal(sauce?.weight);
+
+  function weightVal(w) { return w === "light" ? 1 : w === "medium" ? 2 : w === "heavy" ? 3 : 0; }
+
+  function isBudgetOk(item, layer) {
+    if (!item) return false;
+    // Flavor note check — no note more than twice
+    if (item.flavorNotes) {
+      for (const note of item.flavorNotes) {
+        if ((budget.flavorNotes[note]||0) >= 2) return false;
+      }
+    }
+    // Moisture check — max 2 high pre-bake
+    if (item.moisture === "high" && !item.postbake) {
+      if (budget.highMoisture >= 2) return false;
+    }
+    // Weight check — soft cap at 8
+    if (budget.weightScore + weightVal(item.weight) > 9) return false;
+    // Presence check — max 1 anchor per layer
+    if (item.presence === "anchor") {
+      if ((budget.presenceByLayer[layer]||0) >= 1) return false;
+    }
+    return true;
+  }
+
+  function spendBudget(item, layer) {
+    if (!item) return;
+    if (item.flavorNotes) item.flavorNotes.forEach(n => { budget.flavorNotes[n] = (budget.flavorNotes[n]||0)+1; });
+    if (item.moisture === "high" && !item.postbake) budget.highMoisture++;
+    budget.weightScore += weightVal(item.weight);
+    if (item.presence === "anchor") budget.presenceByLayer[layer] = (budget.presenceByLayer[layer]||0)+1;
+  }
+
+  // ── BASE ────────────────────────────────────────────────────
+  const baseProf = buildProf.base;
+  const baseAppears = Math.random() < baseProf.prob;
+  if (baseAppears) {
+    const baseCands = getCandidates("base", cuisines, profileSet).filter(t =>
+      t.compatibleSauceFamilies?.includes(sauceFam) || t.id === "evoo_base" || t.id === "garlic_oil"
     );
-    const anchored  = candidates.filter(t => state.anchoredItems.has(t.id));
-    const free      = candidates.filter(t => !state.anchoredItems.has(t.id));
-    const matched   = free.filter(t => t.sauceFamilies.some(f => sauceFam.includes(f)));
-    const fallback  = free.filter(t => !t.sauceFamilies.some(f => sauceFam.includes(f)));
-    const needed       = Math.max(0, n - anchored.length);
-    const fromMatched  = Math.min(needed, matched.length > 0 ? Math.ceil(needed * 0.8) : 0);
-    const fromFallback = Math.min(needed - fromMatched, fallback.length);
-    pizza[layer] = [...anchored, ...weightedPick(matched, fromMatched), ...weightedPick(fallback, fromFallback)];
+    const anchored = baseCands.filter(t => state.anchoredItems.has(t.id));
+    const free     = baseCands.filter(t => !state.anchoredItems.has(t.id));
+    const picked   = [...anchored];
+    if (picked.length === 0) {
+      const candidate = smartPick(free, "base", 1);
+      picked.push(...candidate);
+    }
+    picked.forEach(t => spendBudget(t, "base"));
+    pizza.base = picked;
+  } else {
+    pizza.base = state.anchoredItems.size > 0
+      ? getCandidates("base", cuisines, profileSet).filter(t => state.anchoredItems.has(t.id))
+      : [];
+    pizza.base.forEach(t => spendBudget(t, "base"));
+  }
+
+  // ── SAUCE ────────────────────────────────────────────────────
+  pizza.sauce = [sauce];
+
+  // ── REMAINING LAYERS ─────────────────────────────────────────
+  const layerOrder = ["cheese","protein","veg","finish"];
+
+  layerOrder.forEach(layer => {
+    const lp = buildProf[layer];
+    if (!lp) { pizza[layer] = []; return; }
+
+    // Check anchored items first
+    const anchored = getCandidates(layer, cuisines, profileSet)
+      .filter(t => state.anchoredItems.has(t.id) && isBudgetOk(t, layer));
+    anchored.forEach(t => spendBudget(t, layer));
+
+    const appears = Math.random() < lp.prob;
+    if (!appears && anchored.length === 0) { pizza[layer] = []; return; }
+
+    const [minCount, maxCount] = lp.count;
+    const targetCount = anchored.length > 0
+      ? Math.max(anchored.length, minCount + Math.floor(Math.random() * (maxCount - minCount + 1)))
+      : minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
+
+    const needed = Math.max(0, targetCount - anchored.length);
+    const free   = getCandidates(layer, cuisines, profileSet)
+      .filter(t => !state.anchoredItems.has(t.id) && !state.excludedItems.has(t.id));
+
+    const additional = smartPick(free, layer, needed);
+    pizza[layer] = [...anchored, ...additional];
   });
 
   pizza._ovenMode   = state.ovenMode;
@@ -276,9 +336,44 @@ function rollPizza() {
   return pizza;
 }
 
-function weightedPick(arr, n) {
-  if (n <= 0 || !arr.length) return [];
-  return [...arr].sort(() => Math.random() - 0.5).slice(0, Math.min(n, arr.length));
+// ── CANDIDATE FILTER ─────────────────────────────────────────
+function getCandidates(layer, cuisines, profileSet) {
+  return TOPPINGS.filter(t =>
+    t.layer === layer &&
+    profileSet.includes(t.profile) &&
+    !state.excludedItems.has(t.id) &&
+    (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
+  );
+}
+
+// ── SMART PICK ───────────────────────────────────────────────
+// Picks n items from candidates respecting budget constraints
+// Prioritizes sauce-family affinity, then contrast, then random
+function smartPick(candidates, layer, n) {
+  if (n <= 0 || !candidates.length) return [];
+  const sauce     = state.selectedSauce;
+  const sauceFam  = sauce?.sauceFamilies || [];
+  const picked    = [];
+  const remaining = [...candidates].sort(() => Math.random() - 0.5); // shuffle for variety
+
+  for (const candidate of remaining) {
+    if (picked.length >= n) break;
+    if (!isBudgetOk(candidate, layer)) continue;
+
+    // Redundancy check within already picked for this layer
+    const isDuplicate = picked.some(p => {
+      // Same flavor profile — don't pick two items with identical primary notes
+      const sharedNotes = (p.flavorNotes||[]).filter(n => (candidate.flavorNotes||[]).includes(n));
+      return sharedNotes.length >= 2; // too similar
+    });
+    if (isDuplicate) continue;
+
+    // Presence constraint already checked in isBudgetOk
+    picked.push(candidate);
+    spendBudget(candidate, layer);
+  }
+
+  return picked;
 }
 
 // ── RENDER PIZZA ─────────────────────────────────────────────
@@ -318,9 +413,9 @@ function renderPizza(pizza) {
           prepBadge += `<span class="prep-badge badge-warn">⚠️ Check steel note</span>`;
         }
       }
-      const postbakeFlag  = item.postbake  ? `<span class="postbake-tag">Post-bake</span>` : "";
-      const homemadeFlag  = item.homemade  ? `<span class="homemade-tag">📋 Recipe</span>` : "";
-      const makeAheadFlag = item.make_ahead ? `<span class="make-ahead-tag">⏱️ ${item.make_ahead_timing || "Make ahead"}</span>` : "";
+      const postbakeFlag  = item.postbake   ? `<span class="postbake-tag">Post-bake</span>` : "";
+      const homemadeFlag  = item.homemade   ? `<span class="homemade-tag">📋 Recipe</span>` : "";
+      const makeAheadFlag = item.make_ahead ? `<span class="make-ahead-tag">⏱️ ${item.make_ahead_timing||"Make ahead"}</span>` : "";
 
       card.innerHTML = `
         <div class="topping-top">
@@ -382,7 +477,6 @@ function renderPizza(pizza) {
     container.appendChild(section);
   });
 
-  // Oven guide
   const ovenSec = document.createElement("div");
   ovenSec.className = "oven-guide";
   ovenSec.innerHTML = `
@@ -401,19 +495,17 @@ function renderRecipe(recipe) {
     <div class="recipe-section">
       <div class="recipe-makes">Makes: ${recipe.makes}</div>
       <div class="recipe-heading">Ingredients</div>
-      <ul class="recipe-list">${recipe.ingredients.map(i => `<li>${i}</li>`).join("")}</ul>
+      <ul class="recipe-list">${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul>
       <div class="recipe-heading">Method</div>
-      <ol class="recipe-list recipe-method">${recipe.method.map(m => `<li>${m}</li>`).join("")}</ol>
+      <ol class="recipe-list recipe-method">${recipe.method.map(m=>`<li>${m}</li>`).join("")}</ol>
     </div>`;
 }
 
 function swapItem(oldId, layer) {
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const cuisines   = state.currentPizza._cuisines;
-  const candidates = TOPPINGS.filter(t =>
-    t.layer === layer && !state.excludedItems.has(t.id) && !state.anchoredItems.has(t.id) &&
-    profileSet.includes(t.profile) && (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
-  );
+  const candidates = getCandidates(layer, cuisines, profileSet)
+    .filter(t => !state.anchoredItems.has(t.id) && !state.excludedItems.has(t.id));
   const currentIds = state.currentPizza[layer].map(t => t.id);
   const alts = candidates.filter(t => !currentIds.includes(t.id));
   if (!alts.length) { showToast("Nothing left to swap to"); return; }
@@ -423,8 +515,6 @@ function swapItem(oldId, layer) {
 }
 
 // ── PIZZA RESULT ACTIONS ──────────────────────────────────────
-
-// Save pie
 $("btn-save-pie").addEventListener("click", () => {
   if (!state.currentPizza) return;
   const cuisineLabels = state.currentPizza._cuisines.map(id => {
@@ -432,37 +522,20 @@ $("btn-save-pie").addEventListener("click", () => {
     return c ? `${c.emoji} ${c.label}` : id;
   }).join(" + ") || "My Pie";
   const name = prompt("Name this pie:", cuisineLabels);
-  if (name === null) return; // cancelled
-  const saved = {
-    id: "saved_" + uid(),
-    name: name.trim() || cuisineLabels,
-    cuisines: [...state.currentPizza._cuisines],
-    pizza: state.currentPizza,
-    savedAt: Date.now(),
-  };
-  state.saved.unshift(saved);
+  if (name === null) return;
+  state.saved.unshift({ id:"saved_"+uid(), name:name.trim()||cuisineLabels, cuisines:[...state.currentPizza._cuisines], pizza:state.currentPizza, savedAt:Date.now() });
   saveSaved();
   showToast("Pie saved 🗂️");
 });
 
-// Add to shopping list
 $("btn-add-to-list").addEventListener("click", () => {
   if (!state.currentPizza) return;
-  if (state.session.length >= 6) {
-    showToast("Session full — max 6 pizzas");
-    return;
-  }
+  if (state.session.length >= 6) { showToast("Session full — max 6 pizzas"); return; }
   const cuisineLabels = state.currentPizza._cuisines.map(id => {
     const c = CUISINES.find(x => x.id === id);
     return c ? `${c.emoji} ${c.label}` : id;
   }).join(" + ") || "My Pie";
-  state.session.push({
-    id: "sess_" + uid(),
-    pizzaName: cuisineLabels,
-    pizza: state.currentPizza,
-    count: 1,
-    checked: {},
-  });
+  state.session.push({ id:"sess_"+uid(), pizzaName:cuisineLabels, pizza:state.currentPizza, count:1, checked:{} });
   saveSession();
   updateSessionBadge();
   showToast("Added to shopping list 🛒");
@@ -472,31 +545,23 @@ $("btn-copy").addEventListener("click", () => {
   if (!state.currentPizza) return;
   const p = state.currentPizza;
   const oven = OVEN_GUIDANCE[p._ovenMode];
-  const cuisineLabels = p._cuisines.map(id => {
-    const c = CUISINES.find(x => x.id === id); return c ? `${c.emoji} ${c.label}` : id;
-  }).join(" × ") || "Freestyle";
+  const cuisineLabels = p._cuisines.map(id => { const c = CUISINES.find(x => x.id === id); return c ? `${c.emoji} ${c.label}` : id; }).join(" × ") || "Freestyle";
   const lines = [`🍕 ${cuisineLabels} — Omar's Pie`, `${oven.emoji} ${oven.label} · ${oven.time}`, ""];
   LAYER_ORDER.forEach(layer => {
     const items = p[layer];
     if (!items?.length) return;
     lines.push(`${LAYER_META[layer].emoji} ${LAYER_META[layer].label}:`);
-    items.forEach(t => {
-      const prep = t.prep ? ` [${t.prep}]` : "";
-      const pb   = t.postbake ? " [post-bake]" : "";
-      lines.push(`  • ${t.name}${prep}${pb}${t.note ? " — " + t.note : ""}`);
-    });
+    items.forEach(t => { const prep = t.prep ? ` [${t.prep}]` : ""; const pb = t.postbake ? " [post-bake]" : ""; lines.push(`  • ${t.name}${prep}${pb}${t.note ? " — "+t.note : ""}`); });
     lines.push("");
   });
   lines.push("Omar's Pie · https://xk5fvhmcht-oss.github.io/pizza-randomizer/");
-  navigator.clipboard.writeText(lines.join("\n"))
-    .then(() => showToast("Copied ✓"))
-    .catch(() => showToast("Copy failed"));
+  navigator.clipboard.writeText(lines.join("\n")).then(()=>showToast("Copied ✓")).catch(()=>showToast("Copy failed"));
 });
 
 $("btn-reroll").addEventListener("click", () => {
   state.currentPizza = rollPizza();
   renderPizza(state.currentPizza);
-  state.history.unshift({ pizza: state.currentPizza, cuisines: [...state.selectedCuisines], ts: Date.now() });
+  state.history.unshift({ pizza:state.currentPizza, cuisines:[...state.selectedCuisines], ts:Date.now() });
   saveHistory();
 });
 
@@ -519,28 +584,16 @@ $("btn-history").addEventListener("click", () => { renderHistory(); showScreen("
 function renderHistory() {
   const container = $("history-list");
   container.innerHTML = "";
-  if (!state.history.length) {
-    container.innerHTML = `<p class="empty-state">No pies rolled yet.</p>`;
-    return;
-  }
-  state.history.slice(0, 15).forEach((entry, i) => {
-    const cuisineLabels = entry.cuisines.map(id => {
-      const c = CUISINES.find(x => x.id === id); return c ? `${c.emoji} ${c.label}` : id;
-    }).join(" × ") || "Freestyle";
-    const summary = LAYER_ORDER.map(layer => {
-      const items = entry.pizza[layer];
-      if (!items?.length) return null;
-      return `${LAYER_META[layer].emoji} ${items.map(t => t.name).join(", ")}`;
-    }).filter(Boolean).join(" · ");
+  if (!state.history.length) { container.innerHTML = `<p class="empty-state">No pies rolled yet.</p>`; return; }
+  state.history.slice(0,15).forEach((entry,i) => {
+    const cuisineLabels = entry.cuisines.map(id => { const c = CUISINES.find(x=>x.id===id); return c?`${c.emoji} ${c.label}`:id; }).join(" × ") || "Freestyle";
+    const summary = LAYER_ORDER.map(layer => { const items = entry.pizza[layer]; if (!items?.length) return null; return `${LAYER_META[layer].emoji} ${items.map(t=>t.name).join(", ")}`; }).filter(Boolean).join(" · ");
     const row = document.createElement("div");
     row.className = "history-entry";
-    row.innerHTML = `
-      <div class="history-title">${cuisineLabels}</div>
-      <div class="history-summary">${summary}</div>
-      <button class="btn-ghost history-reload" data-idx="${i}">Reload this pie</button>`;
+    row.innerHTML = `<div class="history-title">${cuisineLabels}</div><div class="history-summary">${summary}</div><button class="btn-ghost history-reload" data-idx="${i}">Reload this pie</button>`;
     row.querySelector(".history-reload").addEventListener("click", () => {
       state.currentPizza = entry.pizza;
-      state.selectedCuisines = [...(entry.cuisines || [])];
+      state.selectedCuisines = [...(entry.cuisines||[])];
       updateCuisineUI();
       renderPizza(state.currentPizza);
       showScreen("pizza");
@@ -550,29 +603,18 @@ function renderHistory() {
 }
 
 // ── LIBRARY ───────────────────────────────────────────────────
-$("btn-library").addEventListener("click", () => {
-  state.libraryFilter = null;
-  renderLibrary();
-  showScreen("library");
-});
+$("btn-library").addEventListener("click", () => { state.libraryFilter = null; renderLibrary(); showScreen("library"); });
 
 function renderLibrary() {
   const anchoredCount = state.anchoredItems.size;
   const excludedCount  = state.excludedItems.size;
   const summary = $("library-summary");
   summary.innerHTML = `
-    <button class="lib-summary-btn ${state.libraryFilter === "anchored" ? "active" : ""}" data-filter="anchored">
-      📌 ${anchoredCount} Anchored
-    </button>
-    <button class="lib-summary-btn ${state.libraryFilter === "excluded" ? "active" : ""}" data-filter="excluded">
-      🚫 ${excludedCount} Excluded
-    </button>
+    <button class="lib-summary-btn ${state.libraryFilter==="anchored"?"active":""}" data-filter="anchored">📌 ${anchoredCount} Anchored</button>
+    <button class="lib-summary-btn ${state.libraryFilter==="excluded"?"active":""}" data-filter="excluded">🚫 ${excludedCount} Excluded</button>
     ${state.libraryFilter ? '<button class="lib-summary-btn lib-clear-filter">← All toppings</button>' : ""}`;
   summary.querySelectorAll(".lib-summary-btn[data-filter]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.libraryFilter = state.libraryFilter === btn.dataset.filter ? null : btn.dataset.filter;
-      renderLibrary();
-    });
+    btn.addEventListener("click", () => { state.libraryFilter = state.libraryFilter===btn.dataset.filter?null:btn.dataset.filter; renderLibrary(); });
   });
   const clearBtn = summary.querySelector(".lib-clear-filter");
   if (clearBtn) clearBtn.addEventListener("click", () => { state.libraryFilter = null; renderLibrary(); });
@@ -582,10 +624,8 @@ function renderLibrary() {
   let items = TOPPINGS;
   if (state.libraryFilter === "anchored") items = TOPPINGS.filter(t => state.anchoredItems.has(t.id));
   if (state.libraryFilter === "excluded")  items = TOPPINGS.filter(t => state.excludedItems.has(t.id));
-  if (!items.length) {
-    container.innerHTML = `<p class="empty-state">${state.libraryFilter === "anchored" ? "No anchored items." : "No excluded items."}</p>`;
-    return;
-  }
+  if (!items.length) { container.innerHTML = `<p class="empty-state">${state.libraryFilter==="anchored"?"No anchored items.":"No excluded items."}</p>`; return; }
+
   LAYER_ORDER.forEach(layer => {
     const layerItems = items.filter(t => t.layer === layer);
     if (!layerItems.length) return;
@@ -598,10 +638,11 @@ function renderLibrary() {
       row.className = "lib-row";
       if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
       if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
-      const cuisineFlags = item.cuisine.map(id => { const c = CUISINES.find(x => x.id === id); return c ? c.emoji : ""; }).join(" ");
-      const storeTags = (item.stores || []).map(s => `<span class="lib-store" data-store="${s}">${STORES[s]?.short || s}</span>`).join("");
+      const cuisineFlags = item.cuisine.map(id => { const c = CUISINES.find(x=>x.id===id); return c?c.emoji:""; }).join(" ");
+      const storeTags = (item.stores||[]).map(s=>`<span class="lib-store" data-store="${s}">${STORES[s]?.short||s}</span>`).join("");
       const jarTag = item.jarred ? `<span class="lib-jar">jarred</span>` : "";
       const homemadeTag = item.homemade ? `<span class="lib-homemade">📋 recipe</span>` : "";
+
       row.innerHTML = `
         <div class="lib-row-top">
           <span class="lib-name">${item.name}</span>
@@ -610,14 +651,28 @@ function renderLibrary() {
           ${storeTags}${jarTag}${homemadeTag}
         </div>
         ${item.desc ? `<div class="lib-note">${item.desc}</div>` : item.note ? `<div class="lib-note">${item.note}</div>` : ""}
+        ${item.homemade && item.recipe ? `
+          <button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button>
+          <div class="recipe-section">${renderRecipeInner(item.recipe)}</div>` : ""}
         <div class="lib-actions">
-          <button class="lib-btn${state.anchoredItems.has(item.id) ? " active" : ""}" data-action="anchor" data-id="${item.id}">
-            ${state.anchoredItems.has(item.id) ? "📌 Anchored" : "Anchor"}
+          <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">
+            ${state.anchoredItems.has(item.id)?"📌 Anchored":"Anchor"}
           </button>
-          <button class="lib-btn${state.excludedItems.has(item.id) ? " active ban" : ""}" data-action="exclude" data-id="${item.id}">
-            ${state.excludedItems.has(item.id) ? "🚫 Excluded" : "Exclude"}
+          <button class="lib-btn${state.excludedItems.has(item.id)?" active ban":""}" data-action="exclude" data-id="${item.id}">
+            ${state.excludedItems.has(item.id)?"🚫 Excluded":"Exclude"}
           </button>
         </div>`;
+
+      // Recipe toggle in library
+      const libToggle = row.querySelector(".lib-recipe-toggle");
+      if (libToggle) {
+        const recipeSection = row.querySelector(".recipe-section");
+        libToggle.addEventListener("click", () => {
+          const isOpen = recipeSection.classList.toggle("open");
+          libToggle.textContent = isOpen ? "Hide recipe ▲" : "Show recipe ▼";
+        });
+      }
+
       row.querySelectorAll(".lib-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const { action, id } = btn.dataset;
@@ -639,44 +694,44 @@ function renderLibrary() {
   });
 }
 
+function renderRecipeInner(recipe) {
+  return `
+    <div class="recipe-makes">Makes: ${recipe.makes}</div>
+    <div class="recipe-heading">Ingredients</div>
+    <ul class="recipe-list">${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul>
+    <div class="recipe-heading">Method</div>
+    <ol class="recipe-list recipe-method">${recipe.method.map(m=>`<li>${m}</li>`).join("")}</ol>`;
+}
+
 // ── SHOPPING LIST ─────────────────────────────────────────────
 $("btn-shopping").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
 $("btn-back-shopping").addEventListener("click", () => showScreen("setup"));
 
-function renderShoppingList() {
-  renderSessionCards();
-  renderCalculatedList();
-}
+function renderShoppingList() { renderSessionCards(); renderCalculatedList(); }
 
 function renderSessionCards() {
   const container = $("session-cards");
   container.innerHTML = "";
-
   if (!state.session.length) {
     container.innerHTML = `<p class="empty-state">No pizzas added yet — roll a pie and tap "+ List"</p>`;
     $("session-summary").textContent = "";
     $("calculated-list").innerHTML = "";
     return;
   }
-
-  // Summary
-  const totalPizzas = state.session.reduce((s, e) => s + e.count, 0);
+  const totalPizzas = state.session.reduce((s,e) => s+e.count, 0);
   const storeSet = optimizeStores();
   $("session-summary").innerHTML = `
-    <span>Shopping for <strong>${totalPizzas}</strong> pizza${totalPizzas !== 1 ? "s" : ""} · ${state.session.length} build${state.session.length !== 1 ? "s" : ""}</span>
-    <span class="store-suggestion">Suggested stops: ${storeSet.map(s => STORES[s]?.name || s).join(" + ")}</span>`;
+    <span>Shopping for <strong>${totalPizzas}</strong> pizza${totalPizzas!==1?"s":""} · ${state.session.length} build${state.session.length!==1?"s":""}</span>
+    <span class="store-suggestion">Suggested stops: ${storeSet.map(s=>STORES[s]?.name||s).join(" + ")}</span>`;
 
-  state.session.forEach((entry, idx) => {
+  state.session.forEach((entry,idx) => {
     const card = document.createElement("div");
     card.className = "session-card";
-
-    // Topping summary
-    const toppingNames = LAYER_ORDER.flatMap(layer => (entry.pizza[layer] || []).map(t => t.name)).join(", ");
-
+    const toppingNames = LAYER_ORDER.flatMap(layer => (entry.pizza[layer]||[]).map(t=>t.name)).join(", ");
     card.innerHTML = `
       <div class="session-card-top">
         <div class="session-name-wrap">
-          <span class="session-name" data-idx="${idx}">${entry.pizzaName}</span>
+          <span class="session-name">${entry.pizzaName}</span>
           <button class="session-rename" data-idx="${idx}" title="Rename">✏️</button>
         </div>
         <button class="session-remove" data-idx="${idx}" title="Remove">×</button>
@@ -686,345 +741,210 @@ function renderSessionCards() {
         <button class="stepper-btn stepper-minus" data-idx="${idx}">−</button>
         <span class="stepper-count">${entry.count}</span>
         <button class="stepper-btn stepper-plus" data-idx="${idx}">+</button>
-      </div>
-    `;
+      </div>`;
 
-    // Rename
     card.querySelector(".session-rename").addEventListener("click", () => {
       const newName = prompt("Rename this pizza:", entry.pizzaName);
-      if (newName !== null && newName.trim()) {
-        state.session[idx].pizzaName = newName.trim();
-        saveSession();
-        renderShoppingList();
-      }
+      if (newName!==null && newName.trim()) { state.session[idx].pizzaName=newName.trim(); saveSession(); renderShoppingList(); }
     });
-
-    // Remove
     card.querySelector(".session-remove").addEventListener("click", () => {
-      if (confirm(`Remove "${entry.pizzaName}" from the list?`)) {
-        state.session.splice(idx, 1);
-        saveSession();
-        updateSessionBadge();
-        renderShoppingList();
-      }
+      if (confirm(`Remove "${entry.pizzaName}" from the list?`)) { state.session.splice(idx,1); saveSession(); updateSessionBadge(); renderShoppingList(); }
     });
-
-    // Stepper
     card.querySelector(".stepper-minus").addEventListener("click", () => {
-      if (entry.count <= 1) {
-        if (confirm(`Remove "${entry.pizzaName}" from the list?`)) {
-          state.session.splice(idx, 1);
-          saveSession();
-          updateSessionBadge();
-          renderShoppingList();
-        }
-      } else {
-        state.session[idx].count--;
-        saveSession();
-        renderShoppingList();
-      }
+      if (entry.count<=1) { if (confirm(`Remove "${entry.pizzaName}"?`)) { state.session.splice(idx,1); saveSession(); updateSessionBadge(); renderShoppingList(); } }
+      else { state.session[idx].count--; saveSession(); renderShoppingList(); }
     });
     card.querySelector(".stepper-plus").addEventListener("click", () => {
-      if (entry.count >= 6) { showToast("Max 6 per build"); return; }
-      state.session[idx].count++;
-      saveSession();
-      renderShoppingList();
+      if (entry.count>=6) { showToast("Max 6 per build"); return; }
+      state.session[idx].count++; saveSession(); renderShoppingList();
     });
-
     container.appendChild(card);
   });
 
-  // Clear all
   const clearBtn = document.createElement("button");
   clearBtn.className = "btn-clear-session";
   clearBtn.textContent = "Clear entire list";
   clearBtn.addEventListener("click", () => {
-    if (confirm("Clear the entire shopping list?")) {
-      state.session = [];
-      saveSession();
-      updateSessionBadge();
-      renderShoppingList();
-    }
+    if (confirm("Clear the entire shopping list?")) { state.session=[]; saveSession(); updateSessionBadge(); renderShoppingList(); }
   });
   container.appendChild(clearBtn);
 }
 
-// ── STORE OPTIMIZATION ───────────────────────────────────────
 function optimizeStores() {
-  // Collect all toppings across session
   const allToppings = [];
   state.session.forEach(entry => {
     LAYER_ORDER.forEach(layer => {
-      (entry.pizza[layer] || []).forEach(t => {
-        if (!allToppings.find(x => x.id === t.id)) allToppings.push(t);
-      });
+      (entry.pizza[layer]||[]).forEach(t => { if (!allToppings.find(x=>x.id===t.id)) allToppings.push(t); });
     });
   });
-
-  // Find which stores carry each topping
-  const storeNeeds = {}; // storeId → Set of topping ids
+  const storeNeeds = {};
   STORE_ORDER.forEach(s => { storeNeeds[s] = new Set(); });
   allToppings.forEach(t => {
-    const data = TOPPINGS.find(x => x.id === t.id);
-    if (!data || !data.stores?.length) return;
-    data.stores.forEach(s => {
-      if (storeNeeds[s]) storeNeeds[s].add(t.id);
-    });
+    const data = TOPPINGS.find(x=>x.id===t.id);
+    if (!data||!data.stores?.length) return;
+    data.stores.forEach(s => { if (storeNeeds[s]) storeNeeds[s].add(t.id); });
   });
-
-  // Items that need purchasing (exclude nosause, pantry-only no-yield items)
-  const purchasable = allToppings.filter(t => {
-    const data = TOPPINGS.find(x => x.id === t.id);
-    return data && data.stores?.length > 0 && t.id !== "nosause";
-  });
-
+  const purchasable = allToppings.filter(t => { const data = TOPPINGS.find(x=>x.id===t.id); return data&&data.stores?.length>0&&t.id!=="nosause"; });
   if (!purchasable.length) return [];
-
-  const needed = new Set(purchasable.map(t => t.id));
-
-  // Try single store first
-  for (const s of STORE_ORDER) {
-    if ([...needed].every(id => storeNeeds[s].has(id))) return [s];
+  const needed = new Set(purchasable.map(t=>t.id));
+  for (const s of STORE_ORDER) { if ([...needed].every(id=>storeNeeds[s].has(id))) return [s]; }
+  for (const [a,b] of [["sara","cm"],["sara","altin"],["cm","altin"]]) {
+    const combined = new Set([...storeNeeds[a],...storeNeeds[b]]);
+    if ([...needed].every(id=>combined.has(id))) return [a,b];
   }
-
-  // Try two-store combos in preference order
-  const storePairs = [
-    ["sara","cm"], ["sara","altin"], ["cm","altin"],
-  ];
-  for (const [a, b] of storePairs) {
-    const combined = new Set([...storeNeeds[a], ...storeNeeds[b]]);
-    if ([...needed].every(id => combined.has(id))) return [a, b];
-  }
-
-  return STORE_ORDER; // all three needed
+  return STORE_ORDER;
 }
 
-// ── CALCULATED SHOPPING LIST ─────────────────────────────────
 function renderCalculatedList() {
   const container = $("calculated-list");
   container.innerHTML = "";
   if (!state.session.length) return;
-
-  // Aggregate quantities per topping across session
-  const agg = {}; // toppingId → { data, total_g, total_units, total_tsp, total_tbsp, total_unit_count, checked }
-
+  const agg = {};
   state.session.forEach(entry => {
     LAYER_ORDER.forEach(layer => {
-      (entry.pizza[layer] || []).forEach(item => {
-        const data = TOPPINGS.find(t => t.id === item.id);
-        if (!data || item.id === "nosause") return;
-        if (!agg[item.id]) {
-          agg[item.id] = { data, total_g: 0, total_oz: 0, total_tsp: 0, total_tbsp: 0, total_unit_count: 0, total_pizzas: 0, checked: false };
-        }
-        const q = data.qty || {};
+      (entry.pizza[layer]||[]).forEach(item => {
+        const data = TOPPINGS.find(t=>t.id===item.id);
+        if (!data||item.id==="nosause") return;
+        if (!agg[item.id]) agg[item.id] = { data, total_g:0, total_tsp:0, total_tbsp:0, total_unit_count:0, total_pizzas:0, checked:false };
+        const q = data.qty||{};
         const count = entry.count;
-        agg[item.id].total_g           += (q.per_pizza_g  || 0) * count;
-        agg[item.id].total_tsp         += (q.per_pizza_tsp  || 0) * count;
-        agg[item.id].total_tbsp        += (q.per_pizza_tbsp || 0) * count;
-        agg[item.id].total_unit_count  += (q.per_pizza_unit || 0) * count;
-        agg[item.id].total_pizzas      += count;
+        agg[item.id].total_g          += (q.per_pizza_g||0)*count;
+        agg[item.id].total_tsp        += (q.per_pizza_tsp||0)*count;
+        agg[item.id].total_tbsp       += (q.per_pizza_tbsp||0)*count;
+        agg[item.id].total_unit_count += (q.per_pizza_unit||0)*count;
+        agg[item.id].total_pizzas     += count;
       });
     });
   });
-
-  // Compute oz and purchase units
   Object.values(agg).forEach(a => {
-    const q = a.data.qty || {};
-    a.total_oz = a.total_g > 0 ? parseFloat(gToOz(a.total_g)) : 0;
-    if (q.shared_yield && q.shared_yield > 0) {
-      a.purchase_units = Math.ceil(a.total_pizzas / q.shared_yield);
-    } else if (q.yield_g && q.yield_g > 0 && a.total_g > 0) {
-      a.purchase_units = Math.ceil(a.total_g / q.yield_g);
-    } else {
-      a.purchase_units = 1;
-    }
-    a.purchase_units = Math.max(a.purchase_units, q.min_purchase || 1);
+    const q = a.data.qty||{};
+    a.total_oz = a.total_g>0 ? parseFloat(gToOz(a.total_g)) : 0;
+    a.purchase_units = q.shared_yield ? Math.ceil(a.total_pizzas/q.shared_yield)
+                     : q.yield_g&&q.yield_g>0&&a.total_g>0 ? Math.ceil(a.total_g/q.yield_g) : 1;
+    a.purchase_units = Math.max(a.purchase_units, q.min_purchase||1);
   });
 
-  // Separate into categories
-  const makeAheadItems = Object.values(agg).filter(a => a.data.make_ahead);
-  const pantryItems    = Object.values(agg).filter(a => !a.data.make_ahead && a.data.qty?.pantry);
-  const freshItems     = Object.values(agg).filter(a => !a.data.make_ahead && !a.data.qty?.pantry);
+  const makeAheadItems = Object.values(agg).filter(a=>a.data.make_ahead);
+  const pantryItems    = Object.values(agg).filter(a=>!a.data.make_ahead&&a.data.qty?.pantry);
+  const freshItems     = Object.values(agg).filter(a=>!a.data.make_ahead&&!a.data.qty?.pantry);
 
-  // Group fresh items by store
   const byStore = {};
-  STORE_ORDER.forEach(s => { byStore[s] = []; });
-  const multiStore = [];
-
+  STORE_ORDER.forEach(s=>{byStore[s]=[];});
   freshItems.forEach(a => {
-    const stores = a.data.stores || [];
-    if (stores.length === 0) return;
-    if (stores.length === 1) {
-      if (byStore[stores[0]]) byStore[stores[0]].push(a);
-    } else {
-      // Multi-store — assign to first preferred store
-      const primary = stores[0];
-      if (byStore[primary]) byStore[primary].push(a);
-    }
+    const stores = a.data.stores||[];
+    if (!stores.length) return;
+    if (byStore[stores[0]]) byStore[stores[0]].push(a);
   });
 
-  // Render fresh by store
   STORE_ORDER.forEach(storeId => {
     const items = byStore[storeId];
     if (!items.length) return;
     const storeInfo = STORES[storeId];
-    const storeSection = document.createElement("div");
-    storeSection.className = "list-store-section";
-    storeSection.innerHTML = `<h3 class="list-store-heading" data-store="${storeId}">${storeInfo.name}</h3>`;
-
-    // Group by layer within store
+    const sec = document.createElement("div");
+    sec.className = "list-store-section";
+    sec.innerHTML = `<h3 class="list-store-heading" data-store="${storeId}">${storeInfo.name}</h3>`;
     LAYER_ORDER.forEach(layer => {
-      const layerItems = items.filter(a => a.data.layer === layer);
-      if (!layerItems.length) return;
-      layerItems.forEach(a => {
-        storeSection.appendChild(renderListItem(a, "fresh"));
-      });
+      items.filter(a=>a.data.layer===layer).forEach(a => sec.appendChild(renderListItem(a)));
     });
-    container.appendChild(storeSection);
+    container.appendChild(sec);
   });
 
-  // Pantry section
   if (pantryItems.length) {
     const sec = document.createElement("div");
     sec.className = "list-store-section pantry-section";
     sec.innerHTML = `<h3 class="list-store-heading pantry-heading">🗄️ Pantry — check stock</h3>`;
-    pantryItems.forEach(a => sec.appendChild(renderListItem(a, "pantry")));
+    pantryItems.forEach(a=>sec.appendChild(renderListItem(a)));
     container.appendChild(sec);
   }
-
-  // Make ahead section
   if (makeAheadItems.length) {
     const sec = document.createElement("div");
     sec.className = "list-store-section make-ahead-section";
     sec.innerHTML = `<h3 class="list-store-heading make-ahead-heading">⏱️ Make Ahead</h3>`;
-    makeAheadItems.forEach(a => sec.appendChild(renderListItem(a, "makeahead")));
+    makeAheadItems.forEach(a=>sec.appendChild(renderListItem(a)));
     container.appendChild(sec);
   }
 }
 
-function renderListItem(a, type) {
+function renderListItem(a) {
   const row = document.createElement("div");
-  row.className = `list-item${a.checked ? " checked" : ""}`;
-  row.dataset.id = a.data.id;
-
-  const q = a.data.qty || {};
-
-  // Build quantity string
+  row.className = `list-item${a.checked?" checked":""}`;
+  const q = a.data.qty||{};
   let qtyStr = "";
-  if (a.total_g > 0) {
-    qtyStr = `${a.total_g}g / ${a.total_oz}oz`;
-    if (a.purchase_units > 0) qtyStr += ` · ${a.purchase_units} ${q.unit || ""}`;
-  } else if (a.total_tsp > 0) {
-    qtyStr = `${formatMeasure(a.total_tsp, "tsp")} · pantry`;
-  } else if (a.total_tbsp > 0) {
-    qtyStr = `${formatMeasure(a.total_tbsp, "tbsp")} · pantry`;
-  } else if (a.total_unit_count > 0) {
-    qtyStr = `${Math.ceil(a.total_unit_count)} ${q.unit || ""}`;
-  } else if (q.shared_yield) {
-    qtyStr = `${a.purchase_units} ${q.unit || ""}`;
-  } else {
-    qtyStr = q.unit || "as needed";
-  }
-
-  // Make-ahead timing
-  const timingNote = a.data.make_ahead_timing
-    ? `<span class="list-timing">${a.data.make_ahead_timing}</span>` : "";
-
-  // Prep warning
-  const prepNote = a.data.prep === PREP.PRE && a.data.note
-    ? `<div class="list-item-note">→ ${a.data.note}</div>` : "";
-
+  if (a.total_g>0) { qtyStr = `${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit||""}`; }
+  else if (a.total_tsp>0) { qtyStr = `${formatMeasure(a.total_tsp,"tsp")} · pantry`; }
+  else if (a.total_tbsp>0) { qtyStr = `${formatMeasure(a.total_tbsp,"tbsp")} · pantry`; }
+  else if (a.total_unit_count>0) { qtyStr = `${Math.ceil(a.total_unit_count)} ${q.unit||""}`; }
+  else if (q.shared_yield) { qtyStr = `${a.purchase_units} ${q.unit||""}`; }
+  else { qtyStr = q.unit||"as needed"; }
+  const timingNote = a.data.make_ahead_timing ? `<span class="list-timing">${a.data.make_ahead_timing}</span>` : "";
+  const prepNote = a.data.prep===PREP.PRE&&a.data.note ? `<div class="list-item-note">→ ${a.data.note}</div>` : "";
   row.innerHTML = `
     <label class="list-item-label">
-      <input type="checkbox" class="list-checkbox" data-id="${a.data.id}"${a.checked ? " checked" : ""}>
+      <input type="checkbox" class="list-checkbox" data-id="${a.data.id}"${a.checked?" checked":""}>
       <span class="list-item-content">
         <span class="list-item-name">${a.data.name}${timingNote}</span>
         <span class="list-item-qty">${qtyStr}</span>
       </span>
     </label>
-    ${prepNote}
-  `;
-
+    ${prepNote}`;
   row.querySelector(".list-checkbox").addEventListener("change", e => {
-    const isChecked = e.target.checked;
-    a.checked = isChecked;
-    row.classList.toggle("checked", isChecked);
+    a.checked = e.target.checked;
+    row.classList.toggle("checked", a.checked);
   });
-
   return row;
 }
 
 function formatMeasure(value, unit) {
-  // Round to sensible fractions
-  const rounded = Math.round(value * 4) / 4; // nearest ¼
-  if (rounded === Math.floor(rounded)) return `${rounded} ${unit}`;
+  const rounded = Math.round(value*4)/4;
+  if (rounded===Math.floor(rounded)) return `${rounded} ${unit}`;
   const whole = Math.floor(rounded);
-  const frac = rounded - whole;
-  const fracStr = frac === 0.25 ? "¼" : frac === 0.5 ? "½" : frac === 0.75 ? "¾" : frac.toString();
-  return whole > 0 ? `${whole}${fracStr} ${unit}` : `${fracStr} ${unit}`;
+  const frac  = rounded-whole;
+  const fracStr = frac===0.25?"¼":frac===0.5?"½":frac===0.75?"¾":frac.toString();
+  return whole>0 ? `${whole}${fracStr} ${unit}` : `${fracStr} ${unit}`;
 }
 
-// ── PRINT ────────────────────────────────────────────────────
-$("btn-print").addEventListener("click", () => { window.print(); });
+$("btn-print").addEventListener("click", () => window.print());
 
-// ── COPY LIST ─────────────────────────────────────────────────
 $("btn-copy-list").addEventListener("click", () => {
   if (!state.session.length) return;
-  const lines = ["🍕 Omar's Pie — Shopping List", new Date().toLocaleDateString(), ""];
-
-  // Session
-  lines.push("SESSION:");
+  const lines = ["🍕 Omar's Pie — Shopping List", new Date().toLocaleDateString(), "", "SESSION:"];
   state.session.forEach(e => lines.push(`  ${e.pizzaName} × ${e.count}`));
   lines.push("");
-
-  // Toppings by store — reuse same aggregation logic
   const agg = {};
   state.session.forEach(entry => {
     LAYER_ORDER.forEach(layer => {
-      (entry.pizza[layer] || []).forEach(item => {
-        const data = TOPPINGS.find(t => t.id === item.id);
-        if (!data || item.id === "nosause") return;
-        if (!agg[item.id]) agg[item.id] = { data, total_g: 0, total_tsp: 0, total_tbsp: 0, total_unit_count: 0, total_pizzas: 0 };
-        const q = data.qty || {};
-        agg[item.id].total_g          += (q.per_pizza_g   || 0) * entry.count;
-        agg[item.id].total_tsp        += (q.per_pizza_tsp  || 0) * entry.count;
-        agg[item.id].total_tbsp       += (q.per_pizza_tbsp || 0) * entry.count;
-        agg[item.id].total_unit_count += (q.per_pizza_unit || 0) * entry.count;
-        agg[item.id].total_pizzas     += entry.count;
+      (entry.pizza[layer]||[]).forEach(item => {
+        const data = TOPPINGS.find(t=>t.id===item.id);
+        if (!data||item.id==="nosause") return;
+        if (!agg[item.id]) agg[item.id]={data,total_g:0,total_tsp:0,total_tbsp:0,total_unit_count:0,total_pizzas:0};
+        const q=data.qty||{};
+        agg[item.id].total_g+=( q.per_pizza_g||0)*entry.count;
+        agg[item.id].total_tsp+=(q.per_pizza_tsp||0)*entry.count;
+        agg[item.id].total_tbsp+=(q.per_pizza_tbsp||0)*entry.count;
+        agg[item.id].total_unit_count+=(q.per_pizza_unit||0)*entry.count;
+        agg[item.id].total_pizzas+=entry.count;
       });
     });
   });
-  Object.values(agg).forEach(a => {
-    const q = a.data.qty || {};
-    a.total_oz = a.total_g > 0 ? parseFloat(gToOz(a.total_g)) : 0;
-    a.purchase_units = q.shared_yield ? Math.ceil(a.total_pizzas / q.shared_yield)
-                     : q.yield_g && q.yield_g > 0 && a.total_g > 0 ? Math.ceil(a.total_g / q.yield_g) : 1;
-    a.purchase_units = Math.max(a.purchase_units, q.min_purchase || 1);
+  Object.values(agg).forEach(a=>{
+    const q=a.data.qty||{};
+    a.total_oz=a.total_g>0?parseFloat(gToOz(a.total_g)):0;
+    a.purchase_units=q.shared_yield?Math.ceil(a.total_pizzas/q.shared_yield):q.yield_g&&q.yield_g>0&&a.total_g>0?Math.ceil(a.total_g/q.yield_g):1;
+    a.purchase_units=Math.max(a.purchase_units,q.min_purchase||1);
   });
-
-  STORE_ORDER.forEach(storeId => {
-    const items = Object.values(agg).filter(a => {
-      const stores = a.data.stores || [];
-      return !a.data.make_ahead && !a.data.qty?.pantry && stores[0] === storeId;
-    });
+  STORE_ORDER.forEach(storeId=>{
+    const items=Object.values(agg).filter(a=>!a.data.make_ahead&&!a.data.qty?.pantry&&(a.data.stores||[])[0]===storeId);
     if (!items.length) return;
     lines.push(`${STORES[storeId].name.toUpperCase()}:`);
-    items.forEach(a => {
-      const q = a.data.qty || {};
-      let qtyStr = a.total_g > 0
-        ? `${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit || ""}`
-        : a.total_tsp > 0 ? `${formatMeasure(a.total_tsp, "tsp")} (pantry)`
-        : a.total_tbsp > 0 ? `${formatMeasure(a.total_tbsp, "tbsp")} (pantry)`
-        : q.unit || "as needed";
+    items.forEach(a=>{
+      const q=a.data.qty||{};
+      const qtyStr=a.total_g>0?`${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit||""}`:a.total_tsp>0?`${formatMeasure(a.total_tsp,"tsp")} (pantry)`:a.total_tbsp>0?`${formatMeasure(a.total_tbsp,"tbsp")} (pantry)`:q.unit||"as needed";
       lines.push(`  ☐ ${a.data.name} — ${qtyStr}`);
       if (a.data.note) lines.push(`      → ${a.data.note}`);
     });
     lines.push("");
   });
-
-  navigator.clipboard.writeText(lines.join("\n"))
-    .then(() => showToast("List copied ✓"))
-    .catch(() => showToast("Copy failed"));
+  navigator.clipboard.writeText(lines.join("\n")).then(()=>showToast("List copied ✓")).catch(()=>showToast("Copy failed"));
 });
 
 // ── SAVED PIZZAS ─────────────────────────────────────────────
@@ -1034,15 +954,11 @@ $("btn-back-saved").addEventListener("click", () => showScreen("setup"));
 function renderSaved() {
   const container = $("saved-list");
   container.innerHTML = "";
-  if (!state.saved.length) {
-    container.innerHTML = `<p class="empty-state">No saved pies yet — roll one and tap Save 🗂️</p>`;
-    return;
-  }
-  state.saved.forEach((entry, idx) => {
-    const toppingNames = LAYER_ORDER.flatMap(layer => (entry.pizza[layer] || []).map(t => t.name)).join(", ");
-    const cuisineFlags = entry.cuisines.map(id => { const c = CUISINES.find(x => x.id === id); return c ? c.emoji : ""; }).join(" ");
+  if (!state.saved.length) { container.innerHTML = `<p class="empty-state">No saved pies yet — roll one and tap Save 🗂️</p>`; return; }
+  state.saved.forEach((entry,idx) => {
+    const toppingNames = LAYER_ORDER.flatMap(layer=>(entry.pizza[layer]||[]).map(t=>t.name)).join(", ");
+    const cuisineFlags = entry.cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?c.emoji:"";}).join(" ");
     const date = new Date(entry.savedAt).toLocaleDateString();
-
     const card = document.createElement("div");
     card.className = "saved-card";
     card.innerHTML = `
@@ -1058,61 +974,26 @@ function renderSaved() {
       <div class="saved-actions">
         <button class="btn-ghost saved-add-list" data-idx="${idx}">+ Add to list</button>
         <button class="btn-primary saved-open-builder" data-idx="${idx}">Open in builder</button>
-      </div>
-    `;
-
-    // Rename
-    card.querySelector(".saved-rename").addEventListener("click", () => {
-      const newName = prompt("Rename this pie:", entry.name);
-      if (newName !== null && newName.trim()) {
-        state.saved[idx].name = newName.trim();
-        saveSaved();
-        renderSaved();
-      }
+      </div>`;
+    card.querySelector(".saved-rename").addEventListener("click",()=>{const n=prompt("Rename:",entry.name);if(n!==null&&n.trim()){state.saved[idx].name=n.trim();saveSaved();renderSaved();}});
+    card.querySelector(".saved-delete").addEventListener("click",()=>{if(confirm(`Delete "${entry.name}"?`)){state.saved.splice(idx,1);saveSaved();renderSaved();}});
+    card.querySelector(".saved-add-list").addEventListener("click",()=>{
+      if(state.session.length>=6){showToast("Session full — max 6 pizzas");return;}
+      state.session.push({id:"sess_"+uid(),pizzaName:entry.name,pizza:entry.pizza,count:1,checked:{}});
+      saveSession();updateSessionBadge();showToast("Added to shopping list 🛒");
     });
-
-    // Delete
-    card.querySelector(".saved-delete").addEventListener("click", () => {
-      if (confirm(`Delete "${entry.name}"?`)) {
-        state.saved.splice(idx, 1);
-        saveSaved();
-        renderSaved();
-      }
+    card.querySelector(".saved-open-builder").addEventListener("click",()=>{
+      state.currentPizza=entry.pizza;
+      state.selectedCuisines=[...(entry.cuisines||[])];
+      state.selectedSauce=entry.pizza.sauce?.[0]||null;
+      updateCuisineUI();renderPizza(state.currentPizza);showScreen("pizza");
     });
-
-    // Add to list
-    card.querySelector(".saved-add-list").addEventListener("click", () => {
-      if (state.session.length >= 6) { showToast("Session full — max 6 pizzas"); return; }
-      state.session.push({
-        id: "sess_" + uid(),
-        pizzaName: entry.name,
-        pizza: entry.pizza,
-        count: 1,
-        checked: {},
-      });
-      saveSession();
-      updateSessionBadge();
-      showToast("Added to shopping list 🛒");
-    });
-
-    // Open in builder
-    card.querySelector(".saved-open-builder").addEventListener("click", () => {
-      state.currentPizza = entry.pizza;
-      state.selectedCuisines = [...(entry.cuisines || [])];
-      state.selectedSauce = entry.pizza.sauce?.[0] || null;
-      updateCuisineUI();
-      renderPizza(state.currentPizza);
-      showScreen("pizza");
-    });
-
     container.appendChild(card);
   });
 }
 
 // ── THEME ─────────────────────────────────────────────────────
-$("btn-theme").addEventListener("click", () => {
-  applyTheme(currentTheme === "day" ? "night" : "day");
-});
+$("btn-theme").addEventListener("click", () => applyTheme(currentTheme==="day"?"night":"day"));
 
 // ── TOAST ────────────────────────────────────────────────────
 function showToast(msg) {
