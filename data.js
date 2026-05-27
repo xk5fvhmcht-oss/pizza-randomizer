@@ -1,11 +1,11 @@
 // ============================================================
-// OMAR'S PIE — data.js v1.5.0
+// OMAR'S PIE — data.js v1.5.1
 // From the familiar to the exceptional
 // Neapolitan style · Biga dough · Gozney Dome + Baking Steel
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "1.5.0";
+const APP_VERSION = "1.5.1";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
