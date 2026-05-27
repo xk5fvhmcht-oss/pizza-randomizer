@@ -1466,3 +1466,51 @@ body::before {
   border: 1px solid var(--gold);
   color: var(--gold);
 }
+
+/* ══════════════════════════════════════════
+   v1.5.0 NEW STYLES
+═══════════════════════════════════════════ */
+
+/* Role badges — Connoisseur only */
+.role-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid;
+}
+.role-anchor    { background: var(--terra-light); color: var(--terra);  border-color: var(--terra); }
+.role-supporting{ background: var(--gold-light);  color: var(--gold);   border-color: var(--gold); }
+.role-accent    { background: var(--char-light);  color: var(--text3);  border-color: var(--border2); }
+
+/* Dome-only tag */
+.dome-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #2a1510;
+  border: 1px solid var(--terra);
+  color: var(--terra);
+}
+[data-theme="day"] .dome-tag { background: var(--terra-light); }
+
+/* Multi-layer tag in library */
+.lib-multilayer {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  border-radius: 3px;
+  padding: 1px 5px;
+  background: var(--green-light);
+  border: 1px solid var(--green);
+  color: var(--green);
+}
+
+/* Flatbread sauce badge */
+.sauce-badge.flatbread {
+  background: var(--gold-light);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}

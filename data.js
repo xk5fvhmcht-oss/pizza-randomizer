@@ -1,11 +1,11 @@
 // ============================================================
-// OMAR'S PIE — data.js v1.4.0
+// OMAR'S PIE — data.js v1.5.0
+// From the familiar to the exceptional
 // Neapolitan style · Biga dough · Gozney Dome + Baking Steel
-// Pork-free · All cuisines · Three stores
-// Smart roll engine: flavor contrast · moisture · weight · presence
+// Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "1.4.0";
+const APP_VERSION = "1.5.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -23,7 +23,7 @@ const CUISINES = [
   { id:"turkish",      label:"Turkish",       emoji:"🫕", desc:"Spiced lamb · kashkaval · peppers · yogurt" },
   { id:"greek",        label:"Greek",         emoji:"🫒", desc:"Feta · kalamata · oregano · lemon" },
   { id:"mexican",      label:"Mexican",       emoji:"🌶️", desc:"Chipotle · cotija · jalapeño · cilantro" },
-  { id:"american",     label:"American",      emoji:"🧀", desc:"BBQ · aged cheddar · pickled · hot honey" },
+  { id:"american",     label:"American",      emoji:"🧀", desc:"BBQ · aged cheddar · hot honey · rosemary" },
   { id:"northafrican", label:"North African", emoji:"🪔", desc:"Harissa · preserved lemon · chermoula · dukkah" },
   { id:"indian",       label:"Indian",        emoji:"🫚", desc:"Tikka masala · paneer · chaat masala · chutney" },
 ];
@@ -35,6 +35,7 @@ const CUISINE_AFFINITIES = [
   ["northafrican","levantine"],["northafrican","turkish"],
   ["neapolitan","northafrican"],["neapolitan","turkish"],
 ];
+
 const CUISINE_CLASHES = [
   ["neapolitan","mexican"],["neapolitan","indian"],["neapolitan","american"],
   ["mexican","indian"],["mexican","northafrican"],
@@ -43,8 +44,9 @@ const CUISINE_CLASHES = [
 ];
 
 const CUISINE_LOCKED_SAUCES = new Set([
-  "tomatillo_sauce","shakshuka_sauce","roja_sauce",
-  "tikka_sauce","makhani_sauce","lahmajun_spread","chipotle_base","biber_salcasi",
+  "tomatillo_sauce","shakshuka_sauce","roja_sauce","tikka_sauce",
+  "makhani_sauce","lahmajun_spread","chipotle_base","biber_salcasi",
+  "zaatar_spread",
 ]);
 
 // ── PROFILES ────────────────────────────────────────────────
@@ -80,6 +82,7 @@ const OVEN_GUIDANCE = {
       "Open dome lid slightly for even top browning",
       "High-moisture items (bufala, fresh tomato) — post-bake only",
       "Raw-on proteins safe at this temperature with thin application",
+      "Wood-roasted onion chars beautifully at Dome temp — watch carefully",
     ]
   },
   steel: {
@@ -96,104 +99,156 @@ const OVEN_GUIDANCE = {
 };
 
 // ── SAUCE-DRIVEN BUILD PROFILES ──────────────────────────────
-// Probability and count rules per sauce family
-// prob: 0–1 chance this layer appears at all
-// count: [min, max] items if layer appears
+// prob: 0–1 chance layer appears · count: [min,max] if it appears
 const SAUCE_BUILD_PROFILES = {
   tomato: {
-    base:    { prob: 0.40, count: [1,1] },
-    cheese:  { prob: 0.90, count: [1,1] },
-    protein: { prob: 0.65, count: [1,1] },
-    veg:     { prob: 0.80, count: [1,3] },
-    finish:  { prob: 0.85, count: [1,3] },
-    cheeseWeight:  ["anchor"],
-    proteinWeight: ["anchor","supporting"],
-    vegWeight:     ["supporting","accent"],
-    finishWeight:  ["accent"],
+    base:    { prob:0.40, count:[1,1] },
+    cheese:  { prob:0.90, count:[1,1] },
+    protein: { prob:0.65, count:[1,1] },
+    veg:     { prob:0.80, count:[1,2] },
+    finish:  { prob:0.85, count:[1,2] },
   },
   dairy: {
-    base:    { prob: 0.60, count: [1,1] },
-    cheese:  { prob: 0.95, count: [1,2] },
-    protein: { prob: 0.45, count: [1,1] },
-    veg:     { prob: 0.85, count: [1,3] },
-    finish:  { prob: 0.90, count: [2,3] },
-    cheeseWeight:  ["anchor","supporting"],
-    proteinWeight: ["accent","supporting"],
-    vegWeight:     ["supporting","accent"],
-    finishWeight:  ["accent"],
+    base:    { prob:0.60, count:[1,1] },
+    cheese:  { prob:0.80, count:[1,1] },
+    protein: { prob:0.40, count:[1,1] },
+    veg:     { prob:0.85, count:[1,2] },
+    finish:  { prob:0.90, count:[1,2] },
   },
   herb: {
-    base:    { prob: 0.55, count: [1,1] },
-    cheese:  { prob: 0.85, count: [1,1] },
-    protein: { prob: 0.35, count: [1,1] },
-    veg:     { prob: 0.90, count: [2,3] },
-    finish:  { prob: 0.95, count: [2,3] },
-    cheeseWeight:  ["anchor","supporting"],
-    proteinWeight: ["accent"],
-    vegWeight:     ["supporting","anchor"],
-    finishWeight:  ["accent"],
+    base:    { prob:0.55, count:[1,1] },
+    cheese:  { prob:0.85, count:[1,1] },
+    protein: { prob:0.30, count:[1,1] },
+    veg:     { prob:0.85, count:[1,2] },
+    finish:  { prob:0.95, count:[1,2] },
   },
   spicepaste: {
-    base:    { prob: 0.30, count: [1,1] },
-    cheese:  { prob: 0.80, count: [1,1] },
-    protein: { prob: 0.85, count: [1,1] },
-    veg:     { prob: 0.65, count: [1,2] },
-    finish:  { prob: 0.85, count: [1,2] },
-    cheeseWeight:  ["supporting"],
-    proteinWeight: ["anchor"],
-    vegWeight:     ["accent","supporting"],
-    finishWeight:  ["accent"],
+    base:    { prob:0.30, count:[1,1] },
+    cheese:  { prob:0.75, count:[1,1] },
+    protein: { prob:0.85, count:[1,1] },
+    veg:     { prob:0.60, count:[1,1] },
+    finish:  { prob:0.80, count:[1,2] },
   },
   meatbase: {
-    base:    { prob: 0.00, count: [0,0] },
-    cheese:  { prob: 0.00, count: [0,0] },
-    protein: { prob: 0.00, count: [0,0] },
-    veg:     { prob: 0.70, count: [1,2] },
-    finish:  { prob: 0.90, count: [1,2] },
-    vegWeight:     ["accent"],
-    finishWeight:  ["accent"],
+    base:    { prob:0.00, count:[0,0] },
+    cheese:  { prob:0.00, count:[0,0] },
+    protein: { prob:0.00, count:[0,0] },
+    veg:     { prob:0.70, count:[1,2] },
+    finish:  { prob:0.90, count:[1,2] },
+  },
+  flatbread: {
+    // Manakish — za'atar spread as sauce
+    base:    { prob:0.00, count:[0,0] },
+    cheese:  { prob:0.50, count:[1,1] },
+    protein: { prob:0.20, count:[1,1] },
+    veg:     { prob:0.65, count:[1,1] },
+    finish:  { prob:0.90, count:[1,2] },
   },
   nosause: {
-    base:    { prob: 0.95, count: [1,1] },
-    cheese:  { prob: 1.00, count: [1,2] },
-    protein: { prob: 0.50, count: [1,1] },
-    veg:     { prob: 0.70, count: [1,2] },
-    finish:  { prob: 0.90, count: [2,3] },
-    cheeseWeight:  ["anchor","supporting"],
-    proteinWeight: ["supporting","accent"],
-    vegWeight:     ["supporting","accent"],
-    finishWeight:  ["accent"],
+    base:    { prob:0.95, count:[1,1] },
+    cheese:  { prob:1.00, count:[1,2] },
+    protein: { prob:0.50, count:[1,1] },
+    veg:     { prob:0.65, count:[1,2] },
+    finish:  { prob:0.90, count:[1,2] },
   },
 };
 
-// ── FLAVOR NOTES ────────────────────────────────────────────
-// Used for contrast checking — no note should dominate more than twice
-// acid · fat · heat · fresh · crunch · brine · sweet · umami · herb · smoke · cream · spice
+// ── HARD CONFLICT RULES ──────────────────────────────────────
+// [sauceId or sauceFamilyId, toppingId] — topping blocked when sauce is active
+// Also [toppingId, toppingId] — topping blocked when other topping already picked
+const HARD_CONFLICTS = [
+  // Sauce → topping conflicts
+  { sauce:"pesto",          topping:"fresh_basil",    reason:"basil on basil" },
+  { sauce:"chermoula",      topping:"fresh_cilantro", reason:"cilantro on cilantro" },
+  { sauce:"chermoula",      topping:"flat_parsley",   reason:"parsley on parsley" },
+  { sauce:"zaatar_spread",  topping:"zaatar_finish",  reason:"za'atar on za'atar" },
+  { sauce:"zaatar_spread",  topping:"dried_mint",     reason:"herb on herb" },
+  { sauce:"shakshuka_sauce",topping:"cherry_tom",     reason:"tomato on tomato" },
+  { sauce:"sun_dried_tom",  topping:"san_marzano",    reason:"concentrated tomato on tomato" },
+  // Sauce family → topping conflicts
+  { sauceFamily:"dairy",    topping:"ricotta_dollop", reason:"cream on cream" },
+  { sauceFamily:"dairy",    topping:"bufala",         reason:"cream on cream" },
+  { sauceFamily:"dairy",    topping:"burrata",        reason:"cream on cream" },
+  { sauceFamily:"dairy",    topping:"fresh_mozz",     reason:"cream on cream — use feta or halloumi instead" },
+  { sauceFamily:"dairy",    topping:"fior_di_latte",  reason:"cream on cream" },
+  { sauceFamily:"spicepaste", topping:"feta",         reason:"wrong flavor universe for Indian" },
+  { sauceFamily:"spicepaste", topping:"kashkaval",    reason:"wrong flavor universe for Indian" },
+  // Topping → topping conflicts (presence-based)
+  { topping1:"gorgonzola",  topping2:"shanklish",     reason:"two pungent anchor cheeses" },
+  { topping1:"sujuk",       topping2:"lamb_mince",    reason:"two heavy anchor proteins" },
+  { topping1:"sujuk",       topping2:"beef_kofta",    reason:"two heavy anchor proteins" },
+  { topping1:"muhammara",   topping2:"roasted_peppers",reason:"pepper paste on roasted peppers" },
+  { topping1:"muhammara",   topping2:"smoked_paprika", reason:"smoke on smoke" },
+  { topping1:"biber_salcasi",topping2:"roasted_peppers",reason:"pepper paste on roasted peppers" },
+];
 
-// ── MOISTURE LEVELS ──────────────────────────────────────────
-// dry · low · medium · high · postbake
-// Budget: max 2 high-moisture items pre-bake total
+// ── AMPLIFYING PAIRS (NOT redundant — intentional) ───────────
+const AMPLIFYING_PAIRS = [
+  ["brine","brine"],   // capers + anchovy — classic Neapolitan
+  ["acid","fresh"],    // lemon zest + arugula
+  ["fat","crunch"],    // EVOO + walnuts
+  ["sweet","acid"],    // fig + pomegranate arils
+  ["umami","brine"],   // anchovy + capers
+];
 
-// ── WEIGHT LEVELS ────────────────────────────────────────────
-// light · medium · heavy
-// Budget tracked across cheese + protein + veg
+// ── LAHMAJUN VEG WHITELIST ───────────────────────────────────
+const LAHMAJUN_VEG_WHITELIST = new Set([
+  "red_onion","spring_onion","cherry_tom","flat_parsley","lemon_zest"
+]);
 
-// ── PRESENCE LEVELS ──────────────────────────────────────────
-// anchor · supporting · accent
-// Max 1 anchor per layer (except finish which has none)
+// ── LAHMAJUN FINISH WHITELIST ────────────────────────────────
+const LAHMAJUN_FINISH_WHITELIST = new Set([
+  "sumac_finish","lemon_zest","flat_parsley","aleppo_pepper","finish_evoo"
+]);
+
+// ── MANAKISH VEG WHITELIST ───────────────────────────────────
+const MANAKISH_VEG_WHITELIST = new Set([
+  "cherry_tom","red_onion","spring_onion","kalamata","pomegranate_arils"
+]);
+
+// ── MANAKISH FINISH WHITELIST ────────────────────────────────
+const MANAKISH_FINISH_WHITELIST = new Set([
+  "fresh_mint","sumac_finish","finish_evoo","lemon_zest","flat_parsley",
+  "fresh_tomato_postbake"
+]);
+
+// ── MULTI-LAYER INGREDIENTS ──────────────────────────────────
+// These can appear in multiple layers — engine places them contextually
+// Only engine-driven placement for Connoisseur rolls
+const MULTI_LAYER = {
+  "zaatar_oil":    { layers:["base","finish"], placement:"finish when base layer already occupied" },
+  "harissa_base":  { layers:["base","finish"], placement:"finish drizzle when sauce is already spicy" },
+  "labneh_sauce":  { layers:["sauce","finish"], placement:"post-bake dollop when not used as sauce" },
+  "pesto":         { layers:["sauce","finish"], placement:"finish drizzle on white pies" },
+  "chermoula":     { layers:["sauce","finish"], placement:"finish drizzle when used as sauce elsewhere" },
+  "tahini_drizzle":{ layers:["finish","sauce"], placement:"sauce role on hummus/labneh adjacent builds" },
+  "finish_evoo":   { layers:["base","finish"], placement:"always available in both roles" },
+  "muhammara":     { layers:["sauce","finish"], placement:"finish swipe on crust edge" },
+};
+
+// ── CONNOISSEUR RULES ────────────────────────────────────────
+const CONNOISSEUR_RULES = {
+  maxPreBakeToppings: 3, // cheese + protein + veg combined (sauce excluded)
+  maxFinishItems: 2,
+  requireUniqueIngredient: true, // at least one C-profile item if available
+  roleLabels: true, // show anchor/supporting/accent on cards
+};
+
+// ── QTY STANDARDS ────────────────────────────────────────────
+const QTY_STANDARDS = {
+  sauce_g:75, cheese_primary_g:100, cheese_accent_g:35,
+  protein_g:90, veg_total_g:60, finish_herb_g:8,
+};
 
 // ── TOPPINGS ─────────────────────────────────────────────────
-// New fields: profile T/E/C, compatibleSauceFamilies (base only),
-//             flavorNotes[], moisture, weight, presence
 const TOPPINGS = [
 
   // ══ BASE ════════════════════════════════════════════════════
   {
     id:"evoo_base", name:"EVOO drizzle",
     layer:"base", cuisine:["neapolitan","greek","levantine","turkish","northafrican"],
-    profile:"T",
-    sauceFamilies:["nosause","dairy","herb","tomato"],
-    compatibleSauceFamilies:["tomato","dairy","herb","spicepaste","nosause","meatbase"],
+    profile:"T", sauceFamilies:["nosause","dairy","herb","tomato"],
+    compatibleSauceFamilies:["tomato","dairy","herb","spicepaste","nosause","meatbase","flatbread"],
     stores:["sara","cm"],
     flavorNotes:["fat"], moisture:"dry", weight:"light", presence:"accent",
     note:"High-quality — applied before sauce on white pies",
@@ -202,8 +257,7 @@ const TOPPINGS = [
   {
     id:"garlic_oil", name:"Roasted garlic oil",
     layer:"base", cuisine:["neapolitan","american","greek","levantine"],
-    profile:"T",
-    sauceFamilies:["nosause","dairy","tomato"],
+    profile:"T", sauceFamilies:["nosause","dairy","tomato"],
     compatibleSauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["sara","cm"],
     flavorNotes:["fat","umami"], moisture:"dry", weight:"light", presence:"accent",
@@ -213,32 +267,31 @@ const TOPPINGS = [
   {
     id:"zaatar_oil", name:"Za'atar oil",
     layer:"base", cuisine:["levantine","turkish","northafrican","greek"],
-    profile:"E",
-    sauceFamilies:["nosause","herb","dairy"],
+    profile:"E", sauceFamilies:["nosause","herb","dairy"],
     compatibleSauceFamilies:["dairy","herb","nosause"],
+    multiLayer: true,
     stores:["sara"],
     flavorNotes:["herb","fat"], moisture:"dry", weight:"light", presence:"accent",
-    desc:"Za'atar-infused olive oil — earthy, herbaceous, sesame-nutty. Replaces tomato on white pies.",
-    note:"Replaces tomato on white pies — classic manakish base",
+    desc:"Za'atar-infused olive oil — earthy, herbaceous, sesame-nutty. Replaces tomato on white pies. Can also be drizzled post-bake.",
+    note:"Replaces tomato on white pies — classic manakish base. Also works as a post-bake finish drizzle.",
     qty:{ unit:"jar (200g)", yield_g:200, per_pizza_g:20, per_pizza_oz:0.7, per_pizza_tbsp:1.5, shared_yield:10, pantry:true, min_purchase:1 },
   },
   {
     id:"harissa_base", name:"Harissa smear (thin)",
     layer:"base", cuisine:["northafrican","levantine","turkish"],
-    profile:"E",
-    sauceFamilies:["spicepaste","tomato"],
+    profile:"E", sauceFamilies:["spicepaste","tomato"],
     compatibleSauceFamilies:["tomato","spicepaste"],
+    multiLayer: true,
     stores:["sara"],
     flavorNotes:["heat","smoke","spice"], moisture:"low", weight:"light", presence:"accent",
-    desc:"North African chili paste — spicy, smoky, complex. Apply very thin under or instead of sauce.",
-    note:"Very thin layer only — intense heat",
+    desc:"North African chili paste — spicy, smoky, complex. Apply very thin under sauce or use as a post-bake drizzle.",
+    note:"Very thin layer — intense heat. Also works as post-bake drizzle on Connoisseur builds.",
     qty:{ unit:"jar (180g)", yield_g:180, per_pizza_g:15, per_pizza_oz:0.5, per_pizza_tbsp:1, shared_yield:12, pantry:true, min_purchase:1 },
   },
   {
     id:"chipotle_base", name:"Chipotle adobo smear",
     layer:"base", cuisine:["mexican"],
-    profile:"E",
-    sauceFamilies:["spicepaste"],
+    profile:"E", sauceFamilies:["spicepaste"],
     compatibleSauceFamilies:["spicepaste","tomato"],
     stores:["cm"],
     flavorNotes:["smoke","heat","spice"], moisture:"low", weight:"light", presence:"accent",
@@ -249,8 +302,7 @@ const TOPPINGS = [
   {
     id:"tikka_base", name:"Tikka paste layer",
     layer:"base", cuisine:["indian"],
-    profile:"E",
-    sauceFamilies:["spicepaste"],
+    profile:"E", sauceFamilies:["spicepaste"],
     compatibleSauceFamilies:["spicepaste"],
     stores:["cm"],
     flavorNotes:["spice","heat","umami"], moisture:"low", weight:"light", presence:"accent",
@@ -261,8 +313,7 @@ const TOPPINGS = [
   {
     id:"bbq_base", name:"BBQ sauce base",
     layer:"base", cuisine:["american"],
-    profile:"T",
-    sauceFamilies:["tomato","spicepaste"],
+    profile:"T", sauceFamilies:["tomato","spicepaste"],
     compatibleSauceFamilies:["nosause","tomato"],
     stores:["cm"],
     flavorNotes:["sweet","smoke","umami"], moisture:"medium", weight:"medium", presence:"anchor",
@@ -272,8 +323,7 @@ const TOPPINGS = [
   {
     id:"calabrian_oil_base", name:"Calabrian chili oil (base)",
     layer:"base", cuisine:["neapolitan","american"],
-    profile:"E",
-    sauceFamilies:["tomato","nosause","spicepaste"],
+    profile:"E", sauceFamilies:["tomato","nosause","spicepaste"],
     compatibleSauceFamilies:["tomato","nosause"],
     stores:["cm"],
     flavorNotes:["heat","fat","smoke"], moisture:"dry", weight:"light", presence:"accent",
@@ -306,9 +356,10 @@ const TOPPINGS = [
     id:"pesto", name:"Pesto (basil)",
     layer:"sauce", cuisine:["neapolitan","american","greek"],
     profile:"T", sauceFamilies:["herb","nosause"],
+    multiLayer: true,
     stores:["sara","cm"],
     flavorNotes:["herb","fat","umami"], moisture:"medium", weight:"medium", presence:"anchor",
-    note:"Use as white sauce alternative — spread thin, don't over-apply",
+    note:"White sauce alternative — spread thin. Also works as post-bake finish drizzle.",
     qty:{ unit:"jar (170g)", yield_g:170, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:4, min_purchase:1 },
   },
   {
@@ -324,10 +375,11 @@ const TOPPINGS = [
     id:"labneh_sauce", name:"Labneh spread",
     layer:"sauce", cuisine:["levantine","turkish","greek","northafrican"],
     profile:"E", sauceFamilies:["dairy"],
+    multiLayer: true,
     stores:["sara"],
     flavorNotes:["acid","cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Strained yogurt cheese — thick, tangy, creamy. Middle Eastern staple. Replaces tomato entirely.",
-    note:"Tangy, thick — classic bianca base for Levantine pies",
+    note:"Tangy, thick — classic bianca base. Also used as post-bake dollop on Connoisseur builds.",
     qty:{ unit:"tub (500g)", yield_g:500, per_pizza_g:80, per_pizza_oz:2.8, shared_yield:6, min_purchase:1 },
   },
   {
@@ -344,20 +396,22 @@ const TOPPINGS = [
     id:"muhammara", name:"Muhammara",
     layer:"sauce", cuisine:["levantine","northafrican","turkish"],
     profile:"E", sauceFamilies:["spicepaste","herb"],
+    multiLayer: true,
     stores:["sara"],
     flavorNotes:["sweet","smoke","spice","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Syrian roasted red pepper and walnut spread — sweet, smoky, slightly spicy. A Levantine gem.",
-    note:"Spread directly on dough — no extra sauce needed",
+    note:"Spread directly on dough — no extra sauce needed. Also works as a post-bake crust swipe.",
     qty:{ unit:"jar or fresh (200g)", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:3, min_purchase:1 },
   },
   {
     id:"chermoula", name:"Chermoula sauce",
     layer:"sauce", cuisine:["northafrican","levantine"],
     profile:"E", sauceFamilies:["herb"],
+    multiLayer: true,
     stores:["sara"],
     flavorNotes:["herb","acid","spice"], moisture:"low", weight:"light", presence:"anchor",
     desc:"North African herb marinade — parsley, cilantro, cumin, lemon. Similar to chimichurri but warmer.",
-    note:"Spread thin — herb-forward and lemony",
+    note:"Spread thin. Also works as post-bake finish drizzle.",
     qty:{ unit:"jar or fresh (200g)", yield_g:200, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:4, min_purchase:1 },
   },
   {
@@ -376,7 +430,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["spicepaste"],
     stores:["cm"],
     flavorNotes:["spice","cream","umami","acid"], moisture:"medium", weight:"medium", presence:"anchor",
-    desc:"Creamy tomato-based Indian sauce with garam masala, ginger, garlic — bold and aromatic.",
+    desc:"Creamy tomato-based Indian sauce — garam masala, ginger, garlic. Bold and aromatic.",
     note:"Reduce until thick before applying — never watery",
     qty:{ unit:"jar (350g)", yield_g:350, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:4, min_purchase:1 },
   },
@@ -387,7 +441,7 @@ const TOPPINGS = [
     stores:["cm"],
     flavorNotes:["cream","spice","fat","umami"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Richer, creamier Indian sauce than tikka — butter-forward with gentle spice.",
-    note:"Reduce before use — richer than tikka, pairs with paneer",
+    note:"Reduce before use — pairs beautifully with paneer",
     qty:{ unit:"jar (350g)", yield_g:350, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:4, min_purchase:1 },
   },
   {
@@ -426,9 +480,19 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["meatbase"],
     stores:["sara"], prep:PREP.RAW,
     flavorNotes:["spice","umami","heat","acid"], moisture:"low", weight:"heavy", presence:"anchor",
-    desc:"Raw spiced lamb or beef mixed with tomato, parsley, peppers and Aleppo — spread thin on dough and baked directly. No cheese traditionally.",
-    note:"Spread thin on raw dough — cooks with pizza. No cheese traditionally.",
+    desc:"Raw spiced lamb or beef with tomato, parsley, peppers and Aleppo — spread thin on dough and baked directly. No cheese or extra protein. Traditional Turkish street food.",
+    note:"Spread thin on raw dough — cooks with pizza. No cheese or protein added.",
     qty:{ unit:"200g ground lamb/beef", yield_g:200, per_pizza_g:200, per_pizza_oz:7.1, min_purchase:1 },
+  },
+  {
+    id:"zaatar_spread", name:"Za'atar oil spread (manakish)",
+    layer:"sauce", cuisine:["levantine","turkish"],
+    profile:"E", sauceFamilies:["flatbread"],
+    stores:["sara"],
+    flavorNotes:["herb","fat","acid"], moisture:"low", weight:"light", presence:"anchor",
+    desc:"Za'atar generously mixed with olive oil and spread directly on raw dough — this IS the pizza. The Levantine flatbread tradition, manakish. The dough edge is the crust.",
+    note:"Spread generously on raw dough — no additional sauce. Light cheese or none. Keep toppings minimal.",
+    qty:{ unit:"za'atar jar + EVOO", yield_g:50, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_tbsp:3, pantry:true, min_purchase:1 },
   },
   {
     id:"nosause", name:"No sauce — bianca",
@@ -495,8 +559,8 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["nosause","dairy","tomato"],
     stores:["cm"],
     flavorNotes:["brine","umami","fat","acid"], moisture:"low", weight:"medium", presence:"anchor",
-    desc:"Italian blue cheese — sharp, funky, creamy. Classic quattro formaggi component. Use sparingly.",
-    note:"Strong — small amounts, pairs beautifully with hot honey or walnuts",
+    desc:"Italian blue cheese — sharp, funky, creamy. Quattro formaggi essential. Use sparingly.",
+    note:"Strong — small amounts. Pairs beautifully with hot honey, walnuts, figs or pear",
     qty:{ unit:"wedge (150g)", yield_g:150, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:3, min_purchase:1 },
   },
   {
@@ -512,7 +576,7 @@ const TOPPINGS = [
   {
     id:"feta", name:"Feta (crumbled)",
     layer:"cheese", cuisine:["greek","levantine","turkish","northafrican","neapolitan"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
     stores:["sara","cm"],
     flavorNotes:["brine","acid","fat"], moisture:"low", weight:"light", presence:"supporting",
     desc:"Brined Greek sheep's milk cheese — salty, tangy, crumbly. Doesn't melt, adds bursts of flavor.",
@@ -522,7 +586,7 @@ const TOPPINGS = [
   {
     id:"halloumi", name:"Halloumi (sliced)",
     layer:"cheese", cuisine:["greek","levantine","turkish"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
     stores:["sara","cm"],
     flavorNotes:["brine","fat","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Cypriot cheese with very high melting point — golden and squeaky when seared. Holds shape in oven.",
@@ -532,7 +596,7 @@ const TOPPINGS = [
   {
     id:"kashkaval", name:"Kashkaval",
     layer:"cheese", cuisine:["turkish","levantine","greek","northafrican"],
-    profile:"E", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause"],
+    profile:"E", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause","flatbread"],
     stores:["sara","altin"],
     flavorNotes:["fat","umami","cream"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Balkan semi-hard cheese — excellent melt, mild and buttery. Turkey's answer to mozzarella.",
@@ -540,12 +604,22 @@ const TOPPINGS = [
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:90, per_pizza_oz:3.2, shared_yield:2, min_purchase:1 },
   },
   {
+    id:"akawi", name:"Akawi (white Levantine cheese)",
+    layer:"cheese", cuisine:["levantine","turkish"],
+    profile:"E", sauceFamilies:["nosause","flatbread","herb","tomato"],
+    stores:["sara"],
+    flavorNotes:["cream","brine","fat"], moisture:"medium", weight:"medium", presence:"anchor",
+    desc:"Soft white Levantine cheese — mild, slightly salty, excellent melt. The classic manakish cheese. Used in kunefe and fatayer across the Levant.",
+    note:"Slice or crumble — melts beautifully, natural partner for za'atar spread",
+    qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:80, per_pizza_oz:2.8, shared_yield:2, min_purchase:1 },
+  },
+  {
     id:"shanklish", name:"Shanklish (crumbled)",
     layer:"cheese", cuisine:["levantine","turkish"],
     profile:"C", sauceFamilies:["tomato","herb","nosause"],
     stores:["sara"],
     flavorNotes:["brine","spice","umami","acid"], moisture:"dry", weight:"light", presence:"supporting",
-    desc:"Aged, spiced Levantine cheese ball rolled in dried herbs and chili — pungent, earthy, distinctive.",
+    desc:"Aged, spiced Levantine cheese ball rolled in dried herbs and chili — pungent, earthy, distinctive. Available at Sara's.",
     note:"Crumble sparingly — very strong flavor, post-bake or last 60 seconds",
     qty:{ unit:"ball (150g)", yield_g:150, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:5, min_purchase:1 },
   },
@@ -556,8 +630,18 @@ const TOPPINGS = [
     stores:["cm"],
     flavorNotes:["acid","cream","fat"], moisture:"low", weight:"light", presence:"supporting",
     desc:"Fresh soft goat cheese — tangy, creamy, lighter than ricotta. Dollop rather than spread.",
-    note:"Dollop in rounds — pairs with beet, honey, arugula",
+    note:"Dollop in rounds — pairs with figs, beet, honey, arugula",
     qty:{ unit:"log (150g)", yield_g:150, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:3, min_purchase:1 },
+  },
+  {
+    id:"parmigiano_primary", name:"Parmigiano-Reggiano (grated, primary)",
+    layer:"cheese", cuisine:["neapolitan","american"],
+    profile:"E", sauceFamilies:["nosause","herb"],
+    stores:["cm"],
+    flavorNotes:["umami","acid","crunch","fat"], moisture:"dry", weight:"light", presence:"anchor",
+    desc:"The Rosa principle — Parmigiano grated directly on raw dough as the primary cheese on a bianca. Chris Bianco's signature move. No mozzarella. Just Parmigiano, EVOO, and focused toppings.",
+    note:"Grate coarsely directly on stretched dough — leave 1/2 inch crust edge. No other soft cheese needed.",
+    qty:{ unit:"wedge (100g)", yield_g:100, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:2, min_purchase:1 },
   },
   {
     id:"cotija", name:"Cotija (crumbled)",
@@ -575,7 +659,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["spicepaste","dairy"],
     stores:["cm"],
     flavorNotes:["fat","cream","spice"], moisture:"low", weight:"medium", presence:"anchor",
-    desc:"Indian fresh cheese — firm, mild, doesn't melt. Marinated and pre-cooked before adding to pizza.",
+    desc:"Indian fresh cheese — firm, mild, doesn't melt. Marinated and pre-cooked before adding.",
     note:"Marinate in tikka spices + yogurt min 30 min, then pan-sear",
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:80, per_pizza_oz:2.8, min_purchase:1 },
   },
@@ -601,7 +685,7 @@ const TOPPINGS = [
   {
     id:"ricotta_dollop", name:"Ricotta (dolloped)",
     layer:"cheese", cuisine:["neapolitan","american","greek"],
-    profile:"E", sauceFamilies:["tomato","dairy","nosause"],
+    profile:"E", sauceFamilies:["tomato","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat","sweet"], moisture:"medium", weight:"light", presence:"supporting",
     note:"Drop in spoonfuls — creamy pockets mid-bake",
@@ -621,7 +705,7 @@ const TOPPINGS = [
   {
     id:"lamb_mince", name:"Spiced lamb mince",
     layer:"protein", cuisine:["turkish","greek","northafrican","levantine"],
-    profile:"E", sauceFamilies:["tomato","dairy","spicepaste","herb"],
+    profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb"],
     stores:["sara"], prep:PREP.PRE,
     flavorNotes:["spice","umami","fat"], moisture:"low", weight:"heavy", presence:"anchor",
     note:"Season with cumin, allspice, Aleppo — par-cook, drain fat",
@@ -643,8 +727,8 @@ const TOPPINGS = [
     profile:"C", sauceFamilies:["tomato","spicepaste","nosause"],
     stores:["sara"], prep:PREP.READY,
     flavorNotes:["spice","umami","fat","smoke"], moisture:"dry", weight:"light", presence:"supporting",
-    desc:"Air-dried cured beef coated in thick fenugreek-spice paste (çemen) — intensely flavored, very aromatic.",
-    note:"Slice paper-thin — very strong flavor, use sparingly. Pairs with egg.",
+    desc:"Air-dried cured beef coated in fenugreek-spice paste (çemen) — intensely flavored, very aromatic. A true Connoisseur ingredient.",
+    note:"Slice paper-thin — very strong flavor, use sparingly. Pairs beautifully with egg.",
     qty:{ unit:"pack (150g)", yield_g:150, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:3, min_purchase:1 },
   },
   {
@@ -653,7 +737,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","herb","nosause"],
     stores:["cm"], prep:PREP.READY,
     flavorNotes:["brine","umami","fat"], moisture:"low", weight:"light", presence:"supporting",
-    desc:"Salt-cured fish fillets in olive oil — intensely savory and umami. A Neapolitan staple.",
+    desc:"Salt-cured fish fillets in olive oil — intensely savory and umami. A Neapolitan staple. Amplifies capers.",
     note:"Add last 60 seconds — use 3–4 fillets max, they dissolve into the pie",
     qty:{ unit:"tin (50g)", yield_g:50, per_pizza_g:20, per_pizza_oz:0.7, shared_yield:2, min_purchase:1 },
   },
@@ -710,8 +794,8 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","spicepaste"],
     stores:["cm"], prep:PREP.READY,
     flavorNotes:["heat","fat","spice","umami"], moisture:"low", weight:"medium", presence:"anchor",
-    desc:"Spicy beef salami — hotter and more aggressively seasoned than regular salami.",
-    note:"Slice thin — intense heat, pairs with honey or cream cheese to balance",
+    desc:"Spicy beef salami — hotter than regular salami. Diavola means 'devil'.",
+    note:"Slice thin — intense heat, pairs with honey or cream to balance",
     qty:{ unit:"pack (150g)", yield_g:150, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:2, min_purchase:1 },
   },
   {
@@ -721,7 +805,7 @@ const TOPPINGS = [
     stores:["cm"], prep:PREP.READY, postbake:true,
     flavorNotes:["umami","brine","acid"], moisture:"postbake", weight:"light", presence:"supporting",
     desc:"Italian air-dried salted beef — lean, delicate, deep red. Always post-bake. Classic with arugula and Parmigiano.",
-    note:"Post-bake only — drape over hot pizza, pairs with arugula and lemon",
+    note:"Post-bake only — drape over hot pizza. Pairs with arugula, lemon, Parmigiano",
     qty:{ unit:"pack (100g)", yield_g:100, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:1, min_purchase:1 },
   },
   {
@@ -783,7 +867,7 @@ const TOPPINGS = [
   {
     id:"labneh_balls", name:"Labneh balls (marinated)",
     layer:"protein", cuisine:["levantine","northafrican"],
-    profile:"C", sauceFamilies:["dairy","herb","nosause"],
+    profile:"C", sauceFamilies:["herb","nosause","tomato"],
     stores:["sara"], prep:PREP.READY, postbake:true,
     flavorNotes:["acid","cream","herb"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Labneh rolled into balls and preserved in olive oil with herbs — tangy, creamy, beautiful post-bake.",
@@ -797,7 +881,7 @@ const TOPPINGS = [
     stores:["sara"], prep:PREP.PRE, homemade:true,
     make_ahead:true, make_ahead_timing:"day before",
     flavorNotes:["heat","fat","spice","smoke","umami"], moisture:"low", weight:"medium", presence:"anchor",
-    desc:"Beef version of Calabrian spreadable chili sausage — made from sujuk rendered with EVOO and Aleppo pepper.",
+    desc:"Beef version of Calabrian spreadable chili sausage — made from sujuk rendered with EVOO and Aleppo. Spreadable, fiery, deeply savory.",
     note:"Make ahead — spread thin on dough before or after sauce.",
     recipe:{
       makes:"enough for 3–4 pizzas",
@@ -825,10 +909,10 @@ const TOPPINGS = [
   {
     id:"cherry_tom", name:"Cherry tomatoes (halved)",
     layer:"veg", cuisine:["neapolitan","greek","american","levantine","turkish","northafrican"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
     stores:["sara","cm"],
     flavorNotes:["acid","sweet","fresh"], moisture:"high", weight:"light", presence:"supporting",
-    note:"Universal — high moisture, don't overload",
+    note:"Universal — high moisture, don't overload. Fresh burst against cooked sauce is classic.",
     qty:{ unit:"punnet (250g)", yield_g:250, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:5, min_purchase:1 },
   },
   {
@@ -843,7 +927,7 @@ const TOPPINGS = [
   {
     id:"kalamata", name:"Kalamata olives",
     layer:"veg", cuisine:["greek","levantine","neapolitan","northafrican"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
     stores:["sara","cm"],
     flavorNotes:["brine","fat","acid"], moisture:"low", weight:"light", presence:"accent",
     note:"Pit and halve — strong brine flavor",
@@ -855,7 +939,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["cm"],
     flavorNotes:["fat","sweet","brine"], moisture:"low", weight:"light", presence:"accent",
-    desc:"Sicilian buttery green olive — mild, meaty, nothing like a regular green olive.",
+    desc:"Sicilian buttery green olive — mild, meaty, completely different from a regular green olive.",
     note:"Pit and halve — buttery and mild",
     qty:{ unit:"jar (290g)", yield_g:180, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:6, min_purchase:1 },
   },
@@ -871,11 +955,11 @@ const TOPPINGS = [
   {
     id:"capers", name:"Capers",
     layer:"veg", cuisine:["neapolitan","greek","levantine"],
-    profile:"E", sauceFamilies:["tomato","herb","nosause","dairy"],
+    profile:"T", sauceFamilies:["tomato","herb","nosause","dairy"],
     stores:["sara","cm"],
     flavorNotes:["brine","acid"], moisture:"low", weight:"light", presence:"accent",
-    desc:"Pickled flower buds — briny, pungent, intensely savory. A Neapolitan staple.",
-    note:"Rinse before using — salt-packed are best if available",
+    desc:"Pickled flower buds — briny, pungent, intensely savory. A Neapolitan staple. Amplifies anchovy.",
+    note:"Rinse before using — salt-packed are best. Classic with anchovy (brine amplification)",
     qty:{ unit:"jar (100g)", yield_g:100, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:6, pantry:true, min_purchase:1 },
   },
   {
@@ -888,13 +972,32 @@ const TOPPINGS = [
     qty:{ unit:"onions", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, per_pizza_unit:0.5, min_purchase:2 },
   },
   {
+    id:"spring_onion", name:"Spring onion (scallion)",
+    layer:"veg", cuisine:["levantine","turkish","greek","mexican","american","northafrican"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","flatbread","meatbase"],
+    stores:["sara","cm"], postbake:true,
+    flavorNotes:["fresh","acid","herb"], moisture:"postbake", weight:"light", presence:"accent",
+    note:"Post-bake or raw — classic on lahmajun and manakish. Slice thin on bias.",
+    qty:{ unit:"bunch", yield_g:80, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:5, min_purchase:1 },
+  },
+  {
     id:"red_onion", name:"Red onion (thin sliced)",
-    layer:"veg", cuisine:["greek","indian","mexican","american","levantine"],
-    profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb"],
+    layer:"veg", cuisine:["greek","indian","mexican","american","levantine","neapolitan"],
+    profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["acid","fresh","brine"], moisture:"low", weight:"light", presence:"accent",
-    note:"Quick pickle for less bite — 10 min in lime juice",
+    note:"Quick pickle for less bite — 10 min in lime juice. Used raw on lahmajun.",
     qty:{ unit:"onion", yield_g:150, per_pizza_g:30, per_pizza_oz:1.1, per_pizza_unit:0.25, min_purchase:1 },
+  },
+  {
+    id:"wood_roasted_onion", name:"Wood-roasted onion",
+    layer:"veg", cuisine:["neapolitan","american"],
+    profile:"E", sauceFamilies:["tomato","nosause","dairy"],
+    stores:["sara","cm"], domeOnly:true,
+    flavorNotes:["sweet","smoke","umami"], moisture:"low", weight:"light", presence:"supporting",
+    desc:"Onion roasted directly in the Dome at 900°F — chars and caramelizes in minutes. Chris Bianco's Wiseguy pizza uses this technique. Dome-specific.",
+    note:"⚠️ Dome technique — halve onion, char cut-side down before pizza. Steel oven: roast at 450°F for 30 min instead.",
+    qty:{ unit:"medium onions", yield_g:200, per_pizza_g:50, per_pizza_oz:1.8, per_pizza_unit:0.5, min_purchase:1 },
   },
   {
     id:"jalapeno_fresh", name:"Jalapeño (fresh sliced)",
@@ -945,7 +1048,7 @@ const TOPPINGS = [
   {
     id:"mushroom_wild", name:"Wild mushrooms (roasted)",
     layer:"veg", cuisine:["neapolitan"],
-    profile:"C", sauceFamilies:["nosause","dairy","tomato"],
+    profile:"E", sauceFamilies:["nosause","dairy","tomato"],
     stores:["cm"],
     flavorNotes:["umami","fat","smoke"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Maitake, oyster or chanterelle — earthy, complex, nothing like cremini.",
@@ -976,7 +1079,7 @@ const TOPPINGS = [
     profile:"C", sauceFamilies:["tomato","herb","dairy"],
     stores:["sara"],
     flavorNotes:["acid","brine","fresh"], moisture:"low", weight:"light", presence:"accent",
-    desc:"Salt-cured whole lemon — intensely lemony, salty, fermented flavor. Use the rind only, rinse well.",
+    desc:"Salt-cured whole lemon — intensely lemony, salty, fermented. Use rind only, rinse well.",
     note:"Rinse thoroughly, use rind only — tiny amounts, very salty",
     qty:{ unit:"jar (200g)", yield_g:200, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:13, pantry:true, min_purchase:1 },
   },
@@ -986,13 +1089,13 @@ const TOPPINGS = [
     profile:"C", sauceFamilies:["nosause","dairy"],
     stores:["sara"],
     flavorNotes:["starch","fat","sweet"], moisture:"low", weight:"medium", presence:"anchor",
-    note:"Classic Neapolitan bianca — slice paper thin or blanch first",
+    note:"Classic Neapolitan bianca — slice paper thin or blanch first. Pairs with rosemary.",
     qty:{ unit:"medium potatoes", yield_g:300, per_pizza_g:100, per_pizza_oz:3.5, per_pizza_unit:1, min_purchase:2 },
   },
   {
     id:"beet_roasted", name:"Roasted beet",
     layer:"veg", cuisine:["greek","northafrican"],
-    profile:"C", sauceFamilies:["dairy","nosause","herb"],
+    profile:"E", sauceFamilies:["dairy","nosause","herb"],
     stores:["sara","cm"],
     flavorNotes:["sweet","acid","umami"], moisture:"medium", weight:"medium", presence:"supporting",
     note:"Pre-roast and slice thin — pairs with feta or goat cheese",
@@ -1001,16 +1104,16 @@ const TOPPINGS = [
   {
     id:"sun_dried_tom", name:"Sun-dried tomatoes",
     layer:"veg", cuisine:["neapolitan","greek","levantine"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["umami","acid","sweet","fat"], moisture:"low", weight:"light", presence:"accent",
-    note:"Drain from oil — intense, use sparingly",
+    note:"Drain from oil — intense, use sparingly. Two tomato expressions on one pie is technique, not redundancy.",
     qty:{ unit:"jar (200g)", yield_g:150, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:5, pantry:true, min_purchase:1 },
   },
   {
     id:"piquillo_peppers", name:"Piquillo peppers",
     layer:"veg", cuisine:["neapolitan","northafrican"],
-    profile:"C", sauceFamilies:["tomato","dairy","spicepaste"],
+    profile:"E", sauceFamilies:["tomato","dairy","spicepaste"],
     stores:["cm"],
     flavorNotes:["sweet","smoke","acid"], moisture:"medium", weight:"light", presence:"supporting",
     desc:"Spanish roasted sweet-smoky peppers — more intense than regular roasted peppers.",
@@ -1051,7 +1154,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["sara","cm"],
     flavorNotes:["sweet","herb","acid"], moisture:"medium", weight:"light", presence:"supporting",
-    desc:"Anise-flavored bulb vegetable — sweet and aromatic when roasted, becomes mild and caramelized.",
+    desc:"Anise-flavored bulb — sweet and aromatic when roasted, mild and caramelized.",
     note:"Roast until caramelized or shave raw paper-thin for white pies",
     qty:{ unit:"fennel bulb", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, per_pizza_unit:0.5, min_purchase:1 },
   },
@@ -1105,12 +1208,73 @@ const TOPPINGS = [
   {
     id:"pomegranate_arils", name:"Pomegranate arils",
     layer:"veg", cuisine:["levantine","turkish","northafrican","greek"],
-    profile:"E", sauceFamilies:["dairy","herb","nosause","tomato"],
+    profile:"E", sauceFamilies:["dairy","herb","nosause","tomato","flatbread"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["acid","sweet","fresh","crunch"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Fresh pomegranate seeds — burst of sweet-tart juice, jewel-like color.",
+    desc:"Fresh pomegranate seeds — burst of sweet-tart juice, jewel-like color. Post-bake garnish.",
     note:"Post-bake only — scatter over finished pizza for color and acid pop",
     qty:{ unit:"pomegranate", yield_g:150, per_pizza_g:30, per_pizza_oz:1.1, per_pizza_unit:0.25, min_purchase:1 },
+  },
+  // ── FRUITS ──────────────────────────────────────────────────
+  {
+    id:"figs_dried", name:"Dried figs (halved)",
+    layer:"veg", cuisine:["neapolitan","levantine","northafrican","greek"],
+    profile:"E", sauceFamilies:["dairy","nosause","herb"],
+    stores:["sara","cm"],
+    flavorNotes:["sweet","acid","umami"], moisture:"low", weight:"light", presence:"accent",
+    desc:"Dried figs concentrate their sweetness and caramelize at Dome temperature — a beautiful contrast against funky or salty cheeses.",
+    note:"Halve before adding — caramelize in Dome. Pairs with gorgonzola, goat cheese, bresaola, walnuts",
+    qty:{ unit:"bag (200g)", yield_g:200, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:6, pantry:true, min_purchase:1 },
+  },
+  {
+    id:"figs_fresh", name:"Fresh figs (torn)",
+    layer:"finish", cuisine:["neapolitan","levantine","northafrican","greek"],
+    profile:"E", sauceFamilies:["dairy","nosause","herb"],
+    stores:["sara","cm"], postbake:true,
+    flavorNotes:["sweet","acid","fresh"], moisture:"postbake", weight:"light", presence:"accent",
+    desc:"Fresh figs torn and draped post-bake — too wet for the oven, beautiful at room temperature on a hot pizza.",
+    note:"Post-bake only — tear open and lay over burrata or goat cheese. Seasonal at CM.",
+    qty:{ unit:"pint (6–8 figs)", yield_g:150, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_unit:2, min_purchase:1 },
+  },
+  {
+    id:"pear_sliced", name:"Pear (thin sliced)",
+    layer:"veg", cuisine:["neapolitan","american"],
+    profile:"E", sauceFamilies:["dairy","nosause"],
+    stores:["cm"],
+    flavorNotes:["sweet","acid","fresh"], moisture:"medium", weight:"light", presence:"accent",
+    desc:"Thin-sliced pear caramelizes beautifully at high heat. Classic with gorgonzola, walnuts and honey — a complete flavor story.",
+    note:"Slice paper thin — pairs with gorgonzola, walnuts, hot honey, arugula",
+    qty:{ unit:"pear", yield_g:150, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_unit:0.5, min_purchase:1 },
+  },
+  {
+    id:"grapes_roasted", name:"Grapes (halved, roasted)",
+    layer:"veg", cuisine:["neapolitan","greek"],
+    profile:"C", sauceFamilies:["dairy","nosause"],
+    stores:["cm"],
+    flavorNotes:["sweet","acid","umami"], moisture:"medium", weight:"light", presence:"accent",
+    desc:"Roasted grapes intensify in sweetness and develop a jammy, wine-like quality. Unexpected and extraordinary on a bianca.",
+    note:"Roast at 400°F for 15 min first — halve, remove seeds. Pairs with gorgonzola or ricotta",
+    qty:{ unit:"bunch (200g)", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, min_purchase:1 },
+  },
+  {
+    id:"dates_halved", name:"Dates (pitted, halved)",
+    layer:"veg", cuisine:["levantine","northafrican","turkish"],
+    profile:"E", sauceFamilies:["dairy","herb","nosause"],
+    stores:["sara","cm"],
+    flavorNotes:["sweet","umami","fat"], moisture:"low", weight:"light", presence:"accent",
+    desc:"Medjool dates — rich, caramel-sweet, deeply savory when warmed. A Levantine ingredient that transforms on a hot pizza.",
+    note:"Pit and halve — place pre-bake. Pairs with goat cheese, labneh, walnuts, lamb",
+    qty:{ unit:"bag (200g)", yield_g:200, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:6, pantry:true, min_purchase:1 },
+  },
+  {
+    id:"quince_paste", name:"Quince paste (membrillo)",
+    layer:"finish", cuisine:["levantine","northafrican","neapolitan"],
+    profile:"C", sauceFamilies:["dairy","nosause","herb"],
+    stores:["cm","sara"], postbake:true,
+    flavorNotes:["sweet","acid","bitter"], moisture:"postbake", weight:"light", presence:"accent",
+    desc:"Quince fruit reduced to a dense, fragrant paste — sweet-tart with floral notes. A Connoisseur accent used in tiny amounts.",
+    note:"Post-bake — small dots only, very concentrated. Pairs with goat cheese, manchego, labneh",
+    qty:{ unit:"jar (200g)", yield_g:200, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:13, pantry:true, min_purchase:1 },
   },
 
   // ══ FINISH ══════════════════════════════════════════════════
@@ -1122,6 +1286,16 @@ const TOPPINGS = [
     flavorNotes:["herb","fresh","sweet"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake always — wilts and blackens in oven",
     qty:{ unit:"bunch", yield_g:30, per_pizza_g:5, per_pizza_oz:0.2, shared_yield:6, min_purchase:1 },
+  },
+  {
+    id:"rosemary", name:"Fresh rosemary",
+    layer:"finish", cuisine:["neapolitan","american","greek"],
+    profile:"T", sauceFamilies:["tomato","nosause","dairy","herb"],
+    stores:["sara","cm"], postbake:false,
+    flavorNotes:["herb","bitter","fat"], moisture:"dry", weight:"light", presence:"accent",
+    desc:"Piney, resinous herb — classic on potato bianca and the Rosa pizza. Goes in before bake — handles the heat well.",
+    note:"Add before bake — handles Dome heat. Whole leaves on Rosa-style pies, chopped for potato bianca",
+    qty:{ unit:"bunch", yield_g:20, per_pizza_g:3, per_pizza_oz:0.1, shared_yield:6, min_purchase:1 },
   },
   {
     id:"dried_oregano", name:"Dried oregano",
@@ -1144,7 +1318,7 @@ const TOPPINGS = [
   {
     id:"dried_mint", name:"Dried mint",
     layer:"finish", cuisine:["levantine","turkish","greek","northafrican"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["herb","fresh"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Dried and crumbled mint — more concentrated than fresh, used differently in Levantine cooking.",
@@ -1163,20 +1337,20 @@ const TOPPINGS = [
   {
     id:"flat_parsley", name:"Flat-leaf parsley",
     layer:"finish", cuisine:["levantine","turkish","northafrican","greek","neapolitan"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","meatbase","flatbread"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["herb","fresh","bitter"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Post-bake — universal finish herb",
+    note:"Post-bake — universal finish herb. Essential on lahmajun.",
     qty:{ unit:"bunch", yield_g:20, per_pizza_g:4, per_pizza_oz:0.1, shared_yield:5, min_purchase:1 },
   },
   {
     id:"sumac_finish", name:"Sumac (dusted)",
     layer:"finish", cuisine:["levantine","turkish","northafrican","greek"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause","meatbase","flatbread"],
     stores:["sara"], postbake:true,
     flavorNotes:["acid","fresh"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Ground dried sumac berry — intensely lemony and tart. Essential Levantine spice.",
-    note:"Post-bake — lemony, essential on Levantine and Turkish pies",
+    note:"Post-bake — lemony, essential on Levantine, Turkish and lahmajun pies",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:1, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
@@ -1186,7 +1360,7 @@ const TOPPINGS = [
     stores:["sara"], postbake:true,
     flavorNotes:["herb","acid","crunch"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Blend of dried thyme, sumac, sesame and salt — earthy, herbaceous, nutty.",
-    note:"Post-bake or last 30 seconds",
+    note:"Post-bake or last 30 seconds — not on manakish pies (za'atar already the sauce)",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tbsp:1, shared_yield:20, pantry:true, min_purchase:1 },
   },
   {
@@ -1195,14 +1369,15 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["spicepaste","dairy"],
     stores:["cm"], postbake:true,
     flavorNotes:["acid","spice","umami"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Indian spice blend — tangy, salty, cumin-forward with amchur (dried mango powder).",
+    desc:"Indian spice blend — tangy, salty, cumin-forward with amchur (dried mango powder). Transformative finish.",
     note:"Post-bake — tangy, umami, essential on Indian pies",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.5, shared_yield:40, pantry:true, min_purchase:1 },
   },
   {
     id:"finish_evoo", name:"EVOO (finishing drizzle)",
     layer:"finish", cuisine:["neapolitan","greek","levantine","turkish","northafrican","american"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","flatbread","meatbase"],
+    multiLayer: true,
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","fresh"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake always — use your best bottle here",
@@ -1211,7 +1386,7 @@ const TOPPINGS = [
   {
     id:"lemon_zest", name:"Lemon zest",
     layer:"finish", cuisine:["greek","levantine","northafrican","neapolitan"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","meatbase","flatbread"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["acid","fresh","herb"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake — brightens everything, criminally underused",
@@ -1223,7 +1398,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["cm"], postbake:true,
     flavorNotes:["sweet","heat","fat"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Calabrian style — post-bake drizzle. Essential with gorgonzola.",
+    note:"Calabrian style — post-bake drizzle. Essential with gorgonzola. Works with figs.",
     qty:{ unit:"bottle", yield_g:0, per_pizza_g:0, per_pizza_tbsp:0.5, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
@@ -1232,14 +1407,14 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"], postbake:true,
     flavorNotes:["sweet","acid","umami"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Reduced balsamic vinegar from Modena — thick, sweet-sour syrup. Not regular balsamic vinegar.",
-    note:"Post-bake drizzle — classic with burrata, bresaola, arugula",
+    desc:"Reduced balsamic from Modena — thick, sweet-sour syrup. Not regular balsamic vinegar.",
+    note:"Post-bake drizzle — classic with burrata, bresaola, arugula. Works on tomato sauce too.",
     qty:{ unit:"bottle", yield_g:0, per_pizza_g:0, per_pizza_tbsp:0.5, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
     id:"pomegranate_mol", name:"Pomegranate molasses",
     layer:"finish", cuisine:["levantine","northafrican","turkish"],
-    profile:"C", sauceFamilies:["tomato","dairy","herb","spicepaste"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","spicepaste"],
     stores:["sara"], postbake:true,
     flavorNotes:["sweet","acid","umami"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Reduced pomegranate juice — thick, intensely sweet-sour. Used across Levantine and Turkish cooking.",
@@ -1250,6 +1425,7 @@ const TOPPINGS = [
     id:"tahini_drizzle", name:"Tahini drizzle",
     layer:"finish", cuisine:["levantine","northafrican","turkish"],
     profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
+    multiLayer: true,
     stores:["sara"], postbake:true,
     flavorNotes:["fat","umami","acid"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Sesame paste thinned with lemon juice — nutty, rich, pairs with almost any Levantine pie.",
@@ -1278,11 +1454,11 @@ const TOPPINGS = [
   {
     id:"aleppo_pepper", name:"Aleppo pepper flakes",
     layer:"finish", cuisine:["levantine","turkish","northafrican","american"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","spicepaste","nosause"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","spicepaste","nosause","meatbase","flatbread"],
     stores:["sara"], postbake:true,
     flavorNotes:["heat","acid","fat"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Syrian dried chili — fruity, moderately hot, oily texture. Completely different from regular chili flakes.",
-    note:"Post-bake — use instead of regular chili flakes on Levantine and Turkish pies",
+    desc:"Syrian dried chili — fruity, moderately hot, oily. Completely different from regular chili flakes. Standard finish on lahmajun.",
+    note:"Post-bake — the Levantine chili finish. Essential on lahmajun.",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.5, shared_yield:40, pantry:true, min_purchase:1 },
   },
   {
@@ -1311,14 +1487,14 @@ const TOPPINGS = [
     profile:"C", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["smoke","sweet","heat","fat"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Turkish dried chili from Urfa — also sold as Isot biber or Isot pepper. Dark burgundy, smoky, raisin-like sweetness.",
-    note:"Post-bake — dark, smoky, complex. Look for 'Isot biber' if you can't find Urfa",
+    desc:"Turkish dried chili from Urfa — also sold as Isot biber. Dark burgundy, smoky, raisin-like sweetness. Very different from Aleppo.",
+    note:"Post-bake — dark, smoky, complex. Look for 'Isot biber' at Sara's if you can't find Urfa",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.5, shared_yield:40, pantry:true, min_purchase:1 },
   },
   {
     id:"pickled_red_onion", name:"Pickled red onion",
     layer:"finish", cuisine:["mexican","american","indian","levantine"],
-    profile:"E", sauceFamilies:["tomato","spicepaste","dairy"],
+    profile:"T", sauceFamilies:["tomato","spicepaste","dairy"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["acid","brine","fresh","crunch"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake contrast — make or buy jarred",
@@ -1330,7 +1506,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["bitter","fresh","acid","herb"], moisture:"postbake", weight:"light", presence:"supporting",
-    note:"Toss in lemon + EVOO — drape over hot pizza post-bake. Classic with bresaola.",
+    note:"Toss in lemon + EVOO — drape over hot pizza. Classic with bresaola.",
     qty:{ unit:"bag (80g)", yield_g:80, per_pizza_g:20, per_pizza_oz:0.7, shared_yield:4, min_purchase:1 },
   },
   {
@@ -1367,9 +1543,9 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"], postbake:true,
     flavorNotes:["umami","acid","fat","crunch"], moisture:"postbake", weight:"light", presence:"supporting",
-    desc:"Aged Italian hard cheese — deep umami, nutty, complex. Always shaved post-bake, never melted.",
-    note:"Post-bake always — shave with peeler over hot pizza",
-    qty:{ unit:"wedge (100g)", yield_g:100, per_pizza_g:20, per_pizza_oz:0.7, shared_yield:5, min_purchase:1 },
+    desc:"Aged Italian hard cheese — always shaved post-bake, never melted. No one measures this — use your judgment.",
+    note:"Post-bake always — shave with peeler over hot pizza. Use as much as feels right.",
+    qty:{ unit:"wedge (pantry)", yield_g:100, per_pizza_g:0, per_pizza_oz:0, shared_yield:999, pantry:true, min_purchase:1 },
   },
   {
     id:"pecorino", name:"Pecorino Romano (shaved)",
@@ -1377,9 +1553,9 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["cm"], postbake:true,
     flavorNotes:["brine","umami","acid"], moisture:"postbake", weight:"light", presence:"supporting",
-    desc:"Aged Italian sheep's milk cheese — saltier and sharper than Parmigiano.",
+    desc:"Aged Italian sheep's milk cheese — saltier and sharper than Parmigiano. No one measures this either.",
     note:"Post-bake shave — saltier than Parmigiano, use less",
-    qty:{ unit:"wedge (100g)", yield_g:100, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:6, min_purchase:1 },
+    qty:{ unit:"wedge (pantry)", yield_g:100, per_pizza_g:0, per_pizza_oz:0, shared_yield:999, pantry:true, min_purchase:1 },
   },
   {
     id:"toasted_walnuts", name:"Toasted walnuts",
@@ -1387,7 +1563,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["dairy","nosause","tomato"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","crunch","bitter","umami"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Toast in dry pan first — essential with gorgonzola and honey",
+    note:"Toast in dry pan first — essential with gorgonzola, honey and figs",
     qty:{ unit:"bag (100g)", yield_g:100, per_pizza_g:20, per_pizza_oz:0.7, shared_yield:5, min_purchase:1 },
   },
   {
@@ -1401,18 +1577,18 @@ const TOPPINGS = [
   },
   {
     id:"pistachios", name:"Pistachios (crushed)",
-    layer:"finish", cuisine:["levantine","northafrican","neapolitan"],
+    layer:"finish", cuisine:["levantine","northafrican","neapolitan","american"],
     profile:"E", sauceFamilies:["dairy","nosause","herb"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","crunch","sweet","herb"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Crushed pistachios as finish — Sicilian pistachio pizza is a real and wonderful thing.",
-    note:"Crush roughly — post-bake scatter over ricotta or burrata pies",
+    desc:"The Rosa principle — Chris Bianco's Pizza Rosa uses pistachios as the primary nut finish. Crushed, scattered, extraordinary.",
+    note:"Crush roughly — post-bake scatter. Essential on Rosa-style pies with rosemary and red onion",
     qty:{ unit:"bag (100g)", yield_g:100, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:6, min_purchase:1 },
   },
   {
     id:"sesame_seeds", name:"Toasted sesame seeds",
     layer:"finish", cuisine:["turkish","levantine","northafrican","indian"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","flatbread"],
     stores:["sara"], postbake:true,
     flavorNotes:["crunch","fat","umami"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Toasted white or black sesame — nutty, subtle, essential in Turkish and Levantine baking.",
@@ -1422,10 +1598,10 @@ const TOPPINGS = [
   {
     id:"nigella_seeds", name:"Nigella seeds (kalonji)",
     layer:"finish", cuisine:["turkish","indian","levantine"],
-    profile:"C", sauceFamilies:["spicepaste","dairy","nosause"],
+    profile:"C", sauceFamilies:["spicepaste","dairy","nosause","flatbread"],
     stores:["sara"], postbake:true,
     flavorNotes:["bitter","spice","crunch"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"Black seeds with onion-like, slightly smoky flavor — also called black cumin or kalonji.",
+    desc:"Black seeds with onion-like, slightly smoky flavor — also called black cumin or kalonji. Used in Turkish bread.",
     note:"Post-bake scatter — very small amount, distinctive flavor",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.25, shared_yield:60, pantry:true, min_purchase:1 },
   },
@@ -1454,7 +1630,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb","spicepaste"],
     stores:["cm"], postbake:true,
     flavorNotes:["brine","crunch"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"English sea salt with large, crunchy flakes — adds mineral pop and texture.",
+    desc:"English sea salt with large, crunchy flakes — adds mineral pop and texture. Different from regular salt.",
     note:"Post-bake — crumble over burrata, bresaola or any bianca pie",
     qty:{ unit:"box", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.25, shared_yield:60, pantry:true, min_purchase:1 },
   },
