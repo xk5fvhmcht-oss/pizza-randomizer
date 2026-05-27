@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v1.2.0
+// OMAR'S PIE — app.js v1.3.0
 // ============================================================
 
 // ── THEME ───────────────────────────────────────────────────
@@ -24,7 +24,9 @@ const state = {
   anchoredItems: new Set(JSON.parse(localStorage.getItem("op_anchored") || "[]")),
   excludedItems:  new Set(JSON.parse(localStorage.getItem("op_excluded")  || "[]")),
   history:        JSON.parse(localStorage.getItem("op_history")  || "[]"),
-  libraryFilter:  null, // null | "anchored" | "excluded"
+  session:        JSON.parse(localStorage.getItem("op_session")  || "[]"),
+  saved:          JSON.parse(localStorage.getItem("op_saved")    || "[]"),
+  libraryFilter:  null,
 };
 
 const $ = id => document.getElementById(id);
@@ -33,6 +35,12 @@ const $ = id => document.getElementById(id);
 function saveAnchored() { localStorage.setItem("op_anchored", JSON.stringify([...state.anchoredItems])); }
 function saveExcluded()  { localStorage.setItem("op_excluded",  JSON.stringify([...state.excludedItems]));  }
 function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(-20))); }
+function saveSession()   { localStorage.setItem("op_session",   JSON.stringify(state.session)); }
+function saveSaved()     { localStorage.setItem("op_saved",     JSON.stringify(state.saved)); }
+
+// ── UTILS ────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2, 9); }
+function gToOz(g) { return (g / 28.35).toFixed(1); }
 
 // ── SCREEN NAV ───────────────────────────────────────────────
 function showScreen(name) {
@@ -50,7 +58,7 @@ function initCuisineGrid() {
     const btn = document.createElement("button");
     btn.className = "cuisine-tile";
     btn.dataset.id = c.id;
-    btn.setAttribute("aria-pressed", "false");
+    btn.setAttribute("aria-pressed","false");
     btn.innerHTML = `
       <span class="tile-emoji">${c.emoji}</span>
       <span class="tile-name">${c.label}</span>
@@ -86,21 +94,15 @@ function updateCuisineUI() {
     tile.classList.toggle("selected", isSelected);
     tile.setAttribute("aria-pressed", isSelected ? "true" : "false");
     if (sel.length === 1 && !isSelected) {
-      const isAffinity = CUISINE_AFFINITIES.some(
-        pair => pair.includes(sel[0]) && pair.includes(id)
-      );
+      const isAffinity = CUISINE_AFFINITIES.some(pair => pair.includes(sel[0]) && pair.includes(id));
       tile.classList.toggle("affinity", isAffinity);
     } else {
       tile.classList.remove("affinity");
     }
   });
-
-  // Clash detection
   let clashText = "";
   if (sel.length === 2) {
-    const isClash = CUISINE_CLASHES.some(
-      pair => pair.includes(sel[0]) && pair.includes(sel[1])
-    );
+    const isClash = CUISINE_CLASHES.some(pair => pair.includes(sel[0]) && pair.includes(sel[1]));
     if (isClash) {
       const a = CUISINES.find(c => c.id === sel[0]);
       const b = CUISINES.find(c => c.id === sel[1]);
@@ -110,7 +112,6 @@ function updateCuisineUI() {
   const warn = $("clash-warning");
   warn.style.display = clashText ? "flex" : "none";
   $("clash-text").textContent = clashText;
-
   const canProceed = sel.length > 0;
   $("btn-to-sauce").disabled = !canProceed;
   $("proceed-hint").textContent = sel.length === 0
@@ -118,16 +119,15 @@ function updateCuisineUI() {
     : sel.length === 1
       ? `${CUISINES.find(c => c.id === sel[0]).label} · Choose your sauce →`
       : `${CUISINES.find(c => c.id === sel[0]).label} + ${CUISINES.find(c => c.id === sel[1]).label} fusion`;
+  updateSessionBadge();
 }
 
-// Surprise Me
 $("btn-surprise").addEventListener("click", () => {
   const pick = CUISINE_AFFINITIES[Math.floor(Math.random() * CUISINE_AFFINITIES.length)];
   state.selectedCuisines = [...pick];
   updateCuisineUI();
 });
 
-// Reset
 $("btn-reset").addEventListener("click", () => {
   state.selectedCuisines = [];
   state.selectedSauce = null;
@@ -139,7 +139,7 @@ $("btn-reset").addEventListener("click", () => {
   showToast("Selections cleared");
 });
 
-// ── OVEN TOGGLE ───────────────────────────────────────────────
+// ── OVEN / COMPLEXITY ─────────────────────────────────────────
 document.querySelectorAll(".oven-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".oven-btn").forEach(b => b.classList.remove("active"));
@@ -147,8 +147,6 @@ document.querySelectorAll(".oven-btn").forEach(btn => {
     state.ovenMode = btn.dataset.oven;
   });
 });
-
-// ── COMPLEXITY TOGGLE ────────────────────────────────────────
 document.querySelectorAll(".complexity-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".complexity-btn").forEach(b => b.classList.remove("active"));
@@ -157,20 +155,15 @@ document.querySelectorAll(".complexity-btn").forEach(btn => {
   });
 });
 
-// ── PROCEED TO SAUCE ─────────────────────────────────────────
-$("btn-to-sauce").addEventListener("click", () => {
-  buildSauceScreen();
-  showScreen("sauce");
-});
-
 // ── SAUCE SCREEN ─────────────────────────────────────────────
+$("btn-to-sauce").addEventListener("click", () => { buildSauceScreen(); showScreen("sauce"); });
+
 function buildSauceScreen() {
   const container = $("sauce-grid");
   container.innerHTML = "";
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const cuisines   = state.selectedCuisines;
-
-  const hasClash = cuisines.length === 2 && CUISINE_CLASHES.some(
+  const hasClash   = cuisines.length === 2 && CUISINE_CLASHES.some(
     pair => pair.includes(cuisines[0]) && pair.includes(cuisines[1])
   );
   $("sauce-clash-banner").style.display = hasClash ? "flex" : "none";
@@ -186,22 +179,15 @@ function buildSauceScreen() {
     )
   );
 
-  const familyEmoji = {
-    tomato: "🍅", dairy: "🥛", herb: "🌿",
-    spicepaste: "🌶️", meatbase: "🥩", nosause: "🍞",
-  };
+  const familyEmoji = { tomato:"🍅", dairy:"🥛", herb:"🌿", spicepaste:"🌶️", meatbase:"🥩", nosause:"🍞" };
 
   sauces.forEach(sauce => {
     const card = document.createElement("button");
     card.className = "sauce-card";
     if (state.selectedSauce?.id === sauce.id) card.classList.add("selected");
-    if (hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id !== "nosause") {
-      card.classList.add("nudged");
-    }
+    if (hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id !== "nosause") card.classList.add("nudged");
     const family = sauce.sauceFamilies[0];
-    const jarBadge = sauce.jarred
-      ? `<span class="sauce-badge jar">Jarred · ${sauce.brand || ""}</span>` : "";
-
+    const jarBadge = sauce.jarred ? `<span class="sauce-badge jar">Jarred · ${sauce.brand || ""}</span>` : "";
     card.innerHTML = `
       <div class="sauce-card-top">
         <span class="sauce-family-emoji">${familyEmoji[family] || "🍕"}</span>
@@ -210,8 +196,7 @@ function buildSauceScreen() {
           ? '<span class="safe-anchor-tag">safe anchor</span>' : ""}
       </div>
       ${sauce.desc ? `<p class="sauce-desc">${sauce.desc}</p>` : `<p class="sauce-desc">${sauce.note || ""}</p>`}
-      ${jarBadge}
-    `;
+      ${jarBadge}`;
     card.addEventListener("click", () => {
       state.selectedSauce = sauce;
       document.querySelectorAll(".sauce-card").forEach(c => c.classList.remove("selected"));
@@ -220,59 +205,46 @@ function buildSauceScreen() {
     });
     container.appendChild(card);
   });
-
-  $("btn-roll").disabled = !state.selectedSauce ||
-    !sauces.find(s => s.id === state.selectedSauce?.id);
+  $("btn-roll").disabled = !state.selectedSauce || !sauces.find(s => s.id === state.selectedSauce?.id);
 }
 
 $("btn-back-sauce").addEventListener("click", () => showScreen("setup"));
-
 $("btn-surprise-sauce").addEventListener("click", () => {
   const cards = document.querySelectorAll(".sauce-card");
-  if (!cards.length) return;
-  cards[Math.floor(Math.random() * cards.length)].click();
+  if (cards.length) cards[Math.floor(Math.random() * cards.length)].click();
 });
 
 // ── ROLL ──────────────────────────────────────────────────────
 $("btn-roll").addEventListener("click", () => {
   state.currentPizza = rollPizza();
   renderPizza(state.currentPizza);
-  state.history.unshift({
-    pizza: state.currentPizza,
-    cuisines: [...state.selectedCuisines],
-    ts: Date.now(),
-  });
+  state.history.unshift({ pizza: state.currentPizza, cuisines: [...state.selectedCuisines], ts: Date.now() });
   saveHistory();
   showScreen("pizza");
 });
 
-// ── RANDOMIZATION ENGINE ─────────────────────────────────────
+// ── RANDOMIZATION ────────────────────────────────────────────
 function rollPizza() {
   const cuisines   = state.selectedCuisines;
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const sauce      = state.selectedSauce;
   const sauceFam   = sauce?.sauceFamilies || [];
   const pizza      = {};
+  const isLahmajun = sauce?.id === "lahmajun_spread";
 
-  // Base — optional
-  const baseCandidates = TOPPINGS.filter(t =>
-    t.layer === "base" &&
-    !state.excludedItems.has(t.id) &&
-    profileSet.includes(t.profile) &&
+  // Base
+  const baseCands = TOPPINGS.filter(t =>
+    t.layer === "base" && !state.excludedItems.has(t.id) && profileSet.includes(t.profile) &&
     (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c))) &&
     t.sauceFamilies.some(f => sauceFam.includes(f))
   );
-  const pinnedBase = baseCandidates.filter(t => state.anchoredItems.has(t.id));
-  const freeBase   = baseCandidates.filter(t => !state.anchoredItems.has(t.id));
+  const pinnedBase = baseCands.filter(t => state.anchoredItems.has(t.id));
+  const freeBase   = baseCands.filter(t => !state.anchoredItems.has(t.id));
   pizza.base = pinnedBase.length > 0
     ? [...pinnedBase, ...weightedPick(freeBase, Math.max(0, 1 - pinnedBase.length))]
     : Math.random() < 0.45 ? weightedPick(freeBase, 1) : [];
 
-  // Sauce — already chosen
   pizza.sauce = [sauce];
-
-  // Lahmajun special — no cheese, no protein
-  const isLahmajun = sauce?.id === "lahmajun_spread";
 
   const layerConfig = {
     cheese:  { count: isLahmajun ? 0 : (state.complexity === "explorer" && Math.random() < 0.35 ? 2 : 1) },
@@ -284,28 +256,18 @@ function rollPizza() {
   ["cheese","protein","veg","finish"].forEach(layer => {
     const n = layerConfig[layer].count;
     if (n === 0) { pizza[layer] = []; return; }
-
     const candidates = TOPPINGS.filter(t =>
-      t.layer === layer &&
-      !state.excludedItems.has(t.id) &&
-      profileSet.includes(t.profile) &&
+      t.layer === layer && !state.excludedItems.has(t.id) && profileSet.includes(t.profile) &&
       (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
     );
-
-    const anchored = candidates.filter(t => state.anchoredItems.has(t.id));
-    const free     = candidates.filter(t => !state.anchoredItems.has(t.id));
-    const matched  = free.filter(t => t.sauceFamilies.some(f => sauceFam.includes(f)));
-    const fallback = free.filter(t => !t.sauceFamilies.some(f => sauceFam.includes(f)));
-
+    const anchored  = candidates.filter(t => state.anchoredItems.has(t.id));
+    const free      = candidates.filter(t => !state.anchoredItems.has(t.id));
+    const matched   = free.filter(t => t.sauceFamilies.some(f => sauceFam.includes(f)));
+    const fallback  = free.filter(t => !t.sauceFamilies.some(f => sauceFam.includes(f)));
     const needed       = Math.max(0, n - anchored.length);
     const fromMatched  = Math.min(needed, matched.length > 0 ? Math.ceil(needed * 0.8) : 0);
     const fromFallback = Math.min(needed - fromMatched, fallback.length);
-
-    pizza[layer] = [
-      ...anchored,
-      ...weightedPick(matched, fromMatched),
-      ...weightedPick(fallback, fromFallback),
-    ];
+    pizza[layer] = [...anchored, ...weightedPick(matched, fromMatched), ...weightedPick(fallback, fromFallback)];
   });
 
   pizza._ovenMode   = state.ovenMode;
@@ -328,7 +290,6 @@ function renderPizza(pizza) {
     const c = CUISINES.find(x => x.id === id);
     return c ? `${c.emoji} ${c.label}` : id;
   }).join(" × ") || "Freestyle";
-
   $("pizza-title").textContent = cuisineLabels;
   $("pizza-oven-label").textContent = `${oven.emoji} ${oven.label} · ${oven.time}`;
 
@@ -338,13 +299,9 @@ function renderPizza(pizza) {
     const meta    = LAYER_META[layer];
     const section = document.createElement("div");
     section.className = "layer-section";
-
     const header = document.createElement("div");
     header.className = "layer-header";
-    header.innerHTML = `
-      <span class="layer-emoji">${meta.emoji}</span>
-      <span class="layer-label">${meta.label}</span>
-      <span class="layer-note">${meta.note}</span>`;
+    header.innerHTML = `<span class="layer-emoji">${meta.emoji}</span><span class="layer-label">${meta.label}</span><span class="layer-note">${meta.note}</span>`;
     section.appendChild(header);
 
     items.forEach(item => {
@@ -352,7 +309,6 @@ function renderPizza(pizza) {
       card.className = "topping-card";
       if (state.anchoredItems.has(item.id)) card.classList.add("anchored");
 
-      // Prep badge
       let prepBadge = "";
       if (item.prep) {
         const cls   = item.prep === PREP.RAW ? "badge-raw" : item.prep === PREP.PRE ? "badge-pre" : "badge-ready";
@@ -362,8 +318,9 @@ function renderPizza(pizza) {
           prepBadge += `<span class="prep-badge badge-warn">⚠️ Check steel note</span>`;
         }
       }
-      const postbakeFlag = item.postbake ? `<span class="postbake-tag">Post-bake</span>` : "";
-      const homemadeFlag = item.homemade ? `<span class="homemade-tag">📋 Recipe</span>` : "";
+      const postbakeFlag  = item.postbake  ? `<span class="postbake-tag">Post-bake</span>` : "";
+      const homemadeFlag  = item.homemade  ? `<span class="homemade-tag">📋 Recipe</span>` : "";
+      const makeAheadFlag = item.make_ahead ? `<span class="make-ahead-tag">⏱️ ${item.make_ahead_timing || "Make ahead"}</span>` : "";
 
       card.innerHTML = `
         <div class="topping-top">
@@ -381,15 +338,12 @@ function renderPizza(pizza) {
             </button>
           </div>
         </div>
-        <div class="topping-meta">
-          ${prepBadge}${postbakeFlag}${homemadeFlag}
-        </div>
+        <div class="topping-meta">${prepBadge}${postbakeFlag}${homemadeFlag}${makeAheadFlag}</div>
         ${item.desc ? `<div class="topping-desc">${item.desc}</div>` : ""}
         ${item.note ? `<div class="topping-note">${item.note}</div>` : ""}
         ${item.homemade && item.recipe ? renderRecipe(item.recipe) : ""}
       `;
 
-      // Anchor
       card.querySelector(".anchor-btn").addEventListener("click", e => {
         e.stopPropagation();
         const id = e.currentTarget.dataset.id;
@@ -398,12 +352,10 @@ function renderPizza(pizza) {
         saveAnchored(); saveExcluded();
         renderPizza(state.currentPizza);
       });
-      // Swap
       card.querySelector(".swap-btn").addEventListener("click", e => {
         e.stopPropagation();
         swapItem(e.currentTarget.dataset.id, e.currentTarget.dataset.layer);
       });
-      // Exclude
       card.querySelector(".exclude-btn").addEventListener("click", e => {
         e.stopPropagation();
         const id = e.currentTarget.dataset.id;
@@ -414,7 +366,6 @@ function renderPizza(pizza) {
         showToast("Excluded from future rolls");
       });
 
-      // Recipe expand toggle
       if (item.homemade && item.recipe) {
         const recipeSection = card.querySelector(".recipe-section");
         const toggle = card.querySelector(".recipe-toggle");
@@ -426,25 +377,22 @@ function renderPizza(pizza) {
           });
         }
       }
-
       section.appendChild(card);
     });
     container.appendChild(section);
   });
 
   // Oven guide
-  const ovenSection = document.createElement("div");
-  ovenSection.className = "oven-guide";
-  ovenSection.innerHTML = `
+  const ovenSec = document.createElement("div");
+  ovenSec.className = "oven-guide";
+  ovenSec.innerHTML = `
     <div class="layer-header">
       <span class="layer-emoji">${oven.emoji}</span>
       <span class="layer-label">${oven.label}</span>
       <span class="layer-note">${oven.temp}</span>
     </div>
-    <ul class="oven-tips">
-      ${oven.tips.map(t => `<li>${t}</li>`).join("")}
-    </ul>`;
-  container.appendChild(ovenSection);
+    <ul class="oven-tips">${oven.tips.map(t => `<li>${t}</li>`).join("")}</ul>`;
+  container.appendChild(ovenSec);
 }
 
 function renderRecipe(recipe) {
@@ -453,26 +401,18 @@ function renderRecipe(recipe) {
     <div class="recipe-section">
       <div class="recipe-makes">Makes: ${recipe.makes}</div>
       <div class="recipe-heading">Ingredients</div>
-      <ul class="recipe-list">
-        ${recipe.ingredients.map(i => `<li>${i}</li>`).join("")}
-      </ul>
+      <ul class="recipe-list">${recipe.ingredients.map(i => `<li>${i}</li>`).join("")}</ul>
       <div class="recipe-heading">Method</div>
-      <ol class="recipe-list recipe-method">
-        ${recipe.method.map(m => `<li>${m}</li>`).join("")}
-      </ol>
-    </div>
-  `;
+      <ol class="recipe-list recipe-method">${recipe.method.map(m => `<li>${m}</li>`).join("")}</ol>
+    </div>`;
 }
 
 function swapItem(oldId, layer) {
   const profileSet = PROFILE_INCLUDES[state.complexity];
   const cuisines   = state.currentPizza._cuisines;
   const candidates = TOPPINGS.filter(t =>
-    t.layer === layer &&
-    !state.excludedItems.has(t.id) &&
-    !state.anchoredItems.has(t.id) &&
-    profileSet.includes(t.profile) &&
-    (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
+    t.layer === layer && !state.excludedItems.has(t.id) && !state.anchoredItems.has(t.id) &&
+    profileSet.includes(t.profile) && (cuisines.length === 0 || t.cuisine.some(c => cuisines.includes(c)))
   );
   const currentIds = state.currentPizza[layer].map(t => t.id);
   const alts = candidates.filter(t => !currentIds.includes(t.id));
@@ -482,14 +422,58 @@ function swapItem(oldId, layer) {
   renderPizza(state.currentPizza);
 }
 
-// ── COPY ─────────────────────────────────────────────────────
+// ── PIZZA RESULT ACTIONS ──────────────────────────────────────
+
+// Save pie
+$("btn-save-pie").addEventListener("click", () => {
+  if (!state.currentPizza) return;
+  const cuisineLabels = state.currentPizza._cuisines.map(id => {
+    const c = CUISINES.find(x => x.id === id);
+    return c ? `${c.emoji} ${c.label}` : id;
+  }).join(" + ") || "My Pie";
+  const name = prompt("Name this pie:", cuisineLabels);
+  if (name === null) return; // cancelled
+  const saved = {
+    id: "saved_" + uid(),
+    name: name.trim() || cuisineLabels,
+    cuisines: [...state.currentPizza._cuisines],
+    pizza: state.currentPizza,
+    savedAt: Date.now(),
+  };
+  state.saved.unshift(saved);
+  saveSaved();
+  showToast("Pie saved 🗂️");
+});
+
+// Add to shopping list
+$("btn-add-to-list").addEventListener("click", () => {
+  if (!state.currentPizza) return;
+  if (state.session.length >= 6) {
+    showToast("Session full — max 6 pizzas");
+    return;
+  }
+  const cuisineLabels = state.currentPizza._cuisines.map(id => {
+    const c = CUISINES.find(x => x.id === id);
+    return c ? `${c.emoji} ${c.label}` : id;
+  }).join(" + ") || "My Pie";
+  state.session.push({
+    id: "sess_" + uid(),
+    pizzaName: cuisineLabels,
+    pizza: state.currentPizza,
+    count: 1,
+    checked: {},
+  });
+  saveSession();
+  updateSessionBadge();
+  showToast("Added to shopping list 🛒");
+});
+
 $("btn-copy").addEventListener("click", () => {
   if (!state.currentPizza) return;
   const p = state.currentPizza;
   const oven = OVEN_GUIDANCE[p._ovenMode];
   const cuisineLabels = p._cuisines.map(id => {
-    const c = CUISINES.find(x => x.id === id);
-    return c ? `${c.emoji} ${c.label}` : id;
+    const c = CUISINES.find(x => x.id === id); return c ? `${c.emoji} ${c.label}` : id;
   }).join(" × ") || "Freestyle";
   const lines = [`🍕 ${cuisineLabels} — Omar's Pie`, `${oven.emoji} ${oven.label} · ${oven.time}`, ""];
   LAYER_ORDER.forEach(layer => {
@@ -505,11 +489,10 @@ $("btn-copy").addEventListener("click", () => {
   });
   lines.push("Omar's Pie · https://xk5fvhmcht-oss.github.io/pizza-randomizer/");
   navigator.clipboard.writeText(lines.join("\n"))
-    .then(()  => showToast("Copied ✓"))
-    .catch(()  => showToast("Copy failed"));
+    .then(() => showToast("Copied ✓"))
+    .catch(() => showToast("Copy failed"));
 });
 
-// ── REROLL ────────────────────────────────────────────────────
 $("btn-reroll").addEventListener("click", () => {
   state.currentPizza = rollPizza();
   renderPizza(state.currentPizza);
@@ -517,10 +500,18 @@ $("btn-reroll").addEventListener("click", () => {
   saveHistory();
 });
 
-// ── BACK BUTTONS ──────────────────────────────────────────────
 $("btn-back-pizza").addEventListener("click",   () => showScreen("sauce"));
 $("btn-back-history").addEventListener("click", () => showScreen("setup"));
 $("btn-back-library").addEventListener("click", () => { state.libraryFilter = null; showScreen("setup"); });
+
+// ── SESSION BADGE ─────────────────────────────────────────────
+function updateSessionBadge() {
+  const badge = $("session-badge");
+  if (!badge) return;
+  const count = state.session.length;
+  badge.textContent = count > 0 ? count : "";
+  badge.style.display = count > 0 ? "flex" : "none";
+}
 
 // ── HISTORY ───────────────────────────────────────────────────
 $("btn-history").addEventListener("click", () => { renderHistory(); showScreen("history"); });
@@ -534,8 +525,7 @@ function renderHistory() {
   }
   state.history.slice(0, 15).forEach((entry, i) => {
     const cuisineLabels = entry.cuisines.map(id => {
-      const c = CUISINES.find(x => x.id === id);
-      return c ? `${c.emoji} ${c.label}` : id;
+      const c = CUISINES.find(x => x.id === id); return c ? `${c.emoji} ${c.label}` : id;
     }).join(" × ") || "Freestyle";
     const summary = LAYER_ORDER.map(layer => {
       const items = entry.pizza[layer];
@@ -567,7 +557,6 @@ $("btn-library").addEventListener("click", () => {
 });
 
 function renderLibrary() {
-  // Summary bar
   const anchoredCount = state.anchoredItems.size;
   const excludedCount  = state.excludedItems.size;
   const summary = $("library-summary");
@@ -578,62 +567,47 @@ function renderLibrary() {
     <button class="lib-summary-btn ${state.libraryFilter === "excluded" ? "active" : ""}" data-filter="excluded">
       🚫 ${excludedCount} Excluded
     </button>
-    ${state.libraryFilter ? '<button class="lib-summary-btn lib-clear-filter">← All toppings</button>' : ""}
-  `;
+    ${state.libraryFilter ? '<button class="lib-summary-btn lib-clear-filter">← All toppings</button>' : ""}`;
   summary.querySelectorAll(".lib-summary-btn[data-filter]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const f = btn.dataset.filter;
-      state.libraryFilter = state.libraryFilter === f ? null : f;
+      state.libraryFilter = state.libraryFilter === btn.dataset.filter ? null : btn.dataset.filter;
       renderLibrary();
     });
   });
   const clearBtn = summary.querySelector(".lib-clear-filter");
   if (clearBtn) clearBtn.addEventListener("click", () => { state.libraryFilter = null; renderLibrary(); });
 
-  // Items
   const container = $("library-list");
   container.innerHTML = "";
-
-  let itemsToShow = TOPPINGS;
-  if (state.libraryFilter === "anchored") itemsToShow = TOPPINGS.filter(t => state.anchoredItems.has(t.id));
-  if (state.libraryFilter === "excluded")  itemsToShow = TOPPINGS.filter(t => state.excludedItems.has(t.id));
-
-  if (!itemsToShow.length) {
+  let items = TOPPINGS;
+  if (state.libraryFilter === "anchored") items = TOPPINGS.filter(t => state.anchoredItems.has(t.id));
+  if (state.libraryFilter === "excluded")  items = TOPPINGS.filter(t => state.excludedItems.has(t.id));
+  if (!items.length) {
     container.innerHTML = `<p class="empty-state">${state.libraryFilter === "anchored" ? "No anchored items." : "No excluded items."}</p>`;
     return;
   }
-
-  // Group by layer
   LAYER_ORDER.forEach(layer => {
-    const items = itemsToShow.filter(t => t.layer === layer);
-    if (!items.length) return;
+    const layerItems = items.filter(t => t.layer === layer);
+    if (!layerItems.length) return;
     const meta = LAYER_META[layer];
     const sec  = document.createElement("div");
     sec.className = "lib-section";
     sec.innerHTML = `<h3 class="lib-layer-title">${meta.emoji} ${meta.label}</h3>`;
-
-    items.forEach(item => {
+    layerItems.forEach(item => {
       const row = document.createElement("div");
       row.className = "lib-row";
       if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
       if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
-
-      const cuisineFlags = item.cuisine.map(id => {
-        const c = CUISINES.find(x => x.id === id);
-        return c ? c.emoji : "";
-      }).join(" ");
-
-      const storeTag  = item.store  ? `<span class="lib-store" data-store="${item.store}">${STORES[item.store]?.short}</span>` : "";
-      const store2Tag = item.store2 ? `<span class="lib-store" data-store="${item.store2}">${STORES[item.store2]?.short}</span>` : "";
-      const jarTag    = item.jarred ? `<span class="lib-jar">jarred</span>` : "";
+      const cuisineFlags = item.cuisine.map(id => { const c = CUISINES.find(x => x.id === id); return c ? c.emoji : ""; }).join(" ");
+      const storeTags = (item.stores || []).map(s => `<span class="lib-store" data-store="${s}">${STORES[s]?.short || s}</span>`).join("");
+      const jarTag = item.jarred ? `<span class="lib-jar">jarred</span>` : "";
       const homemadeTag = item.homemade ? `<span class="lib-homemade">📋 recipe</span>` : "";
-
       row.innerHTML = `
         <div class="lib-row-top">
           <span class="lib-name">${item.name}</span>
           <span class="lib-cuisines">${cuisineFlags}</span>
           <span class="lib-profile">${item.profile}</span>
-          ${storeTag}${store2Tag}${jarTag}${homemadeTag}
+          ${storeTags}${jarTag}${homemadeTag}
         </div>
         ${item.desc ? `<div class="lib-note">${item.desc}</div>` : item.note ? `<div class="lib-note">${item.note}</div>` : ""}
         <div class="lib-actions">
@@ -644,7 +618,6 @@ function renderLibrary() {
             ${state.excludedItems.has(item.id) ? "🚫 Excluded" : "Exclude"}
           </button>
         </div>`;
-
       row.querySelectorAll(".lib-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const { action, id } = btn.dataset;
@@ -663,6 +636,476 @@ function renderLibrary() {
       sec.appendChild(row);
     });
     container.appendChild(sec);
+  });
+}
+
+// ── SHOPPING LIST ─────────────────────────────────────────────
+$("btn-shopping").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
+$("btn-back-shopping").addEventListener("click", () => showScreen("setup"));
+
+function renderShoppingList() {
+  renderSessionCards();
+  renderCalculatedList();
+}
+
+function renderSessionCards() {
+  const container = $("session-cards");
+  container.innerHTML = "";
+
+  if (!state.session.length) {
+    container.innerHTML = `<p class="empty-state">No pizzas added yet — roll a pie and tap "+ List"</p>`;
+    $("session-summary").textContent = "";
+    $("calculated-list").innerHTML = "";
+    return;
+  }
+
+  // Summary
+  const totalPizzas = state.session.reduce((s, e) => s + e.count, 0);
+  const storeSet = optimizeStores();
+  $("session-summary").innerHTML = `
+    <span>Shopping for <strong>${totalPizzas}</strong> pizza${totalPizzas !== 1 ? "s" : ""} · ${state.session.length} build${state.session.length !== 1 ? "s" : ""}</span>
+    <span class="store-suggestion">Suggested stops: ${storeSet.map(s => STORES[s]?.name || s).join(" + ")}</span>`;
+
+  state.session.forEach((entry, idx) => {
+    const card = document.createElement("div");
+    card.className = "session-card";
+
+    // Topping summary
+    const toppingNames = LAYER_ORDER.flatMap(layer => (entry.pizza[layer] || []).map(t => t.name)).join(", ");
+
+    card.innerHTML = `
+      <div class="session-card-top">
+        <div class="session-name-wrap">
+          <span class="session-name" data-idx="${idx}">${entry.pizzaName}</span>
+          <button class="session-rename" data-idx="${idx}" title="Rename">✏️</button>
+        </div>
+        <button class="session-remove" data-idx="${idx}" title="Remove">×</button>
+      </div>
+      <div class="session-toppings">${toppingNames}</div>
+      <div class="session-stepper">
+        <button class="stepper-btn stepper-minus" data-idx="${idx}">−</button>
+        <span class="stepper-count">${entry.count}</span>
+        <button class="stepper-btn stepper-plus" data-idx="${idx}">+</button>
+      </div>
+    `;
+
+    // Rename
+    card.querySelector(".session-rename").addEventListener("click", () => {
+      const newName = prompt("Rename this pizza:", entry.pizzaName);
+      if (newName !== null && newName.trim()) {
+        state.session[idx].pizzaName = newName.trim();
+        saveSession();
+        renderShoppingList();
+      }
+    });
+
+    // Remove
+    card.querySelector(".session-remove").addEventListener("click", () => {
+      if (confirm(`Remove "${entry.pizzaName}" from the list?`)) {
+        state.session.splice(idx, 1);
+        saveSession();
+        updateSessionBadge();
+        renderShoppingList();
+      }
+    });
+
+    // Stepper
+    card.querySelector(".stepper-minus").addEventListener("click", () => {
+      if (entry.count <= 1) {
+        if (confirm(`Remove "${entry.pizzaName}" from the list?`)) {
+          state.session.splice(idx, 1);
+          saveSession();
+          updateSessionBadge();
+          renderShoppingList();
+        }
+      } else {
+        state.session[idx].count--;
+        saveSession();
+        renderShoppingList();
+      }
+    });
+    card.querySelector(".stepper-plus").addEventListener("click", () => {
+      if (entry.count >= 6) { showToast("Max 6 per build"); return; }
+      state.session[idx].count++;
+      saveSession();
+      renderShoppingList();
+    });
+
+    container.appendChild(card);
+  });
+
+  // Clear all
+  const clearBtn = document.createElement("button");
+  clearBtn.className = "btn-clear-session";
+  clearBtn.textContent = "Clear entire list";
+  clearBtn.addEventListener("click", () => {
+    if (confirm("Clear the entire shopping list?")) {
+      state.session = [];
+      saveSession();
+      updateSessionBadge();
+      renderShoppingList();
+    }
+  });
+  container.appendChild(clearBtn);
+}
+
+// ── STORE OPTIMIZATION ───────────────────────────────────────
+function optimizeStores() {
+  // Collect all toppings across session
+  const allToppings = [];
+  state.session.forEach(entry => {
+    LAYER_ORDER.forEach(layer => {
+      (entry.pizza[layer] || []).forEach(t => {
+        if (!allToppings.find(x => x.id === t.id)) allToppings.push(t);
+      });
+    });
+  });
+
+  // Find which stores carry each topping
+  const storeNeeds = {}; // storeId → Set of topping ids
+  STORE_ORDER.forEach(s => { storeNeeds[s] = new Set(); });
+  allToppings.forEach(t => {
+    const data = TOPPINGS.find(x => x.id === t.id);
+    if (!data || !data.stores?.length) return;
+    data.stores.forEach(s => {
+      if (storeNeeds[s]) storeNeeds[s].add(t.id);
+    });
+  });
+
+  // Items that need purchasing (exclude nosause, pantry-only no-yield items)
+  const purchasable = allToppings.filter(t => {
+    const data = TOPPINGS.find(x => x.id === t.id);
+    return data && data.stores?.length > 0 && t.id !== "nosause";
+  });
+
+  if (!purchasable.length) return [];
+
+  const needed = new Set(purchasable.map(t => t.id));
+
+  // Try single store first
+  for (const s of STORE_ORDER) {
+    if ([...needed].every(id => storeNeeds[s].has(id))) return [s];
+  }
+
+  // Try two-store combos in preference order
+  const storePairs = [
+    ["sara","cm"], ["sara","altin"], ["cm","altin"],
+  ];
+  for (const [a, b] of storePairs) {
+    const combined = new Set([...storeNeeds[a], ...storeNeeds[b]]);
+    if ([...needed].every(id => combined.has(id))) return [a, b];
+  }
+
+  return STORE_ORDER; // all three needed
+}
+
+// ── CALCULATED SHOPPING LIST ─────────────────────────────────
+function renderCalculatedList() {
+  const container = $("calculated-list");
+  container.innerHTML = "";
+  if (!state.session.length) return;
+
+  // Aggregate quantities per topping across session
+  const agg = {}; // toppingId → { data, total_g, total_units, total_tsp, total_tbsp, total_unit_count, checked }
+
+  state.session.forEach(entry => {
+    LAYER_ORDER.forEach(layer => {
+      (entry.pizza[layer] || []).forEach(item => {
+        const data = TOPPINGS.find(t => t.id === item.id);
+        if (!data || item.id === "nosause") return;
+        if (!agg[item.id]) {
+          agg[item.id] = { data, total_g: 0, total_oz: 0, total_tsp: 0, total_tbsp: 0, total_unit_count: 0, total_pizzas: 0, checked: false };
+        }
+        const q = data.qty || {};
+        const count = entry.count;
+        agg[item.id].total_g           += (q.per_pizza_g  || 0) * count;
+        agg[item.id].total_tsp         += (q.per_pizza_tsp  || 0) * count;
+        agg[item.id].total_tbsp        += (q.per_pizza_tbsp || 0) * count;
+        agg[item.id].total_unit_count  += (q.per_pizza_unit || 0) * count;
+        agg[item.id].total_pizzas      += count;
+      });
+    });
+  });
+
+  // Compute oz and purchase units
+  Object.values(agg).forEach(a => {
+    const q = a.data.qty || {};
+    a.total_oz = a.total_g > 0 ? parseFloat(gToOz(a.total_g)) : 0;
+    if (q.shared_yield && q.shared_yield > 0) {
+      a.purchase_units = Math.ceil(a.total_pizzas / q.shared_yield);
+    } else if (q.yield_g && q.yield_g > 0 && a.total_g > 0) {
+      a.purchase_units = Math.ceil(a.total_g / q.yield_g);
+    } else {
+      a.purchase_units = 1;
+    }
+    a.purchase_units = Math.max(a.purchase_units, q.min_purchase || 1);
+  });
+
+  // Separate into categories
+  const makeAheadItems = Object.values(agg).filter(a => a.data.make_ahead);
+  const pantryItems    = Object.values(agg).filter(a => !a.data.make_ahead && a.data.qty?.pantry);
+  const freshItems     = Object.values(agg).filter(a => !a.data.make_ahead && !a.data.qty?.pantry);
+
+  // Group fresh items by store
+  const byStore = {};
+  STORE_ORDER.forEach(s => { byStore[s] = []; });
+  const multiStore = [];
+
+  freshItems.forEach(a => {
+    const stores = a.data.stores || [];
+    if (stores.length === 0) return;
+    if (stores.length === 1) {
+      if (byStore[stores[0]]) byStore[stores[0]].push(a);
+    } else {
+      // Multi-store — assign to first preferred store
+      const primary = stores[0];
+      if (byStore[primary]) byStore[primary].push(a);
+    }
+  });
+
+  // Render fresh by store
+  STORE_ORDER.forEach(storeId => {
+    const items = byStore[storeId];
+    if (!items.length) return;
+    const storeInfo = STORES[storeId];
+    const storeSection = document.createElement("div");
+    storeSection.className = "list-store-section";
+    storeSection.innerHTML = `<h3 class="list-store-heading" data-store="${storeId}">${storeInfo.name}</h3>`;
+
+    // Group by layer within store
+    LAYER_ORDER.forEach(layer => {
+      const layerItems = items.filter(a => a.data.layer === layer);
+      if (!layerItems.length) return;
+      layerItems.forEach(a => {
+        storeSection.appendChild(renderListItem(a, "fresh"));
+      });
+    });
+    container.appendChild(storeSection);
+  });
+
+  // Pantry section
+  if (pantryItems.length) {
+    const sec = document.createElement("div");
+    sec.className = "list-store-section pantry-section";
+    sec.innerHTML = `<h3 class="list-store-heading pantry-heading">🗄️ Pantry — check stock</h3>`;
+    pantryItems.forEach(a => sec.appendChild(renderListItem(a, "pantry")));
+    container.appendChild(sec);
+  }
+
+  // Make ahead section
+  if (makeAheadItems.length) {
+    const sec = document.createElement("div");
+    sec.className = "list-store-section make-ahead-section";
+    sec.innerHTML = `<h3 class="list-store-heading make-ahead-heading">⏱️ Make Ahead</h3>`;
+    makeAheadItems.forEach(a => sec.appendChild(renderListItem(a, "makeahead")));
+    container.appendChild(sec);
+  }
+}
+
+function renderListItem(a, type) {
+  const row = document.createElement("div");
+  row.className = `list-item${a.checked ? " checked" : ""}`;
+  row.dataset.id = a.data.id;
+
+  const q = a.data.qty || {};
+
+  // Build quantity string
+  let qtyStr = "";
+  if (a.total_g > 0) {
+    qtyStr = `${a.total_g}g / ${a.total_oz}oz`;
+    if (a.purchase_units > 0) qtyStr += ` · ${a.purchase_units} ${q.unit || ""}`;
+  } else if (a.total_tsp > 0) {
+    qtyStr = `${formatMeasure(a.total_tsp, "tsp")} · pantry`;
+  } else if (a.total_tbsp > 0) {
+    qtyStr = `${formatMeasure(a.total_tbsp, "tbsp")} · pantry`;
+  } else if (a.total_unit_count > 0) {
+    qtyStr = `${Math.ceil(a.total_unit_count)} ${q.unit || ""}`;
+  } else if (q.shared_yield) {
+    qtyStr = `${a.purchase_units} ${q.unit || ""}`;
+  } else {
+    qtyStr = q.unit || "as needed";
+  }
+
+  // Make-ahead timing
+  const timingNote = a.data.make_ahead_timing
+    ? `<span class="list-timing">${a.data.make_ahead_timing}</span>` : "";
+
+  // Prep warning
+  const prepNote = a.data.prep === PREP.PRE && a.data.note
+    ? `<div class="list-item-note">→ ${a.data.note}</div>` : "";
+
+  row.innerHTML = `
+    <label class="list-item-label">
+      <input type="checkbox" class="list-checkbox" data-id="${a.data.id}"${a.checked ? " checked" : ""}>
+      <span class="list-item-content">
+        <span class="list-item-name">${a.data.name}${timingNote}</span>
+        <span class="list-item-qty">${qtyStr}</span>
+      </span>
+    </label>
+    ${prepNote}
+  `;
+
+  row.querySelector(".list-checkbox").addEventListener("change", e => {
+    const isChecked = e.target.checked;
+    a.checked = isChecked;
+    row.classList.toggle("checked", isChecked);
+  });
+
+  return row;
+}
+
+function formatMeasure(value, unit) {
+  // Round to sensible fractions
+  const rounded = Math.round(value * 4) / 4; // nearest ¼
+  if (rounded === Math.floor(rounded)) return `${rounded} ${unit}`;
+  const whole = Math.floor(rounded);
+  const frac = rounded - whole;
+  const fracStr = frac === 0.25 ? "¼" : frac === 0.5 ? "½" : frac === 0.75 ? "¾" : frac.toString();
+  return whole > 0 ? `${whole}${fracStr} ${unit}` : `${fracStr} ${unit}`;
+}
+
+// ── PRINT ────────────────────────────────────────────────────
+$("btn-print").addEventListener("click", () => { window.print(); });
+
+// ── COPY LIST ─────────────────────────────────────────────────
+$("btn-copy-list").addEventListener("click", () => {
+  if (!state.session.length) return;
+  const lines = ["🍕 Omar's Pie — Shopping List", new Date().toLocaleDateString(), ""];
+
+  // Session
+  lines.push("SESSION:");
+  state.session.forEach(e => lines.push(`  ${e.pizzaName} × ${e.count}`));
+  lines.push("");
+
+  // Toppings by store — reuse same aggregation logic
+  const agg = {};
+  state.session.forEach(entry => {
+    LAYER_ORDER.forEach(layer => {
+      (entry.pizza[layer] || []).forEach(item => {
+        const data = TOPPINGS.find(t => t.id === item.id);
+        if (!data || item.id === "nosause") return;
+        if (!agg[item.id]) agg[item.id] = { data, total_g: 0, total_tsp: 0, total_tbsp: 0, total_unit_count: 0, total_pizzas: 0 };
+        const q = data.qty || {};
+        agg[item.id].total_g          += (q.per_pizza_g   || 0) * entry.count;
+        agg[item.id].total_tsp        += (q.per_pizza_tsp  || 0) * entry.count;
+        agg[item.id].total_tbsp       += (q.per_pizza_tbsp || 0) * entry.count;
+        agg[item.id].total_unit_count += (q.per_pizza_unit || 0) * entry.count;
+        agg[item.id].total_pizzas     += entry.count;
+      });
+    });
+  });
+  Object.values(agg).forEach(a => {
+    const q = a.data.qty || {};
+    a.total_oz = a.total_g > 0 ? parseFloat(gToOz(a.total_g)) : 0;
+    a.purchase_units = q.shared_yield ? Math.ceil(a.total_pizzas / q.shared_yield)
+                     : q.yield_g && q.yield_g > 0 && a.total_g > 0 ? Math.ceil(a.total_g / q.yield_g) : 1;
+    a.purchase_units = Math.max(a.purchase_units, q.min_purchase || 1);
+  });
+
+  STORE_ORDER.forEach(storeId => {
+    const items = Object.values(agg).filter(a => {
+      const stores = a.data.stores || [];
+      return !a.data.make_ahead && !a.data.qty?.pantry && stores[0] === storeId;
+    });
+    if (!items.length) return;
+    lines.push(`${STORES[storeId].name.toUpperCase()}:`);
+    items.forEach(a => {
+      const q = a.data.qty || {};
+      let qtyStr = a.total_g > 0
+        ? `${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit || ""}`
+        : a.total_tsp > 0 ? `${formatMeasure(a.total_tsp, "tsp")} (pantry)`
+        : a.total_tbsp > 0 ? `${formatMeasure(a.total_tbsp, "tbsp")} (pantry)`
+        : q.unit || "as needed";
+      lines.push(`  ☐ ${a.data.name} — ${qtyStr}`);
+      if (a.data.note) lines.push(`      → ${a.data.note}`);
+    });
+    lines.push("");
+  });
+
+  navigator.clipboard.writeText(lines.join("\n"))
+    .then(() => showToast("List copied ✓"))
+    .catch(() => showToast("Copy failed"));
+});
+
+// ── SAVED PIZZAS ─────────────────────────────────────────────
+$("btn-saved").addEventListener("click", () => { renderSaved(); showScreen("saved"); });
+$("btn-back-saved").addEventListener("click", () => showScreen("setup"));
+
+function renderSaved() {
+  const container = $("saved-list");
+  container.innerHTML = "";
+  if (!state.saved.length) {
+    container.innerHTML = `<p class="empty-state">No saved pies yet — roll one and tap Save 🗂️</p>`;
+    return;
+  }
+  state.saved.forEach((entry, idx) => {
+    const toppingNames = LAYER_ORDER.flatMap(layer => (entry.pizza[layer] || []).map(t => t.name)).join(", ");
+    const cuisineFlags = entry.cuisines.map(id => { const c = CUISINES.find(x => x.id === id); return c ? c.emoji : ""; }).join(" ");
+    const date = new Date(entry.savedAt).toLocaleDateString();
+
+    const card = document.createElement("div");
+    card.className = "saved-card";
+    card.innerHTML = `
+      <div class="saved-card-top">
+        <div class="saved-name-wrap">
+          <span class="saved-name">${entry.name}</span>
+          <button class="saved-rename" data-idx="${idx}" title="Rename">✏️</button>
+        </div>
+        <button class="saved-delete" data-idx="${idx}" title="Delete">×</button>
+      </div>
+      <div class="saved-meta">${cuisineFlags} · Saved ${date}</div>
+      <div class="saved-toppings">${toppingNames}</div>
+      <div class="saved-actions">
+        <button class="btn-ghost saved-add-list" data-idx="${idx}">+ Add to list</button>
+        <button class="btn-primary saved-open-builder" data-idx="${idx}">Open in builder</button>
+      </div>
+    `;
+
+    // Rename
+    card.querySelector(".saved-rename").addEventListener("click", () => {
+      const newName = prompt("Rename this pie:", entry.name);
+      if (newName !== null && newName.trim()) {
+        state.saved[idx].name = newName.trim();
+        saveSaved();
+        renderSaved();
+      }
+    });
+
+    // Delete
+    card.querySelector(".saved-delete").addEventListener("click", () => {
+      if (confirm(`Delete "${entry.name}"?`)) {
+        state.saved.splice(idx, 1);
+        saveSaved();
+        renderSaved();
+      }
+    });
+
+    // Add to list
+    card.querySelector(".saved-add-list").addEventListener("click", () => {
+      if (state.session.length >= 6) { showToast("Session full — max 6 pizzas"); return; }
+      state.session.push({
+        id: "sess_" + uid(),
+        pizzaName: entry.name,
+        pizza: entry.pizza,
+        count: 1,
+        checked: {},
+      });
+      saveSession();
+      updateSessionBadge();
+      showToast("Added to shopping list 🛒");
+    });
+
+    // Open in builder
+    card.querySelector(".saved-open-builder").addEventListener("click", () => {
+      state.currentPizza = entry.pizza;
+      state.selectedCuisines = [...(entry.cuisines || [])];
+      state.selectedSauce = entry.pizza.sauce?.[0] || null;
+      updateCuisineUI();
+      renderPizza(state.currentPizza);
+      showScreen("pizza");
+    });
+
+    container.appendChild(card);
   });
 }
 
@@ -686,6 +1129,7 @@ function init() {
   if (vl && typeof APP_VERSION !== "undefined") vl.textContent = `v${APP_VERSION}`;
   initCuisineGrid();
   updateCuisineUI();
+  updateSessionBadge();
 }
 
 init();
