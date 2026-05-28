@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.0.3
+// OMAR'S PIE — app.js v2.1.0
 // The Classics + clean engine
 // ============================================================
 
@@ -225,7 +225,14 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.0.3 — cleaned, no flatbread/meatbase
+// ROLL ENGINE v2.1.0 — Scoring-based, offensive not defensive
+// Principles:
+//   1. Score candidates by contribution, not just conflict avoidance
+//   2. Cheese preference by cuisine + sauce family
+//   3. Protein necessity check — skip if build already substantial
+//   4. Finish gap-fill — complete the flavor picture
+//   5. Range modulates scoring weights
+//   6. Feta companion rule (Traditional only)
 // ══════════════════════════════════════════════════════════════
 
 function rollPizza() {
@@ -235,9 +242,23 @@ function rollPizza() {
   const sauceFamPrim  = sauce?.sauceFamilies?.[0] || "tomato";
   const buildProf     = SAUCE_BUILD_PROFILES[sauceFamPrim] || SAUCE_BUILD_PROFILES.tomato;
   const isConnoisseur = state.complexity === "connoisseur";
+  const isTraditional = state.complexity === "traditional";
+  const isElevated    = state.complexity === "elevated";
   const pizza         = {};
 
-  // Budget
+  // ── SCORING WEIGHTS BY RANGE ──────────────────────────────
+  const SW = isTraditional ? {
+    gapFill: 0.6, cuisineOverlap: 0.3, sauceAffinity: 0.6,
+    presenceBalance: 0.2, redundancy: -0.8, cheesePreference: 1.2,
+  } : isElevated ? {
+    gapFill: 0.8, cuisineOverlap: 0.5, sauceAffinity: 0.4,
+    presenceBalance: 0.3, redundancy: -1.0, cheesePreference: 0.8,
+  } : { // connoisseur
+    gapFill: 1.0, cuisineOverlap: 0.8, sauceAffinity: 0.3,
+    presenceBalance: 0.5, redundancy: -1.5, cheesePreference: 0.5,
+  };
+
+  // ── BUDGET ────────────────────────────────────────────────
   const B = {
     notes:{}, highMoist:0, weight:0, anchors:{}, picked:new Set(), preBake:0
   };
@@ -252,6 +273,7 @@ function rollPizza() {
   }
   seedBudget(sauce);
 
+  // ── CONFLICT CHECK ────────────────────────────────────────
   function hardConflict(item) {
     if (!item) return true;
     for (const rule of HARD_CONFLICTS) {
@@ -275,6 +297,7 @@ function rollPizza() {
     return false;
   }
 
+  // ── HARD BUDGET CHECK ─────────────────────────────────────
   function budgetOk(item, layer) {
     if (!item||hardConflict(item)) return false;
     if (item.moisture==="high"&&!item.postbake&&B.highMoist>=2) return false;
@@ -288,6 +311,50 @@ function rollPizza() {
     return true;
   }
 
+  // ── SCORE A CANDIDATE ────────────────────────────────────
+  // Higher = better fit for this build
+  function scoreItem(item, layer) {
+    let score = 1.0;
+    const notes = item.flavorNotes||[];
+
+    // Gap fill — reward adding dimensions not yet in build
+    const missingNotes = notes.filter(n=>(B.notes[n]||0)===0);
+    score += missingNotes.length * SW.gapFill;
+
+    // Cuisine overlap — reward items shared by both selected cuisines
+    if (cuisines.length===2) {
+      const inBoth = cuisines.every(c=>(item.cuisine||[]).includes(c));
+      if (inBoth) score += SW.cuisineOverlap;
+    }
+
+    // Sauce affinity — reward items compatible with sauce family
+    if ((item.sauceFamilies||[]).includes(sauceFamPrim)) score += SW.sauceAffinity;
+
+    // Presence balance — reward accents when build already has anchor+supporting
+    const hasAnchor   = Object.values(B.anchors).some(v=>v>0);
+    const hasSupport  = B.picked.size > 1;
+    if (item.presence==="accent"&&hasAnchor&&hasSupport) score += SW.presenceBalance;
+
+    // Redundancy penalty — punish doubling notes already at max
+    const redundantNotes = notes.filter(n=>(B.notes[n]||0)>=1&&!amplifying(notes));
+    score += redundantNotes.length * SW.redundancy;
+
+    // Cheese preference bonus — reward cuisinally appropriate cheese
+    if (layer==="cheese") {
+      const cuisinePref = cuisines.length>0 ? CHEESE_PREFERENCES[cuisines[0]] : [];
+      const saucePref   = SAUCE_CHEESE_PREFERENCES[sauceFamPrim] || [];
+      const cpIdx = cuisinePref.indexOf(item.id);
+      const spIdx = saucePref.indexOf(item.id);
+      if (cpIdx === 0) score += SW.cheesePreference * 1.0;  // top pick
+      else if (cpIdx > 0) score += SW.cheesePreference * (1 - cpIdx/10);
+      if (spIdx === 0) score += SW.cheesePreference * 0.5;
+      else if (spIdx > 0) score += SW.cheesePreference * (0.5 - spIdx/20);
+    }
+
+    return Math.max(score, 0.1); // never zero
+  }
+
+  // ── SPEND BUDGET ─────────────────────────────────────────
   function spend(item, layer) {
     if (!item) return;
     (item.flavorNotes||[]).forEach(n=>{B.notes[n]=(B.notes[n]||0)+1;});
@@ -298,6 +365,7 @@ function rollPizza() {
     if (["cheese","protein","veg"].includes(layer)&&!item.postbake) B.preBake++;
   }
 
+  // ── GET CANDIDATES ────────────────────────────────────────
   function getCands(layer) {
     return TOPPINGS.filter(t=>
       t.layer===layer&&profileSet.includes(t.profile)&&
@@ -306,19 +374,42 @@ function rollPizza() {
     );
   }
 
+  // ── SCORED PICK ───────────────────────────────────────────
+  // Pick n items using scoring with weighted randomness
   function pick(candidates, layer, n) {
     if (n<=0||!candidates.length) return [];
-    const result=[], shuffled=[...candidates].sort(()=>Math.random()-0.5);
-    for (const item of shuffled) {
-      if (result.length>=n) break;
-      if (!budgetOk(item,layer)) continue;
-      const dup=result.some(p=>{
-        const shared=(p.flavorNotes||[]).filter(n=>(item.flavorNotes||[]).includes(n));
-        return shared.length>=2&&!amplifying(item.flavorNotes||[]);
+    const result=[];
+    let pool=[...candidates].filter(t=>budgetOk(t,layer));
+
+    for (let i=0; i<n; i++) {
+      if (!pool.length) break;
+
+      // Remove items that duplicate flavor notes of already-picked in this layer
+      const eligible=pool.filter(item=>{
+        const dup=result.some(p=>{
+          const shared=(p.flavorNotes||[]).filter(n=>(item.flavorNotes||[]).includes(n));
+          return shared.length>=2&&!amplifying(item.flavorNotes||[]);
+        });
+        return !dup;
       });
-      if (dup) continue;
-      result.push(item);
-      spend(item,layer);
+      if (!eligible.length) break;
+
+      // Score all eligible
+      const scored=eligible.map(item=>({item,score:scoreItem(item,layer)}));
+
+      // Weighted random selection — best scores win more often but not always
+      // Add some randomness to keep rolls surprising
+      const totalScore=scored.reduce((s,x)=>s+x.score,0);
+      let rand=Math.random()*totalScore;
+      let chosen=scored[scored.length-1].item;
+      for (const {item,score} of scored) {
+        rand-=score;
+        if (rand<=0){chosen=item;break;}
+      }
+
+      result.push(chosen);
+      spend(chosen,layer);
+      pool=pool.filter(t=>t.id!==chosen.id&&budgetOk(t,layer));
     }
     return result;
   }
@@ -328,10 +419,12 @@ function rollPizza() {
       .map(t=>{spend(t,layer);return t;});
   }
 
-  // Base
+  // ── BASE ──────────────────────────────────────────────────
   const bp=buildProf.base;
   if (Math.random()<bp.prob) {
-    const cands=getCands("base").filter(t=>t.compatibleSauceFamilies?.includes(sauceFamPrim)||["evoo_base","garlic_oil"].includes(t.id));
+    const cands=getCands("base").filter(t=>
+      t.compatibleSauceFamilies?.includes(sauceFamPrim)||["evoo_base","garlic_oil"].includes(t.id)
+    );
     const anchored=pickAnchored(cands,"base");
     pizza.base=anchored.length?anchored:pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"base",1);
   } else {
@@ -340,20 +433,46 @@ function rollPizza() {
 
   pizza.sauce=[sauce];
 
-  // Cheese
+  // ── CHEESE ────────────────────────────────────────────────
   const cp=buildProf.cheese;
   if (Math.random()<cp.prob) {
     const target=isConnoisseur?1:cp.count[0]+Math.floor(Math.random()*(cp.count[1]-cp.count[0]+1));
     const cands=getCands("cheese");
     const anchored=pickAnchored(cands,"cheese");
-    pizza.cheese=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"cheese",Math.max(0,target-anchored.length))];
+    const picked=pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"cheese",Math.max(0,target-anchored.length));
+    pizza.cheese=[...anchored,...picked];
+
+    // Feta companion rule (Traditional only)
+    // If feta is the only cheese on a tomato sauce and it's Traditional, add a melt cheese
+    if (isTraditional && FETA_NEEDS_COMPANION_SAUCES.has(sauceFamPrim)) {
+      const cheeseIds=pizza.cheese.map(c=>c.id);
+      const hasFetaOnly=cheeseIds.includes("feta")&&cheeseIds.length===1;
+      if (hasFetaOnly) {
+        const meltCands=cands.filter(t=>
+          MELT_CHEESES.has(t.id)&&!cheeseIds.includes(t.id)&&
+          !state.anchoredItems.has(t.id)&&budgetOk(t,"cheese")
+        );
+        const companion=pick(meltCands,"cheese",1);
+        pizza.cheese=[...pizza.cheese,...companion];
+      }
+    }
   } else {
     pizza.cheese=pickAnchored(getCands("cheese"),"cheese");
   }
 
-  // Protein
-  const pp=buildProf.protein;
-  if (Math.random()<pp.prob) {
+  // ── PROTEIN — with necessity check ───────────────────────
+  let proteinProb=buildProf.protein.prob;
+
+  // Adjust probability based on build context
+  if (B.weight>=6) proteinProb*=0.3;  // already heavy
+  if (pizza.cheese.length===0) proteinProb=Math.min(proteinProb+0.3,0.95); // no cheese
+  if (sauceFamPrim==="dairy") proteinProb*=0.6; // dairy sauce fills dairy role
+
+  // Umami check — if enough umami-rich veg/cheese already, protein less needed
+  const umamiFromPicked=[...B.picked].filter(id=>HIGH_UMAMI.has(id)).length;
+  if (umamiFromPicked>=2) proteinProb*=0.4;
+
+  if (Math.random()<proteinProb) {
     const cands=getCands("protein");
     const anchored=pickAnchored(cands,"protein");
     pizza.protein=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"protein",Math.max(0,1-anchored.length))];
@@ -361,7 +480,7 @@ function rollPizza() {
     pizza.protein=pickAnchored(getCands("protein"),"protein");
   }
 
-  // Veg
+  // ── VEG ───────────────────────────────────────────────────
   const vp=buildProf.veg;
   if (Math.random()<vp.prob) {
     let target=vp.count[0]+Math.floor(Math.random()*(vp.count[1]-vp.count[0]+1));
@@ -373,20 +492,65 @@ function rollPizza() {
     pizza.veg=pickAnchored(getCands("veg"),"veg");
   }
 
-  // Finish
+  // ── FINISH — gap-fill aware ───────────────────────────────
   const fp=buildProf.finish;
   if (Math.random()<fp.prob) {
     let target=fp.count[0]+Math.floor(Math.random()*(fp.count[1]-fp.count[0]+1));
     if (isConnoisseur) target=Math.min(target,CONNOISSEUR_RULES.maxFinishItems);
+
+    // Identify gaps before picking finish
+    const gapNotes=[];
+    if (!(B.notes.acid||B.notes.fresh)) gapNotes.push("acid","fresh");
+    if (!B.notes.herb) gapNotes.push("herb");
+    if (!B.notes.crunch&&!isTraditional) gapNotes.push("crunch");
+
     let cands=getCands("finish");
     if (isConnoisseur) cands=addMultiLayerCandidates(cands,pizza);
+
+    // Boost score of gap-filling finish items
+    // We do this by temporarily adding a gapBoost to their scoreItem result
+    // by pre-spending the gap notes to shift scoring
     const anchored=pickAnchored(cands,"finish");
-    pizza.finish=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"finish",Math.max(0,target-anchored.length))];
+
+    // For finish, score with gap awareness
+    const finishPool=cands.filter(t=>!state.anchoredItems.has(t.id)&&budgetOk(t,"finish"));
+    const scoredFinish=finishPool.map(item=>{
+      let s=scoreItem(item,"finish");
+      // Extra gap boost for finish layer
+      const fillsGap=(item.flavorNotes||[]).some(n=>gapNotes.includes(n));
+      if (fillsGap) s+=1.0;
+      return {item,score:s};
+    });
+
+    // Weighted pick from scored finish
+    const finishPicked=[];
+    const needed=Math.max(0,target-anchored.length);
+    let pool=[...scoredFinish];
+    for (let i=0;i<needed;i++) {
+      if (!pool.length) break;
+      const eligible=pool.filter(({item})=>{
+        const dup=finishPicked.some(p=>{
+          const shared=(p.flavorNotes||[]).filter(n=>(item.flavorNotes||[]).includes(n));
+          return shared.length>=2&&!amplifying(item.flavorNotes||[]);
+        });
+        return !dup&&budgetOk(item,"finish");
+      });
+      if (!eligible.length) break;
+      const total=eligible.reduce((s,x)=>s+x.score,0);
+      let rand=Math.random()*total;
+      let chosen=eligible[eligible.length-1].item;
+      for (const {item,score} of eligible) {rand-=score;if(rand<=0){chosen=item;break;}}
+      finishPicked.push(chosen);
+      spend(chosen,"finish");
+      pool=pool.filter(({item})=>item.id!==chosen.id);
+    }
+
+    pizza.finish=[...anchored,...finishPicked];
   } else {
     pizza.finish=pickAnchored(getCands("finish"),"finish");
   }
 
-  // Connoisseur: ensure C-profile item
+  // ── CONNOISSEUR: ensure C-profile item ────────────────────
   if (isConnoisseur&&CONNOISSEUR_RULES.requireUniqueIngredient) {
     const allPicked=LAYER_ORDER.flatMap(l=>pizza[l]||[]);
     if (!allPicked.some(t=>t.profile==="C")) {

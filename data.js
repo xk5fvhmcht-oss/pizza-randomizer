@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.0.3";
+const APP_VERSION = "2.1.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -156,7 +156,12 @@ const HARD_CONFLICTS = [
   { sauceFamily:"spicepaste", topping:"feta",         reason:"wrong flavor universe for Indian" },
   { sauceFamily:"spicepaste", topping:"kashkaval",    reason:"wrong flavor universe for Indian" },
   // Topping → topping conflicts (presence-based)
-  { topping1:"gorgonzola",  topping2:"shanklish",     reason:"two pungent anchor cheeses" },
+  { topping1:"fior_di_latte", topping2:"fresh_mozz",    reason:"same ingredient different form" },
+  { topping1:"fior_di_latte", topping2:"shredded_mozz", reason:"same ingredient different form" },
+  { topping1:"fresh_mozz",    topping2:"shredded_mozz", reason:"same ingredient different form" },
+  { topping1:"bufala",        topping2:"fior_di_latte", reason:"two fresh mozzarella styles" },
+  { topping1:"bufala",        topping2:"fresh_mozz",    reason:"two fresh mozzarella styles" },
+  { topping1:"gorgonzola",    topping2:"shanklish",     reason:"two pungent anchor cheeses" },
   { topping1:"sujuk",       topping2:"lamb_mince",    reason:"two heavy anchor proteins" },
   { topping1:"sujuk",       topping2:"beef_kofta",    reason:"two heavy anchor proteins" },
   { topping1:"muhammara",   topping2:"roasted_peppers",reason:"pepper paste on roasted peppers" },
@@ -208,6 +213,43 @@ const QTY_STANDARDS = {
   sauce_g:75, cheese_primary_g:100, cheese_accent_g:35,
   protein_g:90, veg_total_g:60, finish_herb_g:8,
 };
+
+
+// ── CHEESE PREFERENCES ──────────────────────────────────────
+// Per cuisine: ordered list of preferred cheese ids
+// Engine uses these to weight cheese selection
+const CHEESE_PREFERENCES = {
+  neapolitan:   ["fior_di_latte","bufala","burrata","ricotta_dollop","fresh_mozz","gorgonzola","fontina","provolone","parmigiano_primary"],
+  levantine:    ["akawi","feta","kashkaval","shanklish","halloumi","goat_cheese","ricotta_dollop"],
+  turkish:      ["kashkaval","akawi","halloumi","feta"],
+  greek:        ["feta","halloumi","ricotta_dollop","goat_cheese"],
+  northafrican: ["feta","goat_cheese","ricotta_dollop"],
+  mexican:      ["cotija"],
+  american:     ["shredded_mozz","aged_cheddar","gorgonzola","fontina","fresh_mozz","ricotta_dollop"],
+  indian:       ["paneer"],
+};
+
+// ── SAUCE FAMILY CHEESE PREFERENCES ─────────────────────────
+// When sauce family is known, these cheese ids are preferred
+const SAUCE_CHEESE_PREFERENCES = {
+  tomato:     ["fior_di_latte","fresh_mozz","shredded_mozz","feta","kashkaval","gorgonzola","fontina","ricotta_dollop"],
+  dairy:      ["feta","halloumi","kashkaval","akawi","shanklish","goat_cheese"],
+  herb:       ["fior_di_latte","ricotta_dollop","goat_cheese","feta","parmigiano_primary"],
+  spicepaste: ["paneer","kashkaval","shredded_mozz","fresh_mozz"],
+  nosause:    ["fior_di_latte","parmigiano_primary","gorgonzola","fontina","ricotta_dollop","goat_cheese","feta","akawi"],
+};
+
+// ── FETA COMPANION RULE ──────────────────────────────────────
+// Feta doesn't melt — on tomato sauce it needs a melt cheese companion (Traditional only)
+// Elevated/Connoisseur: feta can stand alone as post-bake accent
+const FETA_NEEDS_COMPANION_SAUCES = new Set(["tomato"]);
+const MELT_CHEESES = new Set(["fior_di_latte","fresh_mozz","shredded_mozz","kashkaval","fontina","halloumi","akawi","paneer"]);
+
+// ── PROTEIN NECESSITY ────────────────────────────────────────
+// Umami-rich items — if enough present, protein less necessary
+const HIGH_UMAMI = new Set(["mushroom_wild","mushroom_cremini","anchovy","sun_dried_tom",
+  "capers","roasted_garlic_cloves","truffle_oil","parmigiano","pecorino","shanklish",
+  "preserved_lemon","kalamata","nduja_homemade"]);
 
 // ── TOPPINGS ─────────────────────────────────────────────────
 const TOPPINGS = [
@@ -496,7 +538,7 @@ const TOPPINGS = [
   {
     id:"shredded_mozz", name:"Shredded low-moisture mozz",
     layer:"cheese", cuisine:["american"],
-    profile:"T", sauceFamilies:["tomato","spicepaste","dairy"],
+    profile:"T", sauceFamilies:["tomato"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
     note:"Better melt and coverage for American style builds",
