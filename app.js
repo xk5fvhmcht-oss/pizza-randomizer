@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v1.5.1
+// OMAR'S PIE — app.js v1.5.2
 // Chef-driven engine: conflict · amplifying pairs · budget
 // ============================================================
 
@@ -163,9 +163,10 @@ function buildSauceScreen() {
   );
   $("sauce-clash-banner").style.display = hasClash ? "flex" : "none";
 
+  // Sauces show based on cuisine match — not profile-gated
+  // Profile controls toppings in the engine, not sauce selection
   const sauces = TOPPINGS.filter(t =>
     t.layer==="sauce" &&
-    profileSet.includes(t.profile) &&
     !state.excludedItems.has(t.id) &&
     (
       (cuisines.length>0 && t.cuisine.some(c=>cuisines.includes(c))) ||
@@ -227,7 +228,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// CHEF-DRIVEN ROLL ENGINE v1.5.1
+// CHEF-DRIVEN ROLL ENGINE v1.5.2
 // Single clean scope — no duplicate function definitions
 // ══════════════════════════════════════════════════════════════
 
@@ -656,7 +657,7 @@ $("btn-reroll").addEventListener("click", () => {
     saveHistory();
   } catch(e) {
     console.error("Reroll error:", e);
-    showToast("Reroll failed — try again");
+    showToast("Re-top failed — try again");
   }
 });
 
