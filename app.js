@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.2.2
+// OMAR'S PIE — app.js v2.3.0
 // The Classics + clean engine
 // ============================================================
 
@@ -232,7 +232,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.2.2 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.3.0 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -558,13 +558,20 @@ function rollPizza() {
   }
 
   // ── CONNOISSEUR: ensure C-profile item ────────────────────
+  // Scan ALL layers first — don't force a finish swap if C item already exists
   if (isConnoisseur&&CONNOISSEUR_RULES.requireUniqueIngredient) {
-    const allPicked=LAYER_ORDER.flatMap(l=>pizza[l]||[]);
+    const allPicked=LAYER_ORDER.flatMap(l=>pizza[l]||[]).filter(Boolean);
     if (!allPicked.some(t=>t.profile==="C")) {
-      const cItems=getCands("finish").filter(t=>t.profile==="C"&&!B.picked.has(t.id));
-      if (cItems.length&&pizza.finish.length) {
-        const ri=pizza.finish.map(t=>t.presence).lastIndexOf("accent");
-        if (ri>=0) pizza.finish[ri]=cItems[Math.floor(Math.random()*cItems.length)];
+      // Try finish first, then veg, then protein
+      for (const layer of ["finish","veg","protein"]) {
+        const cItems=getCands(layer).filter(t=>t.profile==="C"&&!B.picked.has(t.id));
+        if (cItems.length&&(pizza[layer]||[]).length) {
+          const ri=(pizza[layer]||[]).map(t=>t&&t.presence).lastIndexOf("accent");
+          if (ri>=0) {
+            pizza[layer][ri]=cItems[Math.floor(Math.random()*cItems.length)];
+            break;
+          }
+        }
       }
     }
   }
