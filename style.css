@@ -1893,3 +1893,16 @@ body::before {
 }
 .sub-nav-home:hover,
 .sub-nav-shopping:hover { opacity: 1; }
+
+/* ── SWAP COUNTER ────────────────────────────────────────── */
+.swap-counter {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--terra);
+  background: var(--terra-light);
+  border: 1px solid var(--terra);
+  border-radius: 10px;
+  padding: 1px 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

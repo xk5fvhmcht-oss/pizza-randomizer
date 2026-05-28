@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.4.1
+// OMAR'S PIE — app.js v2.4.2
 // The Classics + clean engine
 // ============================================================
 
@@ -234,7 +234,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.4.1 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.4.2 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -741,6 +741,7 @@ function renderPizza(pizza) {
         <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </button>
+        ${item._swapPosition?`<span class="swap-counter">${item._swapPosition}/${item._swapTotal}</span>`:""}
         <button class="act-btn remove-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Remove">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -749,6 +750,7 @@ function renderPizza(pizza) {
         <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </button>
+        ${item._swapPosition?`<span class="swap-counter">${item._swapPosition}/${item._swapTotal}</span>`:""}
         <button class="act-btn exclude-btn" data-id="${item.id}" aria-label="Exclude">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         </button>
@@ -972,27 +974,36 @@ function buildSwapSequence(oldId, layer) {
 function swapItem(oldId, layer) {
   const seqKey = `${oldId}:${layer}`;
 
-  // Build or retrieve sequence
-  if (!state.swapSequences[seqKey] || state.swapSequences[seqKey].sequence.length === 0) {
+  // Build sequence if not exists or exhausted
+  if (!state.swapSequences[seqKey]) {
     const seq = buildSwapSequence(oldId, layer);
     if (!seq.length) { showToast("Nothing left to swap to"); return; }
-    state.swapSequences[seqKey] = { sequence: seq, index: 0 };
+    state.swapSequences[seqKey] = { sequence: seq, index: 0, total: seq.length };
   }
 
-  const swapState = state.swapSequences[seqKey];
-  const total     = swapState.sequence.length;
-  const idx       = swapState.index % total;
+  const swapState  = state.swapSequences[seqKey];
+  const total      = swapState.total;
+  const idx        = swapState.index;
   const replacement = swapState.sequence[idx];
+  const position   = idx + 1;
 
-  // Advance index for next tap
+  // Advance index — wrap around for repeat cycle
   swapState.index = (idx + 1) % total;
+
+  // Store counter info on the replacement for the card to display
+  replacement._swapPosition = position;
+  replacement._swapTotal    = total;
+  replacement._swapOrigId   = oldId;  // so next tap knows where to continue
+
+  // Transfer sequence to new key (replacement id) so next tap continues
+  state.swapSequences[`${replacement.id}:${layer}`] = {
+    sequence: swapState.sequence,
+    index:    swapState.index,
+    total:    total,
+  };
 
   // Apply replacement
   state.currentPizza[layer] = state.currentPizza[layer].map(t=>t?.id===oldId?replacement:t);
-
-  // Show counter
-  const position = idx + 1;
-  showToast(`${replacement.name} · ${position}/${total}`);
 
   renderPizza(state.currentPizza);
 }
