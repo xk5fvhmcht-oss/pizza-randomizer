@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.0.1
+// OMAR'S PIE — app.js v2.0.3
 // The Classics + clean engine
 // ============================================================
 
@@ -225,7 +225,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.0.1 — cleaned, no flatbread/meatbase
+// ROLL ENGINE v2.0.3 — cleaned, no flatbread/meatbase
 // ══════════════════════════════════════════════════════════════
 
 function rollPizza() {

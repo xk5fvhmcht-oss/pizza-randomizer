@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "2.0.3";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -128,16 +128,6 @@ const SAUCE_BUILD_PROFILES = {
     veg:     { prob:0.60, count:[1,1] },
     finish:  { prob:0.80, count:[1,2] },
   },
-    cheese:  { prob:0.00, count:[0,0] },
-    protein: { prob:0.00, count:[0,0] },
-    veg:     { prob:0.70, count:[1,2] },
-    finish:  { prob:0.90, count:[1,2] },
-  },
-    cheese:  { prob:0.50, count:[1,1] },
-    protein: { prob:0.20, count:[1,1] },
-    veg:     { prob:0.65, count:[1,1] },
-    finish:  { prob:0.90, count:[1,2] },
-  },
   nosause: {
     base:    { prob:0.95, count:[1,1] },
     cheese:  { prob:1.00, count:[1,2] },
@@ -155,8 +145,6 @@ const HARD_CONFLICTS = [
   { sauce:"pesto",          topping:"fresh_basil",    reason:"basil on basil" },
   { sauce:"chermoula",      topping:"fresh_cilantro", reason:"cilantro on cilantro" },
   { sauce:"chermoula",      topping:"flat_parsley",   reason:"parsley on parsley" },
-  { sauce:  topping:"zaatar_finish",  reason:"za'atar on za'atar" },
-  { sauce:  topping:"dried_mint",     reason:"herb on herb" },
   { sauce:"shakshuka_sauce",topping:"cherry_tom",     reason:"tomato on tomato" },
   { sauce:"sun_dried_tom",  topping:"san_marzano",    reason:"concentrated tomato on tomato" },
   // Sauce family → topping conflicts
@@ -455,7 +443,6 @@ const TOPPINGS = [
     note:"Thin layer only — too heavy if over-applied",
     qty:{ unit:"tub (400g)", yield_g:400, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:6, min_purchase:1 },
   },
-    }
   {
     id:"nosause", name:"No sauce — bianca",
     layer:"sauce", cuisine:["neapolitan","greek","levantine","turkish","northafrican","indian","american","mexican"],
@@ -1610,6 +1597,30 @@ function T(id) {
   return t ? {...t} : { id, name: id, layer:"finish", flavorNotes:[], moisture:"dry", weight:"light", presence:"accent" };
 }
 
+// Add lahmajun_spread back as a topping reference for Classics only
+// It's removed from the sauce picker but needed for lahmajun_classic
+const LAHMAJUN_SPREAD_REF = {
+  id:"lahmajun_spread", name:"Spiced lamb/beef spread (lahmajun)",
+  layer:"sauce", cuisine:["turkish","levantine"],
+  profile:"E", sauceFamilies:["tomato"],
+  stores:["sara"], prep:"precook",
+  flavorNotes:["spice","umami","heat","acid"], moisture:"low", weight:"heavy", presence:"anchor",
+  desc:"Raw spiced lamb or beef mixed with tomato, parsley, peppers and Aleppo — spread thin on dough and baked directly. No cheese or protein added.",
+  note:"Spread thin on raw dough — cooks with pizza. No cheese traditionally. Serve with raw onion, parsley, lemon.",
+  qty:{ unit:"200g ground lamb/beef from Sara's", yield_g:200, per_pizza_g:200, per_pizza_oz:7.1, min_purchase:1 },
+};
+
+const ZAATAR_SPREAD_REF = {
+  id:"zaatar_oil", name:"Za'atar oil spread",
+  layer:"base", cuisine:["levantine","turkish"],
+  profile:"E", sauceFamilies:["nosause","herb","dairy"],
+  stores:["sara"],
+  flavorNotes:["herb","fat","acid"], moisture:"dry", weight:"light", presence:"anchor",
+  desc:"Za'atar generously mixed with olive oil and spread directly on raw dough — this IS the pizza. The Levantine flatbread tradition.",
+  note:"Spread generously on raw dough — wall to wall. No additional sauce.",
+  qty:{ unit:"za'atar jar + EVOO", yield_g:50, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_tbsp:3, pantry:true, min_purchase:1 },
+};
+
 const CLASSICS = [
 
   // ══ 🍅 NEAPOLITAN ═══════════════════════════════════════════
@@ -1673,7 +1684,7 @@ const CLASSICS = [
       sauce:   [T("nosause")],
       cheese:  [T("parmigiano_primary")],
       protein: [],
-      veg:     [T("red_onion"), T("fresh_rosemary")],
+      veg:     [T("red_onion"), T("rosemary")],
       finish:  [T("pistachios"), T("finish_evoo")],
     },
   },
@@ -1738,7 +1749,7 @@ const CLASSICS = [
       cheese:  [T("fior_di_latte")],
       protein: [],
       veg:     [T("mushroom_wild")],
-      finish:  [T("truffle_oil"), T("fresh_rosemary"), T("parmigiano")],
+      finish:  [T("truffle_oil"), T("rosemary"), T("parmigiano")],
     },
   },
   {
@@ -1753,7 +1764,7 @@ const CLASSICS = [
       sauce:   [T("nosause")],
       cheese:  [T("fior_di_latte")],
       protein: [],
-      veg:     [T("potato_thin"), T("fresh_rosemary")],
+      veg:     [T("potato_thin"), T("rosemary")],
       finish:  [T("parmigiano"), T("finish_evoo"), T("maldon_salt")],
     },
   },
@@ -2246,7 +2257,7 @@ const CLASSICS = [
       cheese:  [T("gorgonzola")],
       protein: [],
       veg:     [T("figs_dried")],
-      finish:  [T("toasted_walnuts"), T("hot_honey"), T("fresh_rosemary")],
+      finish:  [T("toasted_walnuts"), T("hot_honey"), T("rosemary")],
     },
   },
   {
@@ -2277,7 +2288,7 @@ const CLASSICS = [
       sauce:   [T("nosause")],
       cheese:  [T("fontina")],
       protein: [],
-      veg:     [T("mushroom_wild"), T("fresh_rosemary")],
+      veg:     [T("mushroom_wild"), T("rosemary")],
       finish:  [T("truffle_oil"), T("parmigiano"), T("maldon_salt")],
     },
   },
@@ -2349,26 +2360,3 @@ const CLASSICS = [
   },
 ];
 
-// Add lahmajun_spread back as a topping reference for Classics only
-// It's removed from the sauce picker but needed for lahmajun_classic
-const LAHMAJUN_SPREAD_REF = {
-  id:"lahmajun_spread", name:"Spiced lamb/beef spread (lahmajun)",
-  layer:"sauce", cuisine:["turkish","levantine"],
-  profile:"E", sauceFamilies:["tomato"],
-  stores:["sara"], prep:"precook",
-  flavorNotes:["spice","umami","heat","acid"], moisture:"low", weight:"heavy", presence:"anchor",
-  desc:"Raw spiced lamb or beef mixed with tomato, parsley, peppers and Aleppo — spread thin on dough and baked directly. No cheese or protein added.",
-  note:"Spread thin on raw dough — cooks with pizza. No cheese traditionally. Serve with raw onion, parsley, lemon.",
-  qty:{ unit:"200g ground lamb/beef from Sara's", yield_g:200, per_pizza_g:200, per_pizza_oz:7.1, min_purchase:1 },
-};
-
-const ZAATAR_SPREAD_REF = {
-  id:"zaatar_oil", name:"Za'atar oil spread",
-  layer:"base", cuisine:["levantine","turkish"],
-  profile:"E", sauceFamilies:["nosause","herb","dairy"],
-  stores:["sara"],
-  flavorNotes:["herb","fat","acid"], moisture:"dry", weight:"light", presence:"anchor",
-  desc:"Za'atar generously mixed with olive oil and spread directly on raw dough — this IS the pizza. The Levantine flatbread tradition.",
-  note:"Spread generously on raw dough — wall to wall. No additional sauce.",
-  qty:{ unit:"za'atar jar + EVOO", yield_g:50, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_tbsp:3, pantry:true, min_purchase:1 },
-};
