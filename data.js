@@ -1,11 +1,11 @@
 // ============================================================
-// OMAR'S PIE — data.js v1.5.1
+// OMAR'S PIE — data.js v1.5.3
 // From the familiar to the exceptional
 // Neapolitan style · Biga dough · Gozney Dome + Baking Steel
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "1.5.1";
+const APP_VERSION = "2.0.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -45,9 +45,8 @@ const CUISINE_CLASHES = [
 
 const CUISINE_LOCKED_SAUCES = new Set([
   "tomatillo_sauce","shakshuka_sauce","roja_sauce","tikka_sauce",
-  "makhani_sauce","lahmajun_spread","chipotle_base","biber_salcasi",
-  "zaatar_spread",
-]);
+  "makhani_sauce","chipotle_base","biber_salcasi",
+  ]);
 
 // ── PROFILES ────────────────────────────────────────────────
 // T = Traditional · E = Elevated · C = Connoisseur
@@ -129,16 +128,11 @@ const SAUCE_BUILD_PROFILES = {
     veg:     { prob:0.60, count:[1,1] },
     finish:  { prob:0.80, count:[1,2] },
   },
-  meatbase: {
-    base:    { prob:0.00, count:[0,0] },
     cheese:  { prob:0.00, count:[0,0] },
     protein: { prob:0.00, count:[0,0] },
     veg:     { prob:0.70, count:[1,2] },
     finish:  { prob:0.90, count:[1,2] },
   },
-  flatbread: {
-    // Manakish — za'atar spread as sauce
-    base:    { prob:0.00, count:[0,0] },
     cheese:  { prob:0.50, count:[1,1] },
     protein: { prob:0.20, count:[1,1] },
     veg:     { prob:0.65, count:[1,1] },
@@ -161,8 +155,8 @@ const HARD_CONFLICTS = [
   { sauce:"pesto",          topping:"fresh_basil",    reason:"basil on basil" },
   { sauce:"chermoula",      topping:"fresh_cilantro", reason:"cilantro on cilantro" },
   { sauce:"chermoula",      topping:"flat_parsley",   reason:"parsley on parsley" },
-  { sauce:"zaatar_spread",  topping:"zaatar_finish",  reason:"za'atar on za'atar" },
-  { sauce:"zaatar_spread",  topping:"dried_mint",     reason:"herb on herb" },
+  { sauce:  topping:"zaatar_finish",  reason:"za'atar on za'atar" },
+  { sauce:  topping:"dried_mint",     reason:"herb on herb" },
   { sauce:"shakshuka_sauce",topping:"cherry_tom",     reason:"tomato on tomato" },
   { sauce:"sun_dried_tom",  topping:"san_marzano",    reason:"concentrated tomato on tomato" },
   // Sauce family → topping conflicts
@@ -192,25 +186,12 @@ const AMPLIFYING_PAIRS = [
 ];
 
 // ── LAHMAJUN VEG WHITELIST ───────────────────────────────────
-const LAHMAJUN_VEG_WHITELIST = new Set([
-  "red_onion","spring_onion","cherry_tom","flat_parsley","lemon_zest"
-]);
 
 // ── LAHMAJUN FINISH WHITELIST ────────────────────────────────
-const LAHMAJUN_FINISH_WHITELIST = new Set([
-  "sumac_finish","lemon_zest","flat_parsley","aleppo_pepper","finish_evoo"
-]);
 
 // ── MANAKISH VEG WHITELIST ───────────────────────────────────
-const MANAKISH_VEG_WHITELIST = new Set([
-  "cherry_tom","red_onion","spring_onion","kalamata","pomegranate_arils"
-]);
 
 // ── MANAKISH FINISH WHITELIST ────────────────────────────────
-const MANAKISH_FINISH_WHITELIST = new Set([
-  "fresh_mint","sumac_finish","finish_evoo","lemon_zest","flat_parsley",
-  "fresh_tomato_postbake"
-]);
 
 // ── MULTI-LAYER INGREDIENTS ──────────────────────────────────
 // These can appear in multiple layers — engine places them contextually
@@ -248,7 +229,7 @@ const TOPPINGS = [
     id:"evoo_base", name:"EVOO drizzle",
     layer:"base", cuisine:["neapolitan","greek","levantine","turkish","northafrican"],
     profile:"T", sauceFamilies:["nosause","dairy","herb","tomato"],
-    compatibleSauceFamilies:["tomato","dairy","herb","spicepaste","nosause","meatbase","flatbread"],
+    compatibleSauceFamilies:["tomato","dairy","herb","spicepaste","nosause"],
     stores:["sara","cm"],
     flavorNotes:["fat"], moisture:"dry", weight:"light", presence:"accent",
     note:"High-quality — applied before sauce on white pies",
@@ -256,7 +237,7 @@ const TOPPINGS = [
   },
   {
     id:"garlic_oil", name:"Roasted garlic oil",
-    layer:"base", cuisine:["neapolitan","american","greek","levantine"],
+    layer:"base", cuisine:["neapolitan","greek","levantine","turkish"],
     profile:"T", sauceFamilies:["nosause","dairy","tomato"],
     compatibleSauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["sara","cm"],
@@ -322,7 +303,7 @@ const TOPPINGS = [
   },
   {
     id:"calabrian_oil_base", name:"Calabrian chili oil (base)",
-    layer:"base", cuisine:["neapolitan","american"],
+    layer:"base", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","nosause","spicepaste"],
     compatibleSauceFamilies:["tomato","nosause"],
     stores:["cm"],
@@ -335,7 +316,7 @@ const TOPPINGS = [
   // ══ SAUCE ═══════════════════════════════════════════════════
   {
     id:"san_marzano", name:"San Marzano tomato",
-    layer:"sauce", cuisine:["neapolitan","greek","levantine","turkish","northafrican","american","mexican"],
+    layer:"sauce", cuisine:["neapolitan","greek","levantine","turkish","northafrican"],
     profile:"T", sauceFamilies:["tomato"],
     stores:["sara","cm"],
     flavorNotes:["acid","umami","sweet"], moisture:"medium", weight:"light", presence:"anchor",
@@ -354,7 +335,7 @@ const TOPPINGS = [
   },
   {
     id:"pesto", name:"Pesto (basil)",
-    layer:"sauce", cuisine:["neapolitan","american","greek"],
+    layer:"sauce", cuisine:["neapolitan","greek"],
     profile:"T", sauceFamilies:["herb","nosause"],
     multiLayer: true,
     stores:["sara","cm"],
@@ -364,7 +345,7 @@ const TOPPINGS = [
   },
   {
     id:"white_sauce", name:"Béchamel / cream base",
-    layer:"sauce", cuisine:["neapolitan","american","greek"],
+    layer:"sauce", cuisine:["neapolitan","greek"],
     profile:"T", sauceFamilies:["dairy"],
     stores:["cm"],
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
@@ -474,26 +455,7 @@ const TOPPINGS = [
     note:"Thin layer only — too heavy if over-applied",
     qty:{ unit:"tub (400g)", yield_g:400, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:6, min_purchase:1 },
   },
-  {
-    id:"lahmajun_spread", name:"Lahmajun meat spread",
-    layer:"sauce", cuisine:["turkish","levantine"],
-    profile:"E", sauceFamilies:["meatbase"],
-    stores:["sara"], prep:PREP.RAW,
-    flavorNotes:["spice","umami","heat","acid"], moisture:"low", weight:"heavy", presence:"anchor",
-    desc:"Raw spiced lamb or beef with tomato, parsley, peppers and Aleppo — spread thin on dough and baked directly. No cheese or extra protein. Traditional Turkish street food.",
-    note:"Spread thin on raw dough — cooks with pizza. No cheese or protein added.",
-    qty:{ unit:"200g ground lamb/beef", yield_g:200, per_pizza_g:200, per_pizza_oz:7.1, min_purchase:1 },
-  },
-  {
-    id:"zaatar_spread", name:"Za'atar oil spread (manakish)",
-    layer:"sauce", cuisine:["levantine","turkish"],
-    profile:"E", sauceFamilies:["flatbread"],
-    stores:["sara"],
-    flavorNotes:["herb","fat","acid"], moisture:"low", weight:"light", presence:"anchor",
-    desc:"Za'atar generously mixed with olive oil and spread directly on raw dough — this IS the pizza. The Levantine flatbread tradition, manakish. The dough edge is the crust.",
-    note:"Spread generously on raw dough — no additional sauce. Light cheese or none. Keep toppings minimal.",
-    qty:{ unit:"za'atar jar + EVOO", yield_g:50, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_tbsp:3, pantry:true, min_purchase:1 },
-  },
+    }
   {
     id:"nosause", name:"No sauce — bianca",
     layer:"sauce", cuisine:["neapolitan","greek","levantine","turkish","northafrican","indian","american","mexican"],
@@ -507,7 +469,7 @@ const TOPPINGS = [
   // ══ CHEESE ══════════════════════════════════════════════════
   {
     id:"fior_di_latte", name:"Fior di latte",
-    layer:"cheese", cuisine:["neapolitan","greek","levantine","turkish","american"],
+    layer:"cheese", cuisine:["neapolitan","greek"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
@@ -537,7 +499,7 @@ const TOPPINGS = [
   },
   {
     id:"fresh_mozz", name:"Fresh mozzarella",
-    layer:"cheese", cuisine:["neapolitan","american","greek","levantine","turkish"],
+    layer:"cheese", cuisine:["neapolitan","american","greek"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
@@ -546,7 +508,7 @@ const TOPPINGS = [
   },
   {
     id:"shredded_mozz", name:"Shredded low-moisture mozz",
-    layer:"cheese", cuisine:["american","neapolitan"],
+    layer:"cheese", cuisine:["american"],
     profile:"T", sauceFamilies:["tomato","spicepaste","dairy"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
@@ -555,7 +517,7 @@ const TOPPINGS = [
   },
   {
     id:"gorgonzola", name:"Gorgonzola (crumbled)",
-    layer:"cheese", cuisine:["neapolitan","american"],
+    layer:"cheese", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["nosause","dairy","tomato"],
     stores:["cm"],
     flavorNotes:["brine","umami","fat","acid"], moisture:"low", weight:"medium", presence:"anchor",
@@ -565,7 +527,7 @@ const TOPPINGS = [
   },
   {
     id:"fontina", name:"Fontina",
-    layer:"cheese", cuisine:["neapolitan","american"],
+    layer:"cheese", cuisine:["neapolitan"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["cm"],
     flavorNotes:["cream","fat","umami"], moisture:"medium", weight:"medium", presence:"anchor",
@@ -575,8 +537,8 @@ const TOPPINGS = [
   },
   {
     id:"feta", name:"Feta (crumbled)",
-    layer:"cheese", cuisine:["greek","levantine","turkish","northafrican","neapolitan"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
+    layer:"cheese", cuisine:["greek","levantine","turkish","northafrican"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["brine","acid","fat"], moisture:"low", weight:"light", presence:"supporting",
     desc:"Brined Greek sheep's milk cheese — salty, tangy, crumbly. Doesn't melt, adds bursts of flavor.",
@@ -586,7 +548,7 @@ const TOPPINGS = [
   {
     id:"halloumi", name:"Halloumi (sliced)",
     layer:"cheese", cuisine:["greek","levantine","turkish"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["brine","fat","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Cypriot cheese with very high melting point — golden and squeaky when seared. Holds shape in oven.",
@@ -596,7 +558,7 @@ const TOPPINGS = [
   {
     id:"kashkaval", name:"Kashkaval",
     layer:"cheese", cuisine:["turkish","levantine","greek","northafrican"],
-    profile:"E", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause","flatbread"],
+    profile:"E", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause"],
     stores:["sara","altin"],
     flavorNotes:["fat","umami","cream"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Balkan semi-hard cheese — excellent melt, mild and buttery. Turkey's answer to mozzarella.",
@@ -606,7 +568,7 @@ const TOPPINGS = [
   {
     id:"akawi", name:"Akawi (white Levantine cheese)",
     layer:"cheese", cuisine:["levantine","turkish"],
-    profile:"E", sauceFamilies:["nosause","flatbread","herb","tomato"],
+    profile:"E", sauceFamilies:["nosause","herb","tomato"],
     stores:["sara"],
     flavorNotes:["cream","brine","fat"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Soft white Levantine cheese — mild, slightly salty, excellent melt. The classic manakish cheese. Used in kunefe and fatayer across the Levant.",
@@ -625,7 +587,7 @@ const TOPPINGS = [
   },
   {
     id:"goat_cheese", name:"Goat cheese (chèvre)",
-    layer:"cheese", cuisine:["northafrican","american","greek","neapolitan"],
+    layer:"cheese", cuisine:["northafrican","american","greek"],
     profile:"E", sauceFamilies:["herb","nosause","tomato","dairy"],
     stores:["cm"],
     flavorNotes:["acid","cream","fat"], moisture:"low", weight:"light", presence:"supporting",
@@ -635,7 +597,7 @@ const TOPPINGS = [
   },
   {
     id:"parmigiano_primary", name:"Parmigiano-Reggiano (grated, primary)",
-    layer:"cheese", cuisine:["neapolitan","american"],
+    layer:"cheese", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["nosause","herb"],
     stores:["cm"],
     flavorNotes:["umami","acid","crunch","fat"], moisture:"dry", weight:"light", presence:"anchor",
@@ -674,7 +636,7 @@ const TOPPINGS = [
   },
   {
     id:"provolone", name:"Provolone (sharp)",
-    layer:"cheese", cuisine:["neapolitan","american"],
+    layer:"cheese", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","dairy"],
     stores:["cm"],
     flavorNotes:["fat","umami","smoke"], moisture:"low", weight:"medium", presence:"supporting",
@@ -684,7 +646,7 @@ const TOPPINGS = [
   },
   {
     id:"ricotta_dollop", name:"Ricotta (dolloped)",
-    layer:"cheese", cuisine:["neapolitan","american","greek"],
+    layer:"cheese", cuisine:["neapolitan","greek"],
     profile:"E", sauceFamilies:["tomato","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat","sweet"], moisture:"medium", weight:"light", presence:"supporting",
@@ -733,7 +695,7 @@ const TOPPINGS = [
   },
   {
     id:"anchovy", name:"Anchovy (oil-packed)",
-    layer:"protein", cuisine:["neapolitan","greek","levantine"],
+    layer:"protein", cuisine:["neapolitan","greek"],
     profile:"E", sauceFamilies:["tomato","herb","nosause"],
     stores:["cm"], prep:PREP.READY,
     flavorNotes:["brine","umami","fat"], moisture:"low", weight:"light", presence:"supporting",
@@ -771,7 +733,7 @@ const TOPPINGS = [
   },
   {
     id:"beef_pepperoni", name:"Beef pepperoni",
-    layer:"protein", cuisine:["american","neapolitan"],
+    layer:"protein", cuisine:["american"],
     profile:"T", sauceFamilies:["tomato","spicepaste"],
     stores:["sara","cm"], prep:PREP.READY,
     flavorNotes:["spice","fat","umami","smoke"], moisture:"low", weight:"medium", presence:"anchor",
@@ -780,7 +742,7 @@ const TOPPINGS = [
   },
   {
     id:"beef_salami", name:"Beef salami",
-    layer:"protein", cuisine:["american","neapolitan"],
+    layer:"protein", cuisine:["american"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"], prep:PREP.READY,
     flavorNotes:["fat","umami","spice"], moisture:"low", weight:"medium", presence:"anchor",
@@ -790,7 +752,7 @@ const TOPPINGS = [
   },
   {
     id:"beef_diavola", name:"Beef diavola salami",
-    layer:"protein", cuisine:["neapolitan","american"],
+    layer:"protein", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","spicepaste"],
     stores:["cm"], prep:PREP.READY,
     flavorNotes:["heat","fat","spice","umami"], moisture:"low", weight:"medium", presence:"anchor",
@@ -800,7 +762,7 @@ const TOPPINGS = [
   },
   {
     id:"bresaola", name:"Bresaola (beef)",
-    layer:"protein", cuisine:["neapolitan","american","greek"],
+    layer:"protein", cuisine:["neapolitan","greek"],
     profile:"E", sauceFamilies:["nosause","dairy","herb","tomato"],
     stores:["cm"], prep:PREP.READY, postbake:true,
     flavorNotes:["umami","brine","acid"], moisture:"postbake", weight:"light", presence:"supporting",
@@ -848,7 +810,7 @@ const TOPPINGS = [
   },
   {
     id:"beef_meatballs", name:"Beef meatballs (sliced)",
-    layer:"protein", cuisine:["neapolitan","american"],
+    layer:"protein", cuisine:["american"],
     profile:"T", sauceFamilies:["tomato","dairy"],
     stores:["sara","cm"], prep:PREP.PRE,
     flavorNotes:["umami","fat","spice"], moisture:"medium", weight:"heavy", presence:"anchor",
@@ -876,7 +838,7 @@ const TOPPINGS = [
   },
   {
     id:"nduja_homemade", name:"Homemade Beef Nduja",
-    layer:"protein", cuisine:["neapolitan","american"],
+    layer:"protein", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","spicepaste","nosause"],
     stores:["sara"], prep:PREP.PRE, homemade:true,
     make_ahead:true, make_ahead_timing:"day before",
@@ -908,8 +870,8 @@ const TOPPINGS = [
   // ══ VEG ═════════════════════════════════════════════════════
   {
     id:"cherry_tom", name:"Cherry tomatoes (halved)",
-    layer:"veg", cuisine:["neapolitan","greek","american","levantine","turkish","northafrican"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
+    layer:"veg", cuisine:["neapolitan","greek","levantine","turkish","northafrican"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["acid","sweet","fresh"], moisture:"high", weight:"light", presence:"supporting",
     note:"Universal — high moisture, don't overload. Fresh burst against cooked sauce is classic.",
@@ -917,7 +879,7 @@ const TOPPINGS = [
   },
   {
     id:"roasted_peppers", name:"Roasted red peppers",
-    layer:"veg", cuisine:["turkish","greek","northafrican","american","levantine"],
+    layer:"veg", cuisine:["neapolitan","turkish","greek","northafrican","levantine"],
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb"],
     stores:["sara","cm"],
     flavorNotes:["sweet","smoke","acid"], moisture:"medium", weight:"light", presence:"supporting",
@@ -927,7 +889,7 @@ const TOPPINGS = [
   {
     id:"kalamata", name:"Kalamata olives",
     layer:"veg", cuisine:["greek","levantine","neapolitan","northafrican"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","flatbread"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["brine","fat","acid"], moisture:"low", weight:"light", presence:"accent",
     note:"Pit and halve — strong brine flavor",
@@ -964,7 +926,7 @@ const TOPPINGS = [
   },
   {
     id:"caramelized_onion", name:"Caramelized onions",
-    layer:"veg", cuisine:["turkish","american","greek","levantine","northafrican"],
+    layer:"veg", cuisine:["neapolitan","turkish","greek","levantine","northafrican"],
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["sara","cm"],
     flavorNotes:["sweet","umami","fat"], moisture:"medium", weight:"light", presence:"supporting",
@@ -974,7 +936,7 @@ const TOPPINGS = [
   {
     id:"spring_onion", name:"Spring onion (scallion)",
     layer:"veg", cuisine:["levantine","turkish","greek","mexican","american","northafrican"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","flatbread","meatbase"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fresh","acid","herb"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake or raw — classic on lahmajun and manakish. Slice thin on bias.",
@@ -982,7 +944,7 @@ const TOPPINGS = [
   },
   {
     id:"red_onion", name:"Red onion (thin sliced)",
-    layer:"veg", cuisine:["greek","indian","mexican","american","levantine","neapolitan"],
+    layer:"veg", cuisine:["greek","indian","mexican","american","levantine"],
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["acid","fresh","brine"], moisture:"low", weight:"light", presence:"accent",
@@ -991,7 +953,7 @@ const TOPPINGS = [
   },
   {
     id:"wood_roasted_onion", name:"Wood-roasted onion",
-    layer:"veg", cuisine:["neapolitan","american"],
+    layer:"veg", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","nosause","dairy"],
     stores:["sara","cm"], domeOnly:true,
     flavorNotes:["sweet","smoke","umami"], moisture:"low", weight:"light", presence:"supporting",
@@ -1038,7 +1000,7 @@ const TOPPINGS = [
   },
   {
     id:"mushroom_cremini", name:"Cremini mushrooms",
-    layer:"veg", cuisine:["neapolitan","american","turkish"],
+    layer:"veg", cuisine:["neapolitan","turkish"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"],
     flavorNotes:["umami","fat","sweet"], moisture:"high", weight:"medium", presence:"supporting",
@@ -1057,7 +1019,7 @@ const TOPPINGS = [
   },
   {
     id:"eggplant_roasted", name:"Roasted eggplant",
-    layer:"veg", cuisine:["levantine","turkish","greek","northafrican"],
+    layer:"veg", cuisine:["neapolitan","levantine","turkish","greek","northafrican"],
     profile:"E", sauceFamilies:["tomato","dairy","herb","spicepaste"],
     stores:["sara","cm"],
     flavorNotes:["umami","smoke","fat","sweet"], moisture:"medium", weight:"medium", presence:"supporting",
@@ -1066,7 +1028,7 @@ const TOPPINGS = [
   },
   {
     id:"spinach", name:"Baby spinach (wilted)",
-    layer:"veg", cuisine:["indian","levantine","greek","northafrican"],
+    layer:"veg", cuisine:["neapolitan","indian","levantine","greek","northafrican"],
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["fresh","umami","herb"], moisture:"high", weight:"light", presence:"supporting",
@@ -1112,7 +1074,7 @@ const TOPPINGS = [
   },
   {
     id:"piquillo_peppers", name:"Piquillo peppers",
-    layer:"veg", cuisine:["neapolitan","northafrican"],
+    layer:"veg", cuisine:["northafrican"],
     profile:"E", sauceFamilies:["tomato","dairy","spicepaste"],
     stores:["cm"],
     flavorNotes:["sweet","smoke","acid"], moisture:"medium", weight:"light", presence:"supporting",
@@ -1131,7 +1093,7 @@ const TOPPINGS = [
   },
   {
     id:"broccoli_rabe", name:"Broccoli rabe (rapini)",
-    layer:"veg", cuisine:["neapolitan","american"],
+    layer:"veg", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"],
     flavorNotes:["herb","bitter","umami"], moisture:"medium", weight:"medium", presence:"supporting",
@@ -1150,7 +1112,7 @@ const TOPPINGS = [
   },
   {
     id:"fennel_roasted", name:"Fennel (shaved or roasted)",
-    layer:"veg", cuisine:["neapolitan","northafrican"],
+    layer:"veg", cuisine:["neapolitan","northafrican","greek"],
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["sara","cm"],
     flavorNotes:["sweet","herb","acid"], moisture:"medium", weight:"light", presence:"supporting",
@@ -1160,7 +1122,7 @@ const TOPPINGS = [
   },
   {
     id:"roasted_garlic_cloves", name:"Roasted garlic cloves",
-    layer:"veg", cuisine:["neapolitan","american","greek","levantine","turkish"],
+    layer:"veg", cuisine:["neapolitan","greek","levantine","turkish"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb","spicepaste"],
     stores:["sara","cm"],
     flavorNotes:["sweet","umami","fat"], moisture:"low", weight:"light", presence:"accent",
@@ -1179,7 +1141,7 @@ const TOPPINGS = [
   },
   {
     id:"cauliflower_roasted", name:"Cauliflower (roasted)",
-    layer:"veg", cuisine:["indian","neapolitan","levantine"],
+    layer:"veg", cuisine:["indian","levantine"],
     profile:"E", sauceFamilies:["spicepaste","dairy","tomato","nosause"],
     stores:["sara","cm"],
     flavorNotes:["sweet","umami","starch"], moisture:"low", weight:"medium", presence:"supporting",
@@ -1208,7 +1170,7 @@ const TOPPINGS = [
   {
     id:"pomegranate_arils", name:"Pomegranate arils",
     layer:"veg", cuisine:["levantine","turkish","northafrican","greek"],
-    profile:"E", sauceFamilies:["dairy","herb","nosause","tomato","flatbread"],
+    profile:"E", sauceFamilies:["dairy","herb","nosause","tomato"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["acid","sweet","fresh","crunch"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Fresh pomegranate seeds — burst of sweet-tart juice, jewel-like color. Post-bake garnish.",
@@ -1238,7 +1200,7 @@ const TOPPINGS = [
   },
   {
     id:"pear_sliced", name:"Pear (thin sliced)",
-    layer:"veg", cuisine:["neapolitan","american"],
+    layer:"veg", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["dairy","nosause"],
     stores:["cm"],
     flavorNotes:["sweet","acid","fresh"], moisture:"medium", weight:"light", presence:"accent",
@@ -1280,7 +1242,7 @@ const TOPPINGS = [
   // ══ FINISH ══════════════════════════════════════════════════
   {
     id:"fresh_basil", name:"Fresh basil",
-    layer:"finish", cuisine:["neapolitan","greek","american","levantine","turkish"],
+    layer:"finish", cuisine:["neapolitan","greek","levantine","turkish"],
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["herb","fresh","sweet"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1299,7 +1261,7 @@ const TOPPINGS = [
   },
   {
     id:"dried_oregano", name:"Dried oregano",
-    layer:"finish", cuisine:["neapolitan","greek","american","levantine","turkish"],
+    layer:"finish", cuisine:["neapolitan","greek","levantine","turkish"],
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["herb","bitter"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1337,7 +1299,7 @@ const TOPPINGS = [
   {
     id:"flat_parsley", name:"Flat-leaf parsley",
     layer:"finish", cuisine:["levantine","turkish","northafrican","greek","neapolitan"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","meatbase","flatbread"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["herb","fresh","bitter"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake — universal finish herb. Essential on lahmajun.",
@@ -1346,7 +1308,7 @@ const TOPPINGS = [
   {
     id:"sumac_finish", name:"Sumac (dusted)",
     layer:"finish", cuisine:["levantine","turkish","northafrican","greek"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause","meatbase","flatbread"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["acid","fresh"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Ground dried sumac berry — intensely lemony and tart. Essential Levantine spice.",
@@ -1376,7 +1338,7 @@ const TOPPINGS = [
   {
     id:"finish_evoo", name:"EVOO (finishing drizzle)",
     layer:"finish", cuisine:["neapolitan","greek","levantine","turkish","northafrican","american"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","flatbread","meatbase"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     multiLayer: true,
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","fresh"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1386,7 +1348,7 @@ const TOPPINGS = [
   {
     id:"lemon_zest", name:"Lemon zest",
     layer:"finish", cuisine:["greek","levantine","northafrican","neapolitan"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","meatbase","flatbread"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["acid","fresh","herb"], moisture:"postbake", weight:"light", presence:"accent",
     note:"Post-bake — brightens everything, criminally underused",
@@ -1394,7 +1356,7 @@ const TOPPINGS = [
   },
   {
     id:"hot_honey", name:"Hot honey drizzle",
-    layer:"finish", cuisine:["american","neapolitan"],
+    layer:"finish", cuisine:["american"],
     profile:"E", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["cm"], postbake:true,
     flavorNotes:["sweet","heat","fat"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1403,7 +1365,7 @@ const TOPPINGS = [
   },
   {
     id:"balsamic_glaze", name:"Balsamic glaze (Modena)",
-    layer:"finish", cuisine:["neapolitan","american","greek"],
+    layer:"finish", cuisine:["neapolitan","greek"],
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"], postbake:true,
     flavorNotes:["sweet","acid","umami"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1434,7 +1396,7 @@ const TOPPINGS = [
   },
   {
     id:"red_chili_flakes", name:"Dried red chili flakes",
-    layer:"finish", cuisine:["neapolitan","american","indian","turkish","levantine"],
+    layer:"finish", cuisine:["neapolitan","turkish","levantine","northafrican"],
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["heat","spice"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1443,7 +1405,7 @@ const TOPPINGS = [
   },
   {
     id:"calabrian_chili_oil", name:"Calabrian chili oil (finish)",
-    layer:"finish", cuisine:["neapolitan","american"],
+    layer:"finish", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["cm"], postbake:true,
     flavorNotes:["heat","fat","smoke"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1453,8 +1415,8 @@ const TOPPINGS = [
   },
   {
     id:"aleppo_pepper", name:"Aleppo pepper flakes",
-    layer:"finish", cuisine:["levantine","turkish","northafrican","american"],
-    profile:"E", sauceFamilies:["tomato","dairy","herb","spicepaste","nosause","meatbase","flatbread"],
+    layer:"finish", cuisine:["levantine","turkish","northafrican"],
+    profile:"E", sauceFamilies:["tomato","dairy","herb","spicepaste","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["heat","acid","fat"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Syrian dried chili — fruity, moderately hot, oily. Completely different from regular chili flakes. Standard finish on lahmajun.",
@@ -1502,7 +1464,7 @@ const TOPPINGS = [
   },
   {
     id:"arugula", name:"Arugula (dressed)",
-    layer:"finish", cuisine:["neapolitan","greek","american"],
+    layer:"finish", cuisine:["neapolitan","greek"],
     profile:"E", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["bitter","fresh","acid","herb"], moisture:"postbake", weight:"light", presence:"supporting",
@@ -1539,7 +1501,7 @@ const TOPPINGS = [
   },
   {
     id:"parmigiano", name:"Parmigiano-Reggiano (shaved)",
-    layer:"finish", cuisine:["neapolitan","american","greek"],
+    layer:"finish", cuisine:["neapolitan","greek"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"], postbake:true,
     flavorNotes:["umami","acid","fat","crunch"], moisture:"postbake", weight:"light", presence:"supporting",
@@ -1549,7 +1511,7 @@ const TOPPINGS = [
   },
   {
     id:"pecorino", name:"Pecorino Romano (shaved)",
-    layer:"finish", cuisine:["neapolitan","american"],
+    layer:"finish", cuisine:["neapolitan"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["cm"], postbake:true,
     flavorNotes:["brine","umami","acid"], moisture:"postbake", weight:"light", presence:"supporting",
@@ -1559,7 +1521,7 @@ const TOPPINGS = [
   },
   {
     id:"toasted_walnuts", name:"Toasted walnuts",
-    layer:"finish", cuisine:["neapolitan","american","northafrican","greek"],
+    layer:"finish", cuisine:["neapolitan","northafrican","greek"],
     profile:"E", sauceFamilies:["dairy","nosause","tomato"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","crunch","bitter","umami"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1577,7 +1539,7 @@ const TOPPINGS = [
   },
   {
     id:"pistachios", name:"Pistachios (crushed)",
-    layer:"finish", cuisine:["levantine","northafrican","neapolitan","american"],
+    layer:"finish", cuisine:["levantine","northafrican","neapolitan"],
     profile:"E", sauceFamilies:["dairy","nosause","herb"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","crunch","sweet","herb"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1588,7 +1550,7 @@ const TOPPINGS = [
   {
     id:"sesame_seeds", name:"Toasted sesame seeds",
     layer:"finish", cuisine:["turkish","levantine","northafrican","indian"],
-    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste","flatbread"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     stores:["sara"], postbake:true,
     flavorNotes:["crunch","fat","umami"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Toasted white or black sesame — nutty, subtle, essential in Turkish and Levantine baking.",
@@ -1598,7 +1560,7 @@ const TOPPINGS = [
   {
     id:"nigella_seeds", name:"Nigella seeds (kalonji)",
     layer:"finish", cuisine:["turkish","indian","levantine"],
-    profile:"C", sauceFamilies:["spicepaste","dairy","nosause","flatbread"],
+    profile:"C", sauceFamilies:["spicepaste","dairy","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["bitter","spice","crunch"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Black seeds with onion-like, slightly smoky flavor — also called black cumin or kalonji. Used in Turkish bread.",
@@ -1616,7 +1578,7 @@ const TOPPINGS = [
   },
   {
     id:"truffle_oil", name:"Truffle oil (drizzle)",
-    layer:"finish", cuisine:["neapolitan","american"],
+    layer:"finish", cuisine:["neapolitan"],
     profile:"E", sauceFamilies:["nosause","dairy","tomato"],
     stores:["cm"], postbake:true,
     flavorNotes:["umami","fat","sweet"], moisture:"postbake", weight:"light", presence:"anchor",
@@ -1626,7 +1588,7 @@ const TOPPINGS = [
   },
   {
     id:"maldon_salt", name:"Maldon salt flakes",
-    layer:"finish", cuisine:["neapolitan","american","greek","levantine"],
+    layer:"finish", cuisine:["neapolitan","greek","levantine","turkish"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb","spicepaste"],
     stores:["cm"], postbake:true,
     flavorNotes:["brine","crunch"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1635,3 +1597,778 @@ const TOPPINGS = [
     qty:{ unit:"box", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.25, shared_yield:60, pantry:true, min_purchase:1 },
   },
 ];
+
+// ══════════════════════════════════════════════════════════════
+// THE CLASSICS — 45 established pizzas across 8 cuisines
+// Hand-built. Historically faithful. Engine does not touch these.
+// ══════════════════════════════════════════════════════════════
+
+// Helper — reference a topping from TOPPINGS array by id
+function T(id) {
+  const t = TOPPINGS.find(x => x.id === id);
+  if (!t) console.warn(`Classic topping not found: ${id}`);
+  return t ? {...t} : { id, name: id, layer:"finish", flavorNotes:[], moisture:"dry", weight:"light", presence:"accent" };
+}
+
+const CLASSICS = [
+
+  // ══ 🍅 NEAPOLITAN ═══════════════════════════════════════════
+  {
+    id:"marinara", name:"Marinara",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"The oldest Neapolitan pizza. Pre-dates mozzarella on pizza. Three ingredients, perfect restraint.",
+    history:"Created by Neapolitan fishermen's wives (la marinara) in the 1700s. No cheese — this is what pizza looked like before mozzarella arrived. The garlic and oregano do all the work.",
+    chefNote:"Garlic must be raw and sliced thin. Oregano post-bake only. EVOO from your best bottle. Resist adding anything.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [],
+      protein: [],
+      veg:     [T("roasted_garlic_cloves")],
+      finish:  [T("dried_oregano"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"margherita", name:"Margherita",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"The mother of all pizzas. Three ingredients representing the Italian flag. The standard against which all pizza is measured.",
+    history:"Created by Raffaele Esposito in Naples, 1889, for Queen Margherita of Savoy. Red tomato, white mozzarella, green basil — the Italian flag. The AVPN standard.",
+    chefNote:"San Marzano crushed by hand, never cooked before bake. Fior di latte sliced thin and patted very dry. Basil post-bake always — it blackens in the oven.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("fior_di_latte")],
+      protein: [],
+      veg:     [],
+      finish:  [T("fresh_basil"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"margherita_sbagliata", name:"Margherita Sbagliata",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"The 'wrong' Margherita by Franco Pepe. Mozzarella baked, raw tomato added post-bake. More right than most pizzas.",
+    history:"Franco Pepe's inversion at Pepe in Grani, Caiazzo. The mozzarella goes in the oven. The tomato — raw, hand-crushed, seasoned — goes on after. Two expressions of the same ingredients, cooked differently.",
+    chefNote:"Bake with fior di latte only — no sauce. While pizza rests, spoon hand-crushed San Marzano over the hot cheese. Add basil immediately. The heat warms the tomato without cooking it.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("nosause")],
+      cheese:  [T("fior_di_latte")],
+      protein: [],
+      veg:     [],
+      finish:  [T("san_marzano"), T("fresh_basil"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"pizza_rosa", name:"Pizza Rosa",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"Chris Bianco's masterpiece. No sauce. No mozzarella. Parmigiano, red onion, rosemary, pistachios, EVOO. Five ingredients that changed American pizza.",
+    history:"Created at Pizzeria Bianco in Phoenix. Bianco was inspired by pistachios available in his home state. The Rosa proved that restraint and specificity are more powerful than abundance.",
+    chefNote:"Grate Parmigiano coarsely directly onto stretched dough — it IS the cheese layer. Red onion thin-sliced. Rosemary leaves pressed in before bake. Pistachios crushed roughly post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("finish_evoo")],
+      sauce:   [T("nosause")],
+      cheese:  [T("parmigiano_primary")],
+      protein: [],
+      veg:     [T("red_onion"), T("fresh_rosemary")],
+      finish:  [T("pistachios"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"diavola", name:"Diavola",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"The devil's pizza. Spicy salami, San Marzano, fior di latte. Simple, direct, fiery.",
+    history:"Diavola means 'devil' in Italian. The spicy salami is the point — everything else is in service of that heat. A staple of every Italian pizzeria.",
+    chefNote:"Beef diavola salami sliced thin — it cups and crisps at Dome temp. Add chili flakes post-bake only if you want more heat.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("fior_di_latte")],
+      protein: [T("beef_diavola")],
+      veg:     [],
+      finish:  [T("red_chili_flakes")],
+    },
+  },
+  {
+    id:"alla_napoletana", name:"Alla Napoletana",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"The classic Neapolitan anchovy pizza. San Marzano, fior di latte, anchovies, capers, oregano. Brine amplification at its finest.",
+    history:"The original toppings of Naples — anchovies from the Bay of Naples, capers from Pantelleria. This combination is older than the Margherita.",
+    chefNote:"Add anchovies in the last 60 seconds only — they dissolve into the pie and season it from within. Capers rinsed, not drained. Oregano post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("fior_di_latte")],
+      protein: [T("anchovy")],
+      veg:     [T("capers")],
+      finish:  [T("dried_oregano"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"quattro_formaggi", name:"Quattro Formaggi",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"Four cheeses, each with a distinct role. No sauce. No protein. The cheese IS the pizza.",
+    history:"A staple of Italian pizzerias. Each cheese chosen for a different quality — melt, funk, sharpness, creaminess. The combination is greater than the sum of its parts.",
+    chefNote:"Fior di latte for melt and body. Gorgonzola for funk — use sparingly. Fontina for butteriness. Parmigiano shaved post-bake for umami and crunch. No sauce — EVOO base only.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("fior_di_latte"), T("gorgonzola"), T("fontina")],
+      protein: [],
+      veg:     [],
+      finish:  [T("parmigiano"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"bianca_funghi", name:"Bianca con Funghi",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"White pizza with wild mushrooms and truffle. Earthly, luxurious, restrained.",
+    history:"The bianca tradition — no tomato, let the cheese and toppings speak. Wild mushrooms and truffle oil is the most celebrated white pizza combination in Italian cooking.",
+    chefNote:"Roast wild mushrooms separately at 425°F first — never add raw. Truffle oil post-bake only, a few drops — heat destroys the aroma.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("fior_di_latte")],
+      protein: [],
+      veg:     [T("mushroom_wild")],
+      finish:  [T("truffle_oil"), T("fresh_rosemary"), T("parmigiano")],
+    },
+  },
+  {
+    id:"patate_rosmarino", name:"Patate e Rosmarino",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"Potato and rosemary bianca. The humble genius of Neapolitan white pizza.",
+    history:"From the cucina povera tradition — peasant ingredients transformed by technique. Paper-thin potato slices, fresh rosemary, fior di latte. Nothing else needed.",
+    chefNote:"Slice potato paper-thin — a mandoline if you have one. Layer directly on EVOO base. The potato cooks in the Dome heat. Rosemary before bake, Parmigiano and EVOO after.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("fior_di_latte")],
+      protein: [],
+      veg:     [T("potato_thin"), T("fresh_rosemary")],
+      finish:  [T("parmigiano"), T("finish_evoo"), T("maldon_salt")],
+    },
+  },
+  {
+    id:"bresaola_rucola", name:"Bresaola e Rucola",
+    cuisine:"neapolitan", emoji:"🍅",
+    description:"Post-bake bresaola draped over a hot Margherita. Arugula dressed in lemon and EVOO. Parmigiano shaved over everything.",
+    history:"A modern Italian classic — the technique of post-bake proteins elevated by the contrast of warm pizza and cold dressed greens. Found in great Roman and Neapolitan restaurants.",
+    chefNote:"Bake the pizza base first. Pull from oven. Immediately drape bresaola, then arugula tossed in lemon juice and EVOO. Shave Parmigiano over everything. Serve at once.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("fior_di_latte")],
+      protein: [T("bresaola")],
+      veg:     [],
+      finish:  [T("arugula"), T("parmigiano"), T("lemon_zest"), T("finish_evoo")],
+    },
+  },
+
+  // ══ 🫓 LEVANTINE ════════════════════════════════════════════
+  {
+    id:"manakish_zaatar", name:"Classic Za'atar Manakish",
+    cuisine:"levantine", emoji:"🫓",
+    description:"The Levantine street breakfast. Za'atar and olive oil spread directly on dough — this IS the pizza. Ancient, perfect, unchanged.",
+    history:"Manakish (also manaeesh or manaqeesh) has been baked in Lebanon, Syria and Palestine for centuries. The word means 'engraved' — the za'atar mixture is pressed into the dough. Eaten for breakfast across the Levant.",
+    chefNote:"Mix za'atar generously with good EVOO until a thick paste forms. Spread directly on stretched dough — wall to wall, no edge. Keep everything else minimal. The dough edge is the crust.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("zaatar_oil")],
+      cheese:  [],
+      protein: [],
+      veg:     [T("spring_onion"), T("cherry_tom")],
+      finish:  [T("fresh_mint"), T("sumac_finish")],
+    },
+  },
+  {
+    id:"manakish_jibneh", name:"Manakish bi Jibneh",
+    cuisine:"levantine", emoji:"🫓",
+    description:"Za'atar manakish with akawi cheese. The most popular manakish after plain za'atar. Mild, salty, slightly stretchy.",
+    history:"Bi Jibneh means 'with cheese' in Arabic. Akawi — the white Levantine cheese — melts just enough to hold the za'atar in place. A morning staple from Beirut to Amman.",
+    chefNote:"Akawi first on the dough, then za'atar paste over the top. The cheese melts under the za'atar. Spring onion and sesame post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("zaatar_oil")],
+      cheese:  [T("akawi")],
+      protein: [],
+      veg:     [T("spring_onion")],
+      finish:  [T("sesame_seeds"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"manakish_mixed", name:"Manakish Mixed",
+    cuisine:"levantine", emoji:"🫓",
+    description:"Za'atar and cheese together with fresh tomato and mint. The full manakish experience in one pie.",
+    history:"The mixed manakish — half za'atar, half cheese, or fully combined — is the version most eaten in Lebanese homes. Fresh tomato and mint alongside are traditional accompaniments brought to the table.",
+    chefNote:"Combine za'atar paste and crumbled akawi before spreading. Fresh tomato sliced thin post-bake. Mint always post-bake — it wilts beautifully on the hot surface.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("zaatar_oil")],
+      cheese:  [T("akawi")],
+      protein: [],
+      veg:     [T("cherry_tom"), T("spring_onion")],
+      finish:  [T("fresh_mint"), T("sumac_finish"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"lahmajun_classic", name:"Classic Lahmajun",
+    cuisine:"levantine", emoji:"🫓",
+    description:"Spiced lamb spread baked directly on thin dough. No cheese. Rolled up and eaten with raw onion, parsley and lemon. A Turkish-Levantine street food tradition.",
+    history:"Lahmajun (also lahmacun) means 'dough with meat' in Arabic. It is one of the oldest flatbreads in the world, found across Turkey, Lebanon, Syria and Armenia. Thin, crisp, intensely flavored.",
+    chefNote:"Raw spiced lamb mixed with tomato, onion, parsley and Aleppo pepper — spread thin on raw dough. It cooks directly with the pizza. No cheese, no extra protein. Serve with raw red onion, parsley, lemon. Roll and eat.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [LAHMAJUN_SPREAD_REF],
+      cheese:  [],
+      protein: [],
+      veg:     [T("red_onion"), T("spring_onion")],
+      finish:  [T("flat_parsley"), T("sumac_finish"), T("lemon_zest"), T("aleppo_pepper")],
+    },
+  },
+  {
+    id:"sujuk_egg", name:"Sujuk & Egg",
+    cuisine:"levantine", emoji:"🫓",
+    description:"San Marzano, kashkaval, sujuk, egg and dried mint. A classic Levantine combination — spiced cured beef, melting cheese, runny egg.",
+    history:"Sujuk and eggs is a classic Levantine breakfast. Transferred to pizza, it becomes something extraordinary — the fat from the sujuk renders into the cheese, and the egg yolk ties everything together.",
+    chefNote:"Sujuk sliced thin — it renders and crisps. Crack egg in the last 20 seconds in the Dome. Dried mint rubbed between fingers post-bake releases the oils. Aleppo pepper is not optional here.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("kashkaval")],
+      protein: [T("sujuk"), T("egg")],
+      veg:     [],
+      finish:  [T("dried_mint"), T("aleppo_pepper")],
+    },
+  },
+  {
+    id:"labneh_bianca", name:"Labneh Bianca",
+    cuisine:"levantine", emoji:"🫓",
+    description:"Labneh as sauce, shanklish crumbled over, spring onion, sumac, EVOO. Pure Levantine dairy pizza.",
+    history:"Labneh — strained yogurt — is the cream cheese of the Levant. Used as a pizza base, it creates a tangy, creamy foundation. Shanklish, the aged spiced cheese, adds pungent contrast.",
+    chefNote:"Spread labneh thick — it is the sauce. Shanklish crumbled sparingly after bake — very strong flavor. Sumac and EVOO post-bake. Spring onion raw for freshness.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("labneh_sauce")],
+      cheese:  [T("shanklish")],
+      protein: [],
+      veg:     [T("spring_onion")],
+      finish:  [T("sumac_finish"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"hummus_zaatar", name:"Hummus & Za'atar",
+    cuisine:"levantine", emoji:"🫓",
+    description:"Hummus as sauce, za'atar-roasted onion, pomegranate arils, pine nuts, EVOO. The Levantine pantry in one pizza.",
+    history:"Hummus pizza exists across Lebanese and Palestinian home cooking — spreading hummus on flatbread and adding toppings is as old as hummus itself. The pomegranate arils are a modern touch that brings acid and jewel-like beauty.",
+    chefNote:"Spread hummus thin — it is dense and can overwhelm. Za'atar onion pre-roasted. Pomegranate arils and pine nuts always post-bake. EVOO from your best bottle.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("hummus_sauce")],
+      cheese:  [],
+      protein: [],
+      veg:     [T("za_atar_onion"), T("pomegranate_arils")],
+      finish:  [T("toasted_pine_nuts"), T("finish_evoo"), T("sumac_finish")],
+    },
+  },
+
+  // ══ 🫕 TURKISH ══════════════════════════════════════════════
+  {
+    id:"kiymali_pide", name:"Kıymalı Pide-inspired",
+    cuisine:"turkish", emoji:"🫕",
+    description:"Biber salçası, kashkaval, spiced lamb, egg, dried mint. Turkish pide flavors on a Neapolitan base.",
+    history:"Kıymalı pide is one of Turkey's most beloved flatbreads — spiced ground meat, egg, cheese on a boat-shaped dough. This adapts those flavors to a round Neapolitan base.",
+    chefNote:"Biber salçası mixed with olive oil before spreading. Lamb par-cooked and well-seasoned. Egg cracked in the last 20 seconds. Dried mint rubbed post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("biber_salcasi")],
+      cheese:  [T("kashkaval")],
+      protein: [T("lamb_mince"), T("egg")],
+      veg:     [],
+      finish:  [T("dried_mint"), T("aleppo_pepper")],
+    },
+  },
+  {
+    id:"sujuk_kashkaval", name:"Sujuk & Kashkaval",
+    cuisine:"turkish", emoji:"🫕",
+    description:"Biber salçası, kashkaval, sujuk, roasted peppers, urfa biber. Classic Turkish combination.",
+    history:"Sujuk with kashkaval is the definitive Turkish pizza combination. The pepper paste base, melting Balkan cheese and spiced cured beef are found in every Turkish pide shop from Istanbul to Ankara.",
+    chefNote:"Kashkaval grated — it melts beautifully. Sujuk sliced thin, renders at Dome temp. Urfa biber post-bake — its smoky sweetness is the finishing note.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("biber_salcasi")],
+      cheese:  [T("kashkaval")],
+      protein: [T("sujuk")],
+      veg:     [T("roasted_peppers")],
+      finish:  [T("urfa_biber"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"turkish_bianca", name:"Turkish Bianca",
+    cuisine:"turkish", emoji:"🫕",
+    description:"Labneh, halloumi, za'atar, sesame seeds, fresh mint. Clean, restrained, Eastern Mediterranean.",
+    history:"The white pizza tradition of Turkey — yogurt-based spreads, grilled cheeses, aromatic herbs. Found in meyhane and home kitchens across Istanbul and the Aegean coast.",
+    chefNote:"Halloumi pre-seared in a dry pan until golden — it holds its shape in the oven. Labneh spread thin. Za'atar and sesame post-bake. Fresh mint last.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("labneh_sauce")],
+      cheese:  [T("halloumi")],
+      protein: [],
+      veg:     [],
+      finish:  [T("zaatar_finish"), T("sesame_seeds"), T("fresh_mint")],
+    },
+  },
+  {
+    id:"basturma_egg", name:"Basturma & Egg",
+    cuisine:"turkish", emoji:"🫕",
+    description:"The most intense Turkish combination. Paper-thin basturma, runny egg, kashkaval, Aleppo pepper.",
+    history:"Basturma and eggs is a classic Armenian and Turkish breakfast. The fenugreek spice paste (çemen) on the basturma is one of the most distinctive aromas in Eastern Mediterranean cooking. On a pizza it is extraordinary.",
+    chefNote:"Basturma sliced paper-thin — the çemen paste makes it very aromatic. Add last 90 seconds. Egg cracked in the final 20 seconds in Dome. Aleppo pepper non-negotiable here.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("kashkaval")],
+      protein: [T("basturma"), T("egg")],
+      veg:     [],
+      finish:  [T("flat_parsley"), T("aleppo_pepper")],
+    },
+  },
+  {
+    id:"muhammara_lamb", name:"Muhammara & Lamb",
+    cuisine:"turkish", emoji:"🫕",
+    description:"Muhammara, kashkaval, spiced beef kofta, roasted peppers, flat parsley. Syrian-Turkish crossover at its finest.",
+    history:"Muhammara originates in Aleppo and Gaziantep — the border between Syria and Turkey. It is used as both a sauce and a condiment. With spiced lamb it is one of the great combinations of the region.",
+    chefNote:"Spread muhammara directly on dough — no other sauce needed. Kofta par-cooked and crumbled. Roasted peppers patted very dry. Flat parsley always post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("muhammara")],
+      cheese:  [T("kashkaval")],
+      protein: [T("beef_kofta")],
+      veg:     [T("roasted_peppers")],
+      finish:  [T("flat_parsley"), T("aleppo_pepper")],
+    },
+  },
+
+  // ══ 🫒 GREEK ════════════════════════════════════════════════
+  {
+    id:"greek_tomato", name:"Greek Tomato",
+    cuisine:"greek", emoji:"🫒",
+    description:"San Marzano, feta, kalamata olives, cherry tomatoes, dried oregano, EVOO. The Greek pizza everyone imagines.",
+    history:"Greece has its own flatbread tradition — laganopita and peinirli. But the combination of feta, olives, tomato and oregano on a pizza base is a natural translation of the horiatiki salad tradition.",
+    chefNote:"Feta added last 90 seconds or post-bake — it oversalts if overbaked. Kalamata pitted and halved. Dried oregano rubbed between fingers post-bake to release oils.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("feta")],
+      protein: [],
+      veg:     [T("kalamata"), T("cherry_tom")],
+      finish:  [T("dried_oregano"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"spanakopita_pizza", name:"Spanakopita-inspired",
+    cuisine:"greek", emoji:"🫒",
+    description:"Spinach, feta, roasted garlic, lemon zest, oregano on an EVOO base. Spanakopita deconstructed on a pizza.",
+    history:"Spanakopita — the Greek spinach and feta pie — is one of the great combinations in Mediterranean cooking. On a pizza base, those flavors translate perfectly. The EVOO base replaces the phyllo.",
+    chefNote:"Wilt spinach with garlic before adding — never add raw. Feta post-bake. Lemon zest is essential — it brightens the whole pizza.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("feta")],
+      protein: [],
+      veg:     [T("spinach"), T("roasted_garlic_cloves")],
+      finish:  [T("lemon_zest"), T("dried_oregano"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"greek_bianca", name:"Greek Bianca",
+    cuisine:"greek", emoji:"🫒",
+    description:"Tzatziki as sauce, halloumi, roasted red peppers, kalamata, flat parsley. White and bold.",
+    history:"The white pizza tradition adapted through Greek ingredients. Tzatziki as a pizza sauce is a modern Greek-inspired creation — cooling, tangy, herbed — with the bold salty notes of halloumi and olives.",
+    chefNote:"Tzatziki must be thick — drain the cucumber extremely well. Halloumi pre-seared until golden. Peppers patted very dry. Parsley always post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("tzatziki_sauce")],
+      cheese:  [T("halloumi")],
+      protein: [],
+      veg:     [T("roasted_peppers"), T("kalamata")],
+      finish:  [T("flat_parsley"), T("lemon_zest")],
+    },
+  },
+  {
+    id:"horiatiki_pizza", name:"Horiatiki-inspired",
+    cuisine:"greek", emoji:"🫒",
+    description:"The Greek village salad on a pizza. San Marzano, feta, red onion, kalamata, cherry tomatoes, oregano.",
+    history:"Horiatiki — the Greek village salad — is tomato, cucumber, olives, feta, red onion and oregano. Without cucumber (too wet for pizza), everything else translates directly onto a pizza base.",
+    chefNote:"Keep it honest and simple. Feta post-bake. Kalamata pitted. Red onion thin-sliced raw. Oregano rubbed post-bake. A good drizzle of EVOO at the end.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("feta")],
+      protein: [],
+      veg:     [T("kalamata"), T("cherry_tom"), T("red_onion")],
+      finish:  [T("dried_oregano"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"beet_feta", name:"Roasted Beet & Feta",
+    cuisine:"greek", emoji:"🫒",
+    description:"Roasted beet, feta, roasted garlic, toasted walnuts, lemon zest. Elevated Greek bianca.",
+    history:"Beet and feta is a classic Greek combination found in mezze and salads across the country. On a white pizza base it becomes something refined and beautiful.",
+    chefNote:"Beets pre-roasted and sliced thin. Feta post-bake. Walnuts toasted in a dry pan first. Lemon zest is essential — it cuts through the sweetness of the beet.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("feta")],
+      protein: [],
+      veg:     [T("beet_roasted"), T("roasted_garlic_cloves")],
+      finish:  [T("toasted_walnuts"), T("lemon_zest"), T("finish_evoo")],
+    },
+  },
+
+  // ══ 🪔 NORTH AFRICAN ════════════════════════════════════════
+  {
+    id:"chermoula_merguez", name:"Chermoula & Merguez",
+    cuisine:"northafrican", emoji:"🪔",
+    description:"Chermoula sauce, lamb merguez, roasted peppers, flat parsley, lemon zest. North African at its most direct.",
+    history:"Chermoula is the North African herb marinade — parsley, cilantro, cumin, lemon, garlic. Merguez is the spicy lamb sausage of the Maghreb. Together they are the defining flavor combination of Moroccan and Algerian cooking.",
+    chefNote:"Merguez par-cooked and sliced on the bias. Chermoula spread thin — it is herb-forward and lemony. Roasted peppers patted very dry. Flat parsley always post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("chermoula")],
+      cheese:  [T("feta")],
+      protein: [T("lamb_merguez")],
+      veg:     [T("roasted_peppers")],
+      finish:  [T("flat_parsley"), T("lemon_zest")],
+    },
+  },
+  {
+    id:"harissa_chicken", name:"Harissa Chicken",
+    cuisine:"northafrican", emoji:"🪔",
+    description:"Harissa base, labneh, chicken shawarma, dukkah, EVOO. Spicy and cooling in every bite.",
+    history:"Harissa is the soul of North African cooking — a chili paste used as a condiment, marinade and sauce across Tunisia, Morocco and Libya. With labneh's cool tang and chicken it becomes a complete pizza.",
+    chefNote:"Harissa very thin — it is intense. Labneh spread over it cools the heat. Chicken shawarma from Sara's deli fridge — slice and warm before adding. Dukkah post-bake for crunch.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("harissa_base")],
+      sauce:   [T("labneh_sauce")],
+      cheese:  [],
+      protein: [T("chicken_shawarma")],
+      veg:     [],
+      finish:  [T("dukkah"), T("finish_evoo")],
+    },
+  },
+  {
+    id:"shakshuka_pizza", name:"Shakshuka",
+    cuisine:"northafrican", emoji:"🪔",
+    description:"Shakshuka sauce, feta, egg, flat parsley, Aleppo pepper. The pizza version of the beloved North African egg dish.",
+    history:"Shakshuka — eggs poached in spiced tomato sauce — is eaten for breakfast and dinner across North Africa and the Levant. On a pizza base, the egg is cracked directly onto the sauce and baked. The feta replaces the white of the egg in flavor.",
+    chefNote:"Crack egg directly onto sauce before bake. In the Dome, 20 seconds is enough for a runny yolk. Feta added with 90 seconds to go. Flat parsley and Aleppo pepper always post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("shakshuka_sauce")],
+      cheese:  [T("feta")],
+      protein: [T("egg")],
+      veg:     [],
+      finish:  [T("flat_parsley"), T("aleppo_pepper")],
+    },
+  },
+  {
+    id:"moroccan_lamb", name:"Moroccan Lamb",
+    cuisine:"northafrican", emoji:"🪔",
+    description:"San Marzano, spiced lamb mince, dried apricots, preserved lemon, flat parsley, smoked paprika. Sweet-savory Moroccan tradition.",
+    history:"Moroccan cooking is defined by the sweet-savory balance — lamb with apricots and preserved lemon is a tagine tradition centuries old. On a pizza, those same ingredients become something unexpected and extraordinary.",
+    chefNote:"Lamb par-cooked with cumin, cinnamon and Aleppo. Dried apricots chopped small — they caramelize slightly. Preserved lemon rinsed very well, rind only. Smoked paprika post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("feta")],
+      protein: [T("lamb_mince")],
+      veg:     [T("dried_apricots")],
+      finish:  [T("flat_parsley"), T("smoked_paprika"), T("lemon_zest")],
+    },
+  },
+  {
+    id:"fig_goat_cheese", name:"Fig & Goat Cheese",
+    cuisine:"northafrican", emoji:"🪔",
+    description:"EVOO base, goat cheese, dried figs, toasted walnuts, pomegranate molasses, fresh mint. North African sweet-savory at its finest.",
+    history:"The fig and cheese combination is ancient in North African and Levantine cooking. Goat cheese and figs with honey or pomegranate molasses is found in Moroccan and Algerian cuisine — a celebration of the region's fruit and dairy tradition.",
+    chefNote:"Dried figs halved — they caramelize at Dome temp. Goat cheese dolloped in rounds. Walnuts toasted first. Pomegranate molasses post-bake — very concentrated, use sparingly. Fresh mint last.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("goat_cheese")],
+      protein: [],
+      veg:     [T("figs_dried")],
+      finish:  [T("toasted_walnuts"), T("pomegranate_mol"), T("fresh_mint")],
+    },
+  },
+
+  // ══ 🌶️ MEXICAN ══════════════════════════════════════════════
+  {
+    id:"taco_pizza", name:"Taco Pizza",
+    cuisine:"mexican", emoji:"🌶️",
+    description:"Tomatillo salsa, cotija, carne asada, pickled jalapeños, lime crema, cilantro. The American-Mexican crossover done right.",
+    history:"Taco pizza emerged from the Mexican-American food tradition. The tomatillo base is the key — bright, tangy, distinctly Mexican. Cotija instead of mozzarella keeps it true to the tradition.",
+    chefNote:"Carne asada fully cooked, sliced thin against the grain. Cotija post-bake only — it doesn't melt. Pickled jalapeños and lime crema post-bake. Cilantro always last.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("tomatillo_sauce")],
+      cheese:  [T("cotija")],
+      protein: [T("carne_asada")],
+      veg:     [T("jalapeno_pickled")],
+      finish:  [T("lime_crema"), T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"chorizo_verde", name:"Chorizo Verde",
+    cuisine:"mexican", emoji:"🌶️",
+    description:"Tomatillo salsa, beef chorizo, charred corn, pickled jalapeños, fresh cilantro. Green and fiery.",
+    history:"The verde combination — green tomatillo sauce, corn, chorizo — is rooted in Mexican state cooking, particularly Oaxaca and Guerrero where green sauces are central to the cuisine.",
+    chefNote:"Chorizo rendered and drained before adding. Corn charred on cast iron or open flame — never canned without charring. Pickled jalapeños post-bake for tang and crunch.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("tomatillo_sauce")],
+      cheese:  [T("cotija")],
+      protein: [T("beef_chorizo")],
+      veg:     [T("corn_charred"), T("jalapeno_pickled")],
+      finish:  [T("fresh_cilantro"), T("lime_crema")],
+    },
+  },
+  {
+    id:"roja_chorizo", name:"Roja & Chorizo",
+    cuisine:"mexican", emoji:"🌶️",
+    description:"Charred tomato roja sauce, shredded mozz, beef chorizo, green pepper, pickled red onion. Smoky and bold.",
+    history:"The roja tradition — charred tomato and ancho chili — is found across central and northern Mexico. It is the base of enchiladas, tamales and soups. On a pizza it brings depth and smokiness.",
+    chefNote:"Roja sauce reduced well before using — it must be thick. Chorizo rendered and drained. Green pepper thinly sliced. Pickled red onion always post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("roja_sauce")],
+      cheese:  [T("shredded_mozz")],
+      protein: [T("beef_chorizo")],
+      veg:     [T("green_pepper")],
+      finish:  [T("pickled_red_onion"), T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"chipotle_chicken", name:"Chipotle Chicken",
+    cuisine:"mexican", emoji:"🌶️",
+    description:"Chipotle base, tomatillo salsa, chicken BBQ, cotija, lime crema, cilantro. Layered Mexican smoke.",
+    history:"The double-sauce approach — chipotle smear under tomatillo salsa — amplifies the smokiness while keeping the brightness of the green sauce. A technique from Mexican street food adapted for pizza.",
+    chefNote:"Chipotle smear applied thin before tomatillo sauce — it adds a smoky foundation. BBQ chicken fully cooked before adding. Cotija and lime crema always post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("chipotle_base")],
+      sauce:   [T("tomatillo_sauce")],
+      cheese:  [T("cotija")],
+      protein: [T("chicken_bbq")],
+      veg:     [],
+      finish:  [T("lime_crema"), T("fresh_cilantro")],
+    },
+  },
+
+  // ══ 🧀 AMERICAN ═════════════════════════════════════════════
+  {
+    id:"classic_american", name:"Classic American",
+    cuisine:"american", emoji:"🧀",
+    description:"San Marzano, shredded mozz, beef pepperoni. The American standard. Simple, iconic, satisfying.",
+    history:"The American pepperoni pizza emerged in New York in the early 20th century with Italian immigrants. Beef pepperoni replaced pork. Shredded low-moisture mozzarella replaced fresh. A new tradition was born.",
+    chefNote:"Shredded mozz for full melt coverage. Beef pepperoni on top of cheese — it cups and crisps at Dome temp. Red chili flakes post-bake if you want heat.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("shredded_mozz")],
+      protein: [T("beef_pepperoni")],
+      veg:     [],
+      finish:  [T("red_chili_flakes")],
+    },
+  },
+  {
+    id:"bbq_chicken", name:"BBQ Chicken",
+    cuisine:"american", emoji:"🧀",
+    description:"BBQ base, shredded mozz, chicken BBQ, aged cheddar, pickled red onion, crispy onions. American through and through.",
+    history:"The BBQ chicken pizza was popularized by California Pizza Kitchen in the 1980s. It became the defining American pizza beyond pepperoni — sweet, smoky, tangy, crunchy.",
+    chefNote:"BBQ chicken fully cooked and sauced before adding. Aged cheddar blended with mozz — never solo. Pickled red onion and crispy onions always post-bake to preserve their texture.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("bbq_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("shredded_mozz"), T("aged_cheddar")],
+      protein: [T("chicken_bbq")],
+      veg:     [],
+      finish:  [T("pickled_red_onion"), T("crispy_onions")],
+    },
+  },
+  {
+    id:"fig_gorgonzola", name:"Fig & Gorgonzola",
+    cuisine:"american", emoji:"🧀",
+    description:"EVOO base, gorgonzola, dried figs, toasted walnuts, hot honey, fresh rosemary. The American gastropub classic.",
+    history:"The fig and gorgonzola pizza emerged from the American craft pizza movement of the 1990s and 2000s. Sweet figs against funky blue cheese, amplified by hot honey — it became the pizza that changed what Americans thought pizza could be.",
+    chefNote:"Gorgonzola sparingly — it is very strong. Dried figs caramelize at Dome temp. Walnuts toasted first. Hot honey post-bake drizzle is essential — it ties sweet and heat together.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("gorgonzola")],
+      protein: [],
+      veg:     [T("figs_dried")],
+      finish:  [T("toasted_walnuts"), T("hot_honey"), T("fresh_rosemary")],
+    },
+  },
+  {
+    id:"meat_lovers", name:"Meat Lovers",
+    cuisine:"american", emoji:"🧀",
+    description:"San Marzano, shredded mozz, beef pepperoni, beef salami, beef chorizo, red chili flakes. No restraint. Maximum meat.",
+    history:"The meat lovers pizza is the American id — more is more, every cured meat available, stacked. It is intentionally excessive. Done well with quality halal meats it can still be balanced.",
+    chefNote:"Balance is key even on a meat lovers — keep each protein thin-sliced. The fat from three meats renders together and can pool. Use less of each than you think. Chili flakes post-bake.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("san_marzano")],
+      cheese:  [T("shredded_mozz")],
+      protein: [T("beef_pepperoni"), T("beef_salami"), T("beef_chorizo")],
+      veg:     [],
+      finish:  [T("red_chili_flakes")],
+    },
+  },
+  {
+    id:"truffle_mushroom", name:"Truffle Mushroom",
+    cuisine:"american", emoji:"🧀",
+    description:"EVOO base, fontina, wild mushrooms, truffle oil, fresh rosemary, Parmigiano, Maldon salt. American fine dining pizza.",
+    history:"The truffle mushroom pizza became the signature of American upscale casual dining in the 2000s — wood-fired, ingredient-driven, unapologetically luxurious. It draws directly from Italian bianca tradition but with American abundance.",
+    chefNote:"Wild mushrooms roasted at 425°F separately first — crucial. Fontina melts beautifully under the mushrooms. Truffle oil post-bake only — a few drops. Maldon salt last for mineral crunch.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("evoo_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("fontina")],
+      protein: [],
+      veg:     [T("mushroom_wild"), T("fresh_rosemary")],
+      finish:  [T("truffle_oil"), T("parmigiano"), T("maldon_salt")],
+    },
+  },
+
+  // ══ 🫚 INDIAN ═══════════════════════════════════════════════
+  {
+    id:"tikka_masala_pizza", name:"Tikka Masala",
+    cuisine:"indian", emoji:"🫚",
+    description:"Tikka sauce, paneer, baby spinach, chaat masala, fresh cilantro. The Indian pizza that makes complete sense.",
+    history:"Tikka masala pizza emerged from the British-Indian food tradition where the creamy tomato sauce is so popular it was once called Britain's national dish. On a pizza base it is a natural and delicious translation.",
+    chefNote:"Tikka sauce reduced until thick — never watery. Paneer marinated and pan-seared before adding. Spinach added 90 seconds before pull. Chaat masala and cilantro always post-bake.",
+    ovenMode:"steel",
+    pizza:{
+      base:    [],
+      sauce:   [T("tikka_sauce")],
+      cheese:  [T("paneer")],
+      protein: [],
+      veg:     [T("spinach")],
+      finish:  [T("chaat_masala"), T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"tandoori_chicken", name:"Tandoori Chicken",
+    cuisine:"indian", emoji:"🫚",
+    description:"Makhani sauce, chicken tandoori, red onion, kashmiri chili, mango chutney. Rich, aromatic, deeply satisfying.",
+    history:"Tandoori chicken pizza combines two of India's most celebrated dishes — the tandoor-roasted spiced chicken and the buttery makhani sauce. The mango chutney drizzle is a modern touch that brings acid and sweetness.",
+    chefNote:"⚠️ Poultry fully cooked before pizza. Makhani sauce reduced well. Chicken sliced thin from the bone. Kashmiri chili for color and gentle warmth. Mango chutney thinned with warm water before drizzling.",
+    ovenMode:"steel",
+    pizza:{
+      base:    [],
+      sauce:   [T("makhani_sauce")],
+      cheese:  [T("paneer")],
+      protein: [T("chicken_tandoori")],
+      veg:     [T("red_onion")],
+      finish:  [T("kashmiri_chili"), T("mango_chutney"), T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"saag_paneer_pizza", name:"Saag Paneer",
+    cuisine:"indian", emoji:"🫚",
+    description:"Makhani sauce, paneer, baby spinach, nigella seeds, fresh cilantro. The pizza riff on a beloved classic.",
+    history:"Saag paneer — spinach with fresh cheese — is one of India's most universally loved dishes. On a pizza base, the makhani sauce replaces the spiced spinach gravy, letting the spinach play a topping role instead.",
+    chefNote:"Paneer marinated and seared. Spinach added 90 seconds before pull. Nigella seeds scattered post-bake — very small amount, very distinctive. Cilantro always last.",
+    ovenMode:"steel",
+    pizza:{
+      base:    [],
+      sauce:   [T("makhani_sauce")],
+      cheese:  [T("paneer")],
+      protein: [],
+      veg:     [T("spinach")],
+      finish:  [T("nigella_seeds"), T("fresh_cilantro"), T("chaat_masala")],
+    },
+  },
+  {
+    id:"tikka_bianca", name:"Tikka Bianca",
+    cuisine:"indian", emoji:"🫚",
+    description:"Tikka paste base, paneer, roasted cauliflower, chaat masala, fresh cilantro. Dry and spiced — the Indian white pizza.",
+    history:"The bianca tradition adapted through Indian spices. No tomato sauce — the tikka paste seasons the dough directly. Cauliflower roasted until deeply golden. A clean, aromatic, completely original pizza.",
+    chefNote:"Tikka paste mixed with yogurt before applying — tempers intensity. Cauliflower roasted at 425°F with cumin until deeply golden. Paneer pan-seared. Chaat masala and cilantro post-bake.",
+    ovenMode:"steel",
+    pizza:{
+      base:    [T("tikka_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("paneer")],
+      protein: [],
+      veg:     [T("cauliflower_roasted")],
+      finish:  [T("chaat_masala"), T("fresh_cilantro"), T("kashmiri_chili")],
+    },
+  },
+];
+
+// Add lahmajun_spread back as a topping reference for Classics only
+// It's removed from the sauce picker but needed for lahmajun_classic
+const LAHMAJUN_SPREAD_REF = {
+  id:"lahmajun_spread", name:"Spiced lamb/beef spread (lahmajun)",
+  layer:"sauce", cuisine:["turkish","levantine"],
+  profile:"E", sauceFamilies:["tomato"],
+  stores:["sara"], prep:"precook",
+  flavorNotes:["spice","umami","heat","acid"], moisture:"low", weight:"heavy", presence:"anchor",
+  desc:"Raw spiced lamb or beef mixed with tomato, parsley, peppers and Aleppo — spread thin on dough and baked directly. No cheese or protein added.",
+  note:"Spread thin on raw dough — cooks with pizza. No cheese traditionally. Serve with raw onion, parsley, lemon.",
+  qty:{ unit:"200g ground lamb/beef from Sara's", yield_g:200, per_pizza_g:200, per_pizza_oz:7.1, min_purchase:1 },
+};
+
+const ZAATAR_SPREAD_REF = {
+  id:"zaatar_oil", name:"Za'atar oil spread",
+  layer:"base", cuisine:["levantine","turkish"],
+  profile:"E", sauceFamilies:["nosause","herb","dairy"],
+  stores:["sara"],
+  flavorNotes:["herb","fat","acid"], moisture:"dry", weight:"light", presence:"anchor",
+  desc:"Za'atar generously mixed with olive oil and spread directly on raw dough — this IS the pizza. The Levantine flatbread tradition.",
+  note:"Spread generously on raw dough — wall to wall. No additional sauce.",
+  qty:{ unit:"za'atar jar + EVOO", yield_g:50, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_tbsp:3, pantry:true, min_purchase:1 },
+};

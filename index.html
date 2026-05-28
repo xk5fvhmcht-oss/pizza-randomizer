@@ -6,17 +6,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Omar's Pie">
-  <meta name="description" content="Omar's Pie — Neapolitan pizza topping randomizer. Pork-free. Cuisine-themed. Biga dough.">
+  <meta name="description" content="Omar's Pie — From the familiar to the exceptional">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <title>Omar's Pie</title>
-  <script>
-    (function(){
-      var t = localStorage.getItem("omars_pie_theme") || "day";
-      document.documentElement.setAttribute("data-theme", t);
-    })();
-  </script>
+  <script>(function(){var t=localStorage.getItem("omars_pie_theme")||"day";document.documentElement.setAttribute("data-theme",t);})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -33,12 +28,12 @@
   <header class="app-header">
     <div class="header-brand">
       <span class="app-name">Omar's <em>Pie</em></span>
-      <span class="version-label" id="version-label">v1.5.2</span>
+      <span class="version-label" id="version-label">v2.0.0</span>
     </div>
-    <button class="btn-icon" id="btn-reset" title="Reset selections" aria-label="Reset">
+    <button class="btn-icon" id="btn-reset" title="Reset" aria-label="Reset">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
     </button>
-    <button class="btn-icon" id="btn-theme" title="Toggle day/night" aria-label="Toggle theme">🌙</button>
+    <button class="btn-icon" id="btn-theme" title="Toggle theme" aria-label="Toggle theme">🌙</button>
     <button class="btn-icon btn-icon-badge" id="btn-shopping" title="Shopping List" aria-label="Shopping List">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       <span class="btn-badge" id="session-badge" style="display:none"></span>
@@ -55,15 +50,28 @@
   </header>
 
   <main class="setup-main">
+
     <section class="section">
       <h2 class="section-heading">Flavor Direction</h2>
       <p class="section-sub">Pick up to 2 cuisines — a soft green glow signals a natural pairing</p>
-      <div class="cuisine-grid" id="cuisine-grid"></div>
+
+      <!-- Cuisine grid + Classics tile side by side -->
+      <div class="cuisine-and-classics">
+        <div class="cuisine-grid" id="cuisine-grid"></div>
+        <button class="classics-tile" id="btn-classics">
+          <span class="classics-tile-emoji">🍕</span>
+          <span class="classics-tile-title">The Classics</span>
+          <span class="classics-tile-sub">Established pies from eight cuisines</span>
+        </button>
+      </div>
+
       <div class="clash-warning" id="clash-warning" style="display:none">
         <span>⚠️</span><span id="clash-text"></span>
       </div>
     </section>
+
     <div class="divider"></div>
+
     <section class="section">
       <h2 class="section-heading">Oven</h2>
       <div class="toggle-row">
@@ -79,7 +87,9 @@
         </button>
       </div>
     </section>
+
     <div class="divider"></div>
+
     <section class="section">
       <h2 class="section-heading">Range</h2>
       <p class="section-sub">From the familiar to the exceptional</p>
@@ -101,7 +111,9 @@
         </button>
       </div>
     </section>
+
     <button class="btn-surprise" id="btn-surprise">🎲 Surprise me — pick a natural pairing</button>
+
   </main>
 
   <div class="roll-bar">
@@ -124,8 +136,7 @@
   </header>
   <main class="sauce-screen-main">
     <div class="sauce-clash-banner" id="sauce-clash-banner" style="display:none">
-      <span>⚠️</span>
-      <span>Flavor clash detected — tomato-based sauces are highlighted as safe anchors.</span>
+      <span>⚠️</span><span>Flavor clash detected — tomato-based sauces are highlighted as safe anchors.</span>
     </div>
     <div class="sauce-grid" id="sauce-grid"></div>
   </main>
@@ -147,16 +158,24 @@
       <div id="pizza-title">Your Pie</div>
       <div id="pizza-oven-label"></div>
     </div>
-    <button class="btn-icon" id="btn-copy" aria-label="Copy recipe" title="Copy to clipboard">
+    <button class="btn-icon" id="btn-copy" aria-label="Copy" title="Copy to clipboard">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
   </header>
+
+  <!-- Modified from original banner -->
+  <div id="modified-banner" class="modified-banner" style="display:none">
+    ✏️ Modified from the original
+  </div>
+
+  <!-- Chef note bar (Classics) -->
+  <div id="chef-note-bar" class="chef-note-bar" style="display:none"></div>
+
   <main class="pizza-main" id="pizza-layers"></main>
+
   <div class="pizza-bar">
-    <div class="pizza-bar-inner">
-      <button class="btn-ghost" id="btn-save-pie" title="Save this pie">Save 🗂️</button>
-      <button class="btn-ghost" id="btn-add-to-list" title="Add to shopping list">+ List 🛒</button>
-      <button class="btn-primary" id="btn-reroll">Re-top 🎲</button>
+    <div class="pizza-bar-inner" id="pizza-bar-inner">
+      <!-- Dynamically populated by renderPizza() -->
     </div>
   </div>
 </div>
@@ -192,16 +211,13 @@
     </button>
     <h2>Shopping List</h2>
   </header>
-
   <div class="session-summary" id="session-summary"></div>
-
   <main class="sub-main">
     <div id="session-cards"></div>
     <div class="list-divider"></div>
     <h3 class="list-section-title">Your ingredients</h3>
     <div id="calculated-list"></div>
   </main>
-
   <div class="shopping-bar">
     <div class="shopping-bar-inner">
       <button class="btn-ghost" id="btn-copy-list">Copy list</button>
@@ -221,6 +237,17 @@
   <main class="sub-main" id="saved-list"></main>
 </div>
 
+<!-- ═══════════ SCREEN 8 — THE CLASSICS ═══════════ -->
+<div id="screen-classics" class="screen">
+  <header class="sub-header">
+    <button class="btn-icon" id="btn-back-classics" aria-label="Back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <h2>The Classics</h2>
+  </header>
+  <main class="sub-main" id="classics-list"></main>
+</div>
+
 <div id="toast"></div>
 
 <script src="data.js"></script>
@@ -230,28 +257,20 @@
   document.body.classList.remove("preload");
   if (!("serviceWorker" in navigator)) return;
   navigator.serviceWorker.register("sw.js").then(reg => {
-    function checkWaiting(r) { if (r.waiting) showBanner(r.waiting); }
+    function checkWaiting(r){if(r.waiting)showBanner(r.waiting);}
     checkWaiting(reg);
-    reg.addEventListener("updatefound", () => {
-      const w = reg.installing;
-      w.addEventListener("statechange", () => {
-        if (w.state === "installed" && navigator.serviceWorker.controller) showBanner(w);
-      });
+    reg.addEventListener("updatefound",()=>{
+      const w=reg.installing;
+      w.addEventListener("statechange",()=>{if(w.state==="installed"&&navigator.serviceWorker.controller)showBanner(w);});
     });
   });
-  function showBanner(worker) {
-    const b = document.getElementById("update-banner");
-    if (!b) return;
-    b.style.display = "flex";
-    document.getElementById("btn-update").addEventListener("click", () => {
-      worker.postMessage({ type: "SKIP_WAITING" });
-      window.location.reload();
-    });
+  function showBanner(worker){
+    const b=document.getElementById("update-banner");if(!b)return;
+    b.style.display="flex";
+    document.getElementById("btn-update").addEventListener("click",()=>{worker.postMessage({type:"SKIP_WAITING"});window.location.reload();});
   }
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!refreshing) { refreshing = true; window.location.reload(); }
-  });
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!refreshing){refreshing=true;window.location.reload();}});
 })();
 </script>
 </body>

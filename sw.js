@@ -1,25 +1,10 @@
-const CACHE_NAME = "omars-pie-v1.5.2";
+const CACHE_NAME = "omars-pie-v2.0.0";
 const ASSETS = [
   "./","./index.html","./style.css",
   "./data.js","./app.js","./manifest.json",
   "./icon-192.png","./icon-512.png","./apple-touch-icon.png"
 ];
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)));
-  self.skipWaiting();
-});
-self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys=>
-    Promise.all(keys.filter(k=>k.startsWith("omars-pie-")&&k!==CACHE_NAME).map(k=>caches.delete(k)))
-  ));
-  self.clients.claim();
-});
-self.addEventListener("fetch", e => {
-  const isHTML=e.request.destination==="document"||e.request.url.endsWith("/")||e.request.url.endsWith("index.html");
-  if (isHTML) {
-    e.respondWith(fetch(e.request).then(res=>{const clone=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,clone));return res;}).catch(()=>caches.match(e.request)));
-  } else {
-    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
-  }
-});
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("omars-pie-")&&k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim();});
+self.addEventListener("fetch",e=>{const isHTML=e.request.destination==="document"||e.request.url.endsWith("/")||e.request.url.endsWith("index.html");if(isHTML){e.respondWith(fetch(e.request).then(res=>{const clone=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,clone));return res;}).catch(()=>caches.match(e.request)));}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));}});
 self.addEventListener("message",e=>{if(e.data?.type==="SKIP_WAITING")self.skipWaiting();});

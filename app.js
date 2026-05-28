@@ -1,6 +1,6 @@
 // ============================================================
-// OMAR'S PIE — app.js v1.5.3
-// Chef-driven engine: conflict · amplifying pairs · budget
+// OMAR'S PIE — app.js v2.0.0
+// The Classics + clean engine
 // ============================================================
 
 // ── THEME ───────────────────────────────────────────────────
@@ -22,6 +22,8 @@ const state = {
   ovenMode:         "dome",
   complexity:       "traditional",
   currentPizza:     null,
+  pizzaIsClassic:   false,   // true when result came from Classics
+  classicModified:  false,   // true when a Classic has been swapped/removed
   anchoredItems: new Set(JSON.parse(localStorage.getItem("op_anchored") || "[]")),
   excludedItems:  new Set(JSON.parse(localStorage.getItem("op_excluded")  || "[]")),
   history:        JSON.parse(localStorage.getItem("op_history")  || "[]"),
@@ -95,7 +97,6 @@ function updateCuisineUI() {
       tile.classList.remove("affinity");
     }
   });
-
   let clashText = "";
   if (sel.length===2) {
     const isClash = CUISINE_CLASHES.some(pair => pair.includes(sel[0]) && pair.includes(sel[1]));
@@ -106,7 +107,7 @@ function updateCuisineUI() {
     }
   }
   const warn = $("clash-warning");
-  warn.style.display = clashText ? "flex" : "none";
+  warn.style.display = clashText?"flex":"none";
   $("clash-text").textContent = clashText;
   $("btn-to-sauce").disabled = sel.length === 0;
   $("proceed-hint").textContent = sel.length===0
@@ -161,10 +162,8 @@ function buildSauceScreen() {
   const hasClash   = cuisines.length===2 && CUISINE_CLASHES.some(
     pair => pair.includes(cuisines[0]) && pair.includes(cuisines[1])
   );
-  $("sauce-clash-banner").style.display = hasClash ? "flex" : "none";
+  $("sauce-clash-banner").style.display = hasClash?"flex":"none";
 
-  // Sauces show based on cuisine match — not profile-gated
-  // Profile controls toppings in the engine, not sauce selection
   const sauces = TOPPINGS.filter(t =>
     t.layer==="sauce" &&
     !state.excludedItems.has(t.id) &&
@@ -175,10 +174,7 @@ function buildSauceScreen() {
     )
   );
 
-  const familyEmoji = {
-    tomato:"🍅", dairy:"🥛", herb:"🌿", spicepaste:"🌶️",
-    meatbase:"🥩", flatbread:"🫓", nosause:"🍞"
-  };
+  const familyEmoji = {tomato:"🍅",dairy:"🥛",herb:"🌿",spicepaste:"🌶️",nosause:"🍞"};
 
   sauces.forEach(sauce => {
     const card = document.createElement("button");
@@ -186,17 +182,16 @@ function buildSauceScreen() {
     if (state.selectedSauce?.id===sauce.id) card.classList.add("selected");
     if (hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id!=="nosause") card.classList.add("nudged");
     const family = sauce.sauceFamilies[0];
-    const jarBadge = sauce.jarred ? `<span class="sauce-badge jar">Jarred · ${sauce.brand||""}</span>` : "";
-    const flatbreadBadge = sauce.sauceFamilies.includes("flatbread") ? `<span class="sauce-badge flatbread">Flatbread style</span>` : "";
+    const jarBadge = sauce.jarred?`<span class="sauce-badge jar">Jarred · ${sauce.brand||""}</span>`:"";
     card.innerHTML = `
       <div class="sauce-card-top">
         <span class="sauce-family-emoji">${familyEmoji[family]||"🍕"}</span>
         <span class="sauce-name">${sauce.name}</span>
-        ${hasClash && sauce.sauceFamilies.includes("tomato") && sauce.id!=="nosause"
-          ? '<span class="safe-anchor-tag">safe anchor</span>' : ""}
+        ${hasClash&&sauce.sauceFamilies.includes("tomato")&&sauce.id!=="nosause"
+          ?'<span class="safe-anchor-tag">safe anchor</span>':""}
       </div>
-      ${sauce.desc ? `<p class="sauce-desc">${sauce.desc}</p>` : `<p class="sauce-desc">${sauce.note||""}</p>`}
-      ${jarBadge}${flatbreadBadge}`;
+      ${sauce.desc?`<p class="sauce-desc">${sauce.desc}</p>`:`<p class="sauce-desc">${sauce.note||""}</p>`}
+      ${jarBadge}`;
     card.addEventListener("click", () => {
       state.selectedSauce = sauce;
       document.querySelectorAll(".sauce-card").forEach(c=>c.classList.remove("selected"));
@@ -208,7 +203,7 @@ function buildSauceScreen() {
   $("btn-roll").disabled = !state.selectedSauce || !sauces.find(s=>s.id===state.selectedSauce?.id);
 }
 
-$("btn-back-sauce").addEventListener("click", () => showScreen("setup"));
+$("btn-back-sauce").addEventListener("click", ()=>showScreen("setup"));
 $("btn-surprise-sauce").addEventListener("click", () => {
   const cards = document.querySelectorAll(".sauce-card");
   if (cards.length) cards[Math.floor(Math.random()*cards.length)].click();
@@ -216,63 +211,55 @@ $("btn-surprise-sauce").addEventListener("click", () => {
 
 $("btn-roll").addEventListener("click", () => {
   try {
+    state.pizzaIsClassic = false;
+    state.classicModified = false;
     state.currentPizza = rollPizza();
     renderPizza(state.currentPizza);
     state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
     saveHistory();
     showScreen("pizza");
   } catch(e) {
-    console.error("Roll error:", e);
-    showToast("Roll failed — try again");
+    console.error("Roll error:",e);
+    showToast("Something went wrong — try again");
   }
 });
 
 // ══════════════════════════════════════════════════════════════
-// CHEF-DRIVEN ROLL ENGINE v1.5.3
-// Single clean scope — no duplicate function definitions
+// ROLL ENGINE v2.0.0 — cleaned, no flatbread/meatbase
 // ══════════════════════════════════════════════════════════════
 
 function rollPizza() {
   const cuisines      = state.selectedCuisines;
   const profileSet    = PROFILE_INCLUDES[state.complexity];
   const sauce         = state.selectedSauce;
-  const sauceFamPrimary = sauce?.sauceFamilies?.[0] || "tomato";
-  const buildProf     = SAUCE_BUILD_PROFILES[sauceFamPrimary] || SAUCE_BUILD_PROFILES.tomato;
+  const sauceFamPrim  = sauce?.sauceFamilies?.[0] || "tomato";
+  const buildProf     = SAUCE_BUILD_PROFILES[sauceFamPrim] || SAUCE_BUILD_PROFILES.tomato;
   const isConnoisseur = state.complexity === "connoisseur";
-  const isLahmajun    = sauce?.id === "lahmajun_spread";
-  const isManakish    = sauce?.id === "zaatar_spread";
   const pizza         = {};
 
-  // ── BUDGET (single object, single scope) ─────────────────────
+  // Budget
   const B = {
-    notes:      {},   // flavorNote → count
-    highMoist:  0,    // max 2 high-moisture pre-bake
-    weight:     0,    // soft cap 9 (light=1 medium=2 heavy=3)
-    anchors:    {},   // layer → anchor count (max 1)
-    picked:     new Set(),
-    preBake:    0,    // cheese+protein+veg pre-bake count
+    notes:{}, highMoist:0, weight:0, anchors:{}, picked:new Set(), preBake:0
   };
 
   function wt(w) { return w==="light"?1:w==="medium"?2:w==="heavy"?3:0; }
 
   function seedBudget(item) {
     if (!item) return;
-    (item.flavorNotes||[]).forEach(n => { B.notes[n]=(B.notes[n]||0)+1; });
+    (item.flavorNotes||[]).forEach(n=>{B.notes[n]=(B.notes[n]||0)+1;});
     if (item.moisture==="high") B.highMoist++;
     B.weight += wt(item.weight);
   }
-
-  // Seed with sauce
   seedBudget(sauce);
 
-  function hardConflict(item, layer) {
+  function hardConflict(item) {
     if (!item) return true;
     for (const rule of HARD_CONFLICTS) {
-      if (rule.sauce && rule.topping && sauce?.id===rule.sauce && item.id===rule.topping) return true;
-      if (rule.sauceFamily && rule.topping && sauce?.sauceFamilies?.includes(rule.sauceFamily) && item.id===rule.topping) return true;
-      if (rule.topping1 && rule.topping2) {
-        if ((item.id===rule.topping1 && B.picked.has(rule.topping2)) ||
-            (item.id===rule.topping2 && B.picked.has(rule.topping1))) return true;
+      if (rule.sauce&&rule.topping&&sauce?.id===rule.sauce&&item.id===rule.topping) return true;
+      if (rule.sauceFamily&&rule.topping&&sauce?.sauceFamilies?.includes(rule.sauceFamily)&&item.id===rule.topping) return true;
+      if (rule.topping1&&rule.topping2) {
+        if ((item.id===rule.topping1&&B.picked.has(rule.topping2))||
+            (item.id===rule.topping2&&B.picked.has(rule.topping1))) return true;
       }
     }
     return false;
@@ -289,151 +276,124 @@ function rollPizza() {
   }
 
   function budgetOk(item, layer) {
-    if (!item || hardConflict(item, layer)) return false;
-    if (item.moisture==="high" && !item.postbake && B.highMoist>=2) return false;
-    if (B.weight + wt(item.weight) > 9) return false;
-    if (item.presence==="anchor" && (B.anchors[layer]||0)>=1) return false;
-    if (isConnoisseur && ["cheese","protein","veg"].includes(layer) && !item.postbake && B.preBake>=CONNOISSEUR_RULES.maxPreBakeToppings) return false;
-    const notes = item.flavorNotes||[];
+    if (!item||hardConflict(item)) return false;
+    if (item.moisture==="high"&&!item.postbake&&B.highMoist>=2) return false;
+    if (B.weight+wt(item.weight)>9) return false;
+    if (item.presence==="anchor"&&(B.anchors[layer]||0)>=1) return false;
+    if (isConnoisseur&&["cheese","protein","veg"].includes(layer)&&!item.postbake&&B.preBake>=CONNOISSEUR_RULES.maxPreBakeToppings) return false;
+    const notes=item.flavorNotes||[];
     for (const note of notes) {
-      if ((B.notes[note]||0)>=2 && !amplifying(notes)) return false;
+      if ((B.notes[note]||0)>=2&&!amplifying(notes)) return false;
     }
     return true;
   }
 
   function spend(item, layer) {
     if (!item) return;
-    (item.flavorNotes||[]).forEach(n => { B.notes[n]=(B.notes[n]||0)+1; });
-    if (item.moisture==="high" && !item.postbake) B.highMoist++;
-    B.weight += wt(item.weight);
+    (item.flavorNotes||[]).forEach(n=>{B.notes[n]=(B.notes[n]||0)+1;});
+    if (item.moisture==="high"&&!item.postbake) B.highMoist++;
+    B.weight+=wt(item.weight);
     if (item.presence==="anchor") B.anchors[layer]=(B.anchors[layer]||0)+1;
     B.picked.add(item.id);
-    if (["cheese","protein","veg"].includes(layer) && !item.postbake) B.preBake++;
+    if (["cheese","protein","veg"].includes(layer)&&!item.postbake) B.preBake++;
   }
 
   function getCands(layer) {
-    return TOPPINGS.filter(t =>
-      t.layer===layer &&
-      profileSet.includes(t.profile) &&
-      !state.excludedItems.has(t.id) &&
-      (cuisines.length===0 || t.cuisine.some(c=>cuisines.includes(c)))
+    return TOPPINGS.filter(t=>
+      t.layer===layer&&profileSet.includes(t.profile)&&
+      !state.excludedItems.has(t.id)&&
+      (cuisines.length===0||t.cuisine.some(c=>cuisines.includes(c)))
     );
   }
 
   function pick(candidates, layer, n) {
-    if (n<=0 || !candidates.length) return [];
-    const result  = [];
-    const shuffled = [...candidates].sort(()=>Math.random()-0.5);
+    if (n<=0||!candidates.length) return [];
+    const result=[], shuffled=[...candidates].sort(()=>Math.random()-0.5);
     for (const item of shuffled) {
-      if (result.length >= n) break;
-      if (!budgetOk(item, layer)) continue;
-      // No two items with 2+ identical flavor notes (unless amplifying)
-      const dup = result.some(p => {
-        const shared = (p.flavorNotes||[]).filter(n=>(item.flavorNotes||[]).includes(n));
-        return shared.length>=2 && !amplifying(item.flavorNotes||[]);
+      if (result.length>=n) break;
+      if (!budgetOk(item,layer)) continue;
+      const dup=result.some(p=>{
+        const shared=(p.flavorNotes||[]).filter(n=>(item.flavorNotes||[]).includes(n));
+        return shared.length>=2&&!amplifying(item.flavorNotes||[]);
       });
       if (dup) continue;
       result.push(item);
-      spend(item, layer);
+      spend(item,layer);
     }
     return result;
   }
 
   function pickAnchored(cands, layer) {
-    return cands.filter(t => state.anchoredItems.has(t.id) && budgetOk(t, layer))
-      .map(t => { spend(t, layer); return t; });
+    return cands.filter(t=>state.anchoredItems.has(t.id)&&budgetOk(t,layer))
+      .map(t=>{spend(t,layer);return t;});
   }
 
-  // ── BASE ────────────────────────────────────────────────────
-  const basePr = buildProf.base;
-  if (!isManakish && Math.random() < basePr.prob) {
-    const cands   = getCands("base").filter(t => t.compatibleSauceFamilies?.includes(sauceFamPrimary) || ["evoo_base","garlic_oil"].includes(t.id));
-    const anchored = pickAnchored(cands, "base");
-    pizza.base = anchored.length ? anchored : pick(cands.filter(t=>!state.anchoredItems.has(t.id)), "base", 1);
+  // Base
+  const bp=buildProf.base;
+  if (Math.random()<bp.prob) {
+    const cands=getCands("base").filter(t=>t.compatibleSauceFamilies?.includes(sauceFamPrim)||["evoo_base","garlic_oil"].includes(t.id));
+    const anchored=pickAnchored(cands,"base");
+    pizza.base=anchored.length?anchored:pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"base",1);
   } else {
-    pizza.base = pickAnchored(getCands("base"), "base");
+    pizza.base=pickAnchored(getCands("base"),"base");
   }
 
-  // ── SAUCE ────────────────────────────────────────────────────
-  pizza.sauce = [sauce];
+  pizza.sauce=[sauce];
 
-  // ── CHEESE ──────────────────────────────────────────────────
-  if (isLahmajun) {
-    pizza.cheese = [];
+  // Cheese
+  const cp=buildProf.cheese;
+  if (Math.random()<cp.prob) {
+    const target=isConnoisseur?1:cp.count[0]+Math.floor(Math.random()*(cp.count[1]-cp.count[0]+1));
+    const cands=getCands("cheese");
+    const anchored=pickAnchored(cands,"cheese");
+    pizza.cheese=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"cheese",Math.max(0,target-anchored.length))];
   } else {
-    const cp = buildProf.cheese;
-    if (Math.random() < cp.prob) {
-      const target  = isConnoisseur ? 1 : cp.count[0] + Math.floor(Math.random()*(cp.count[1]-cp.count[0]+1));
-      let cands     = getCands("cheese");
-      if (isManakish) cands = cands.filter(t=>["akawi","feta","shanklish"].includes(t.id));
-      const anchored = pickAnchored(cands, "cheese");
-      const needed   = Math.max(0, target - anchored.length);
-      pizza.cheese   = [...anchored, ...pick(cands.filter(t=>!state.anchoredItems.has(t.id)), "cheese", needed)];
-    } else {
-      pizza.cheese = pickAnchored(getCands("cheese"), "cheese");
-    }
+    pizza.cheese=pickAnchored(getCands("cheese"),"cheese");
   }
 
-  // ── PROTEIN ─────────────────────────────────────────────────
-  if (isLahmajun) {
-    pizza.protein = [];
+  // Protein
+  const pp=buildProf.protein;
+  if (Math.random()<pp.prob) {
+    const cands=getCands("protein");
+    const anchored=pickAnchored(cands,"protein");
+    pizza.protein=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"protein",Math.max(0,1-anchored.length))];
   } else {
-    const pp = buildProf.protein;
-    if (Math.random() < pp.prob) {
-      let cands     = getCands("protein");
-      if (isManakish) cands = cands.filter(t=>["egg","labneh_balls"].includes(t.id));
-      const anchored = pickAnchored(cands, "protein");
-      const needed   = Math.max(0, 1 - anchored.length);
-      pizza.protein  = [...anchored, ...pick(cands.filter(t=>!state.anchoredItems.has(t.id)), "protein", needed)];
-    } else {
-      pizza.protein = pickAnchored(getCands("protein"), "protein");
-    }
+    pizza.protein=pickAnchored(getCands("protein"),"protein");
   }
 
-  // ── VEG ─────────────────────────────────────────────────────
-  {
-    const vp = buildProf.veg;
-    if (Math.random() < vp.prob) {
-      let target = vp.count[0] + Math.floor(Math.random()*(vp.count[1]-vp.count[0]+1));
-      if (isConnoisseur) target = Math.min(target, Math.max(0, CONNOISSEUR_RULES.maxPreBakeToppings - B.preBake));
-      let cands = getCands("veg");
-      if (isLahmajun) cands = cands.filter(t=>LAHMAJUN_VEG_WHITELIST.has(t.id));
-      if (isManakish) cands = cands.filter(t=>MANAKISH_VEG_WHITELIST.has(t.id));
-      const anchored = pickAnchored(cands, "veg");
-      const needed   = Math.max(0, target - anchored.length);
-      pizza.veg = [...anchored, ...pick(cands.filter(t=>!state.anchoredItems.has(t.id)), "veg", needed)];
-    } else {
-      pizza.veg = pickAnchored(getCands("veg"), "veg");
-    }
+  // Veg
+  const vp=buildProf.veg;
+  if (Math.random()<vp.prob) {
+    let target=vp.count[0]+Math.floor(Math.random()*(vp.count[1]-vp.count[0]+1));
+    if (isConnoisseur) target=Math.min(target,Math.max(0,CONNOISSEUR_RULES.maxPreBakeToppings-B.preBake));
+    const cands=getCands("veg");
+    const anchored=pickAnchored(cands,"veg");
+    pizza.veg=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"veg",Math.max(0,target-anchored.length))];
+  } else {
+    pizza.veg=pickAnchored(getCands("veg"),"veg");
   }
 
-  // ── FINISH ───────────────────────────────────────────────────
-  {
-    const fp = buildProf.finish;
-    if (Math.random() < fp.prob) {
-      let target = fp.count[0] + Math.floor(Math.random()*(fp.count[1]-fp.count[0]+1));
-      if (isConnoisseur) target = Math.min(target, CONNOISSEUR_RULES.maxFinishItems);
-      let cands = getCands("finish");
-      if (isLahmajun) cands = cands.filter(t=>LAHMAJUN_FINISH_WHITELIST.has(t.id));
-      if (isManakish) cands = cands.filter(t=>MANAKISH_FINISH_WHITELIST.has(t.id)||["finish_evoo","sumac_finish","fresh_mint","lemon_zest","flat_parsley"].includes(t.id));
-      // Connoisseur: add multi-layer candidates
-      if (isConnoisseur) cands = addMultiLayerCandidates(cands, pizza);
-      const anchored = pickAnchored(cands, "finish");
-      const needed   = Math.max(0, target - anchored.length);
-      pizza.finish = [...anchored, ...pick(cands.filter(t=>!state.anchoredItems.has(t.id)), "finish", needed)];
-    } else {
-      pizza.finish = pickAnchored(getCands("finish"), "finish");
-    }
+  // Finish
+  const fp=buildProf.finish;
+  if (Math.random()<fp.prob) {
+    let target=fp.count[0]+Math.floor(Math.random()*(fp.count[1]-fp.count[0]+1));
+    if (isConnoisseur) target=Math.min(target,CONNOISSEUR_RULES.maxFinishItems);
+    let cands=getCands("finish");
+    if (isConnoisseur) cands=addMultiLayerCandidates(cands,pizza);
+    const anchored=pickAnchored(cands,"finish");
+    pizza.finish=[...anchored,...pick(cands.filter(t=>!state.anchoredItems.has(t.id)),"finish",Math.max(0,target-anchored.length))];
+  } else {
+    pizza.finish=pickAnchored(getCands("finish"),"finish");
   }
 
-  // ── CONNOISSEUR: ensure at least one C-profile item ─────────
-  if (isConnoisseur && CONNOISSEUR_RULES.requireUniqueIngredient) {
-    const allPicked = LAYER_ORDER.flatMap(l=>pizza[l]||[]);
+  // Connoisseur: ensure C-profile item
+  if (isConnoisseur&&CONNOISSEUR_RULES.requireUniqueIngredient) {
+    const allPicked=LAYER_ORDER.flatMap(l=>pizza[l]||[]);
     if (!allPicked.some(t=>t.profile==="C")) {
-      const cItems = getCands("finish").filter(t=>t.profile==="C"&&!B.picked.has(t.id)&&budgetOk(t,"finish"));
-      if (cItems.length && pizza.finish.length) {
-        const replaceIdx = pizza.finish.map(t=>t.presence).lastIndexOf("accent");
-        if (replaceIdx>=0) pizza.finish[replaceIdx] = cItems[Math.floor(Math.random()*cItems.length)];
+      const cItems=getCands("finish").filter(t=>t.profile==="C"&&!B.picked.has(t.id));
+      if (cItems.length&&pizza.finish.length) {
+        const ri=pizza.finish.map(t=>t.presence).lastIndexOf("accent");
+        if (ri>=0) pizza.finish[ri]=cItems[Math.floor(Math.random()*cItems.length)];
       }
     }
   }
@@ -445,127 +405,185 @@ function rollPizza() {
 }
 
 function addMultiLayerCandidates(cands, pizza) {
-  const sauceId   = state.selectedSauce?.id;
-  const pickedIds = new Set(LAYER_ORDER.flatMap(l=>(pizza[l]||[]).map(t=>t.id)));
-  const extra     = [];
-  if (!pickedIds.has("zaatar_oil") && sauceId!=="zaatar_spread") {
-    const item = TOPPINGS.find(t=>t.id==="zaatar_oil");
-    if (item && !cands.find(c=>c.id==="zaatar_oil")) extra.push({...item, note:"Za'atar oil — used here as a finishing drizzle"});
+  const sauceId=state.selectedSauce?.id;
+  const pickedIds=new Set(LAYER_ORDER.flatMap(l=>(pizza[l]||[]).map(t=>t.id)));
+  const extra=[];
+  if (!pickedIds.has("zaatar_oil")&&sauceId!=="zaatar_spread") {
+    const item=TOPPINGS.find(t=>t.id==="zaatar_oil");
+    if (item&&!cands.find(c=>c.id==="zaatar_oil"))
+      extra.push({...item,note:"Za'atar oil — used here as a finishing drizzle"});
   }
-  if (!pickedIds.has("pesto") && sauceId!=="pesto" && state.selectedSauce?.sauceFamilies?.includes("nosause")) {
-    const item = TOPPINGS.find(t=>t.id==="pesto");
-    if (item && !cands.find(c=>c.id==="pesto")) extra.push({...item, note:"Pesto — post-bake finish drizzle on crust edge"});
+  if (!pickedIds.has("pesto")&&sauceId!=="pesto"&&state.selectedSauce?.sauceFamilies?.includes("nosause")) {
+    const item=TOPPINGS.find(t=>t.id==="pesto");
+    if (item&&!cands.find(c=>c.id==="pesto"))
+      extra.push({...item,note:"Pesto — post-bake finish drizzle on crust edge"});
   }
-  return [...cands, ...extra];
+  return [...cands,...extra];
 }
 
-// ── CANDIDATE HELPER ─────────────────────────────────────────
 function getCandidates(layer) {
-  const profileSet = PROFILE_INCLUDES[state.complexity];
-  const cuisines   = state.currentPizza?._cuisines || state.selectedCuisines;
-  return TOPPINGS.filter(t =>
-    t.layer===layer &&
-    profileSet.includes(t.profile) &&
-    !state.excludedItems.has(t.id) &&
-    (cuisines.length===0 || t.cuisine.some(c=>cuisines.includes(c)))
+  const profileSet=PROFILE_INCLUDES[state.complexity];
+  const cuisines=state.currentPizza?._cuisines||state.selectedCuisines;
+  return TOPPINGS.filter(t=>
+    t.layer===layer&&profileSet.includes(t.profile)&&
+    !state.excludedItems.has(t.id)&&
+    (cuisines.length===0||t.cuisine.some(c=>cuisines.includes(c)))
   );
 }
 
 // ── RENDER PIZZA ─────────────────────────────────────────────
 function renderPizza(pizza) {
-  const container = $("pizza-layers");
-  container.innerHTML = "";
-  const oven = OVEN_GUIDANCE[pizza._ovenMode];
-  const cuisineLabels = pizza._cuisines.map(id=>{
-    const c=CUISINES.find(x=>x.id===id); return c?`${c.emoji} ${c.label}`:id;
-  }).join(" × ") || "Freestyle";
-  $("pizza-title").textContent = cuisineLabels;
-  $("pizza-oven-label").textContent = `${oven.emoji} ${oven.label} · ${oven.time}`;
+  const container=$("pizza-layers");
+  container.innerHTML="";
+  const oven=OVEN_GUIDANCE[pizza._ovenMode||"dome"];
+  const isClassic=state.pizzaIsClassic;
 
-  LAYER_ORDER.forEach(layer => {
-    const items = pizza[layer];
+  // Title
+  if (isClassic && pizza._classicName) {
+    $("pizza-title").textContent = pizza._classicName;
+    $("pizza-oven-label").textContent = `${oven.emoji} ${oven.label} · ${oven.time}`;
+  } else {
+    const cl=pizza._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
+    $("pizza-title").textContent=cl;
+    $("pizza-oven-label").textContent=`${oven.emoji} ${oven.label} · ${oven.time}`;
+  }
+
+  // Modified from original banner (Classics only)
+  const modBanner=$("modified-banner");
+  if (modBanner) modBanner.style.display=isClassic&&state.classicModified?"flex":"none";
+
+  // Chef note (Classics only)
+  const chefNoteEl=$("chef-note-bar");
+  if (chefNoteEl) {
+    if (isClassic&&pizza._chefNote) {
+      chefNoteEl.textContent=pizza._chefNote;
+      chefNoteEl.style.display="block";
+    } else {
+      chefNoteEl.style.display="none";
+    }
+  }
+
+  LAYER_ORDER.forEach(layer=>{
+    const items=pizza[layer];
     if (!items?.length) return;
-    const meta    = LAYER_META[layer];
-    const section = document.createElement("div");
-    section.className = "layer-section";
-    const header  = document.createElement("div");
-    header.className = "layer-header";
-    header.innerHTML = `<span class="layer-emoji">${meta.emoji}</span><span class="layer-label">${meta.label}</span><span class="layer-note">${meta.note}</span>`;
+    const meta=LAYER_META[layer];
+    const section=document.createElement("div");
+    section.className="layer-section";
+    const header=document.createElement("div");
+    header.className="layer-header";
+    header.innerHTML=`<span class="layer-emoji">${meta.emoji}</span><span class="layer-label">${meta.label}</span><span class="layer-note">${meta.note}</span>`;
     section.appendChild(header);
 
-    items.forEach(item => {
-      const card = document.createElement("div");
-      card.className = "topping-card";
-      if (state.anchoredItems.has(item.id)) card.classList.add("anchored");
+    items.forEach(item=>{
+      if (!item) return;
+      const card=document.createElement("div");
+      card.className="topping-card";
+      if (!isClassic&&state.anchoredItems.has(item.id)) card.classList.add("anchored");
 
-      let prepBadge = "";
+      let prepBadge="";
       if (item.prep) {
-        const cls   = item.prep===PREP.RAW?"badge-raw":item.prep===PREP.PRE?"badge-pre":"badge-ready";
-        const label = item.prep===PREP.RAW?"🟡 Raw-on":item.prep===PREP.PRE?"🔴 Pre-cook":"🟢 Ready";
-        prepBadge   = `<span class="prep-badge ${cls}">${label}</span>`;
-        if (item.prep===PREP.RAW && pizza._ovenMode==="steel" && item.id==="egg")
-          prepBadge += `<span class="prep-badge badge-warn">⚠️ Add at 3-min mark</span>`;
+        const cls=item.prep===PREP.RAW?"badge-raw":item.prep===PREP.PRE?"badge-pre":"badge-ready";
+        const label=item.prep===PREP.RAW?"🟡 Raw-on":item.prep===PREP.PRE?"🔴 Pre-cook":"🟢 Ready";
+        prepBadge=`<span class="prep-badge ${cls}">${label}</span>`;
+        if (item.prep===PREP.RAW&&pizza._ovenMode==="steel"&&item.id==="egg")
+          prepBadge+=`<span class="prep-badge badge-warn">⚠️ Add at 3-min mark</span>`;
       }
 
-      const roleColors = {anchor:"role-anchor",supporting:"role-supporting",accent:"role-accent"};
-      const roleBadge  = pizza._complexity==="connoisseur" && item.presence
-        ? `<span class="role-badge ${roleColors[item.presence]||""}">${item.presence}</span>` : "";
-      const postbakeFlag  = item.postbake   ? `<span class="postbake-tag">Post-bake</span>` : "";
-      const homemadeFlag  = item.homemade   ? `<span class="homemade-tag">📋 Recipe</span>` : "";
-      const makeAheadFlag = item.make_ahead ? `<span class="make-ahead-tag">⏱️ ${item.make_ahead_timing||"Make ahead"}</span>` : "";
-      const domeFlag      = item.domeOnly   ? `<span class="dome-tag">🔥 Dome technique</span>` : "";
+      const roleColors={anchor:"role-anchor",supporting:"role-supporting",accent:"role-accent"};
+      const roleBadge=(!isClassic&&pizza._complexity==="connoisseur"&&item.presence)
+        ?`<span class="role-badge ${roleColors[item.presence]||""}">${item.presence}</span>`:"";
+      const postbakeFlag=item.postbake?`<span class="postbake-tag">Post-bake</span>`:"";
+      const homemadeFlag=item.homemade?`<span class="homemade-tag">📋 Recipe</span>`:"";
+      const makeAheadFlag=item.make_ahead?`<span class="make-ahead-tag">⏱️ ${item.make_ahead_timing||"Make ahead"}</span>`:"";
+      const domeFlag=item.domeOnly?`<span class="dome-tag">🔥 Dome technique</span>`:"";
 
-      card.innerHTML = `
-        <div class="topping-top">
-          <span class="topping-name">${item.name}</span>
-          <div class="topping-actions">
-            <button class="act-btn anchor-btn${state.anchoredItems.has(item.id)?" is-anchored":""}" data-id="${item.id}" aria-label="Anchor">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="${state.anchoredItems.has(item.id)?"currentColor":"none"}" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H8V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
-            </button>
-            <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            </button>
-            <button class="act-btn exclude-btn" data-id="${item.id}" aria-label="Exclude">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="topping-meta">${roleBadge}${prepBadge}${postbakeFlag}${homemadeFlag}${makeAheadFlag}${domeFlag}</div>
-        ${item.desc ? `<div class="topping-desc">${item.desc}</div>` : ""}
-        ${item.note ? `<div class="topping-note">${item.note}</div>` : ""}
-        ${item.homemade&&item.recipe ? renderRecipe(item.recipe) : ""}
+      // Classic cards: swap + remove only. Builder cards: anchor + swap + exclude
+      const actions = isClassic ? `
+        <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+        <button class="act-btn remove-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Remove">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      ` : `
+        <button class="act-btn anchor-btn${state.anchoredItems.has(item.id)?" is-anchored":""}" data-id="${item.id}" aria-label="Anchor">⚓</button>
+        <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+        <button class="act-btn exclude-btn" data-id="${item.id}" aria-label="Exclude">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        </button>
       `;
 
-      card.querySelector(".anchor-btn").addEventListener("click", e => {
-        e.stopPropagation();
-        const id = e.currentTarget.dataset.id;
-        if (state.anchoredItems.has(id)) state.anchoredItems.delete(id);
-        else { state.anchoredItems.add(id); state.excludedItems.delete(id); }
-        saveAnchored(); saveExcluded();
-        renderPizza(state.currentPizza);
-      });
-      card.querySelector(".swap-btn").addEventListener("click", e => {
-        e.stopPropagation();
-        swapItem(e.currentTarget.dataset.id, e.currentTarget.dataset.layer);
-      });
-      card.querySelector(".exclude-btn").addEventListener("click", e => {
-        e.stopPropagation();
-        const id = e.currentTarget.dataset.id;
-        state.excludedItems.add(id);
-        state.currentPizza[layer] = state.currentPizza[layer].filter(t=>t.id!==id);
-        saveExcluded();
-        renderPizza(state.currentPizza);
-        showToast("Excluded from future rolls");
-      });
+      card.innerHTML=`
+        <div class="topping-top">
+          <span class="topping-name">${item.name}</span>
+          <div class="topping-actions">${actions}</div>
+        </div>
+        <div class="topping-meta">${roleBadge}${prepBadge}${postbakeFlag}${homemadeFlag}${makeAheadFlag}${domeFlag}</div>
+        ${item.desc?`<div class="topping-desc">${item.desc}</div>`:""}
+        ${item.note?`<div class="topping-note">${item.note}</div>`:""}
+        ${item.homemade&&item.recipe?renderRecipe(item.recipe):""}
+      `;
 
-      if (item.homemade && item.recipe) {
-        const toggle  = card.querySelector(".recipe-toggle");
-        const section = card.querySelector(".recipe-section");
-        if (toggle && section) {
-          toggle.addEventListener("click", e => {
+      // Anchor (builder only)
+      const anchorBtn=card.querySelector(".anchor-btn");
+      if (anchorBtn) {
+        anchorBtn.addEventListener("click",e=>{
+          e.stopPropagation();
+          const id=e.currentTarget.dataset.id;
+          if (state.anchoredItems.has(id)) state.anchoredItems.delete(id);
+          else {state.anchoredItems.add(id);state.excludedItems.delete(id);}
+          saveAnchored();saveExcluded();
+          renderPizza(state.currentPizza);
+        });
+      }
+
+      // Swap
+      const swapBtn=card.querySelector(".swap-btn");
+      if (swapBtn) {
+        swapBtn.addEventListener("click",e=>{
+          e.stopPropagation();
+          swapItem(e.currentTarget.dataset.id,e.currentTarget.dataset.layer);
+          if (isClassic) state.classicModified=true;
+        });
+      }
+
+      // Exclude (builder only)
+      const excludeBtn=card.querySelector(".exclude-btn");
+      if (excludeBtn) {
+        excludeBtn.addEventListener("click",e=>{
+          e.stopPropagation();
+          const id=e.currentTarget.dataset.id;
+          state.excludedItems.add(id);
+          state.currentPizza[layer]=state.currentPizza[layer].filter(t=>t.id!==id);
+          saveExcluded();
+          renderPizza(state.currentPizza);
+          showToast("Excluded from future rolls");
+        });
+      }
+
+      // Remove (Classics only)
+      const removeBtn=card.querySelector(".remove-btn");
+      if (removeBtn) {
+        removeBtn.addEventListener("click",e=>{
+          e.stopPropagation();
+          const id=e.currentTarget.dataset.id;
+          state.currentPizza[layer]=state.currentPizza[layer].filter(t=>t.id!==id);
+          state.classicModified=true;
+          renderPizza(state.currentPizza);
+        });
+      }
+
+      // Recipe toggle
+      if (item.homemade&&item.recipe) {
+        const toggle=card.querySelector(".recipe-toggle");
+        const sec=card.querySelector(".recipe-section");
+        if (toggle&&sec) {
+          toggle.addEventListener("click",e=>{
             e.stopPropagation();
-            const open = section.classList.toggle("open");
-            toggle.textContent = open ? "Hide recipe ▲" : "Show recipe ▼";
+            const open=sec.classList.toggle("open");
+            toggle.textContent=open?"Hide recipe ▲":"Show recipe ▼";
           });
         }
       }
@@ -575,9 +593,9 @@ function renderPizza(pizza) {
   });
 
   // Oven guide
-  const ovenSec = document.createElement("div");
-  ovenSec.className = "oven-guide";
-  ovenSec.innerHTML = `
+  const ovenSec=document.createElement("div");
+  ovenSec.className="oven-guide";
+  ovenSec.innerHTML=`
     <div class="layer-header">
       <span class="layer-emoji">${oven.emoji}</span>
       <span class="layer-label">${oven.label}</span>
@@ -585,6 +603,57 @@ function renderPizza(pizza) {
     </div>
     <ul class="oven-tips">${oven.tips.map(t=>`<li>${t}</li>`).join("")}</ul>`;
   container.appendChild(ovenSec);
+
+  // Bottom bar
+  const bar=$("pizza-bar-inner");
+  if (bar) {
+    if (isClassic) {
+      bar.innerHTML=`
+        <button class="btn-ghost" id="btn-back-pizza-classic">← Classics</button>
+        <button class="btn-ghost" id="btn-save-pie">Save 🗂️</button>
+        <button class="btn-ghost" id="btn-add-to-list">+ List 🛒</button>`;
+      $("btn-back-pizza-classic")?.addEventListener("click",()=>showScreen("classics"));
+    } else {
+      bar.innerHTML=`
+        <button class="btn-ghost" id="btn-back-pizza-sauce">← Sauce</button>
+        <button class="btn-ghost" id="btn-save-pie">Save 🗂️</button>
+        <button class="btn-ghost" id="btn-add-to-list">+ List 🛒</button>
+        <button class="btn-primary" id="btn-reroll">Re-top 🎲</button>`;
+      $("btn-back-pizza-sauce")?.addEventListener("click",()=>showScreen("sauce"));
+      $("btn-reroll")?.addEventListener("click",()=>{
+        try {
+          state.currentPizza=rollPizza();
+          renderPizza(state.currentPizza);
+          state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
+          saveHistory();
+        } catch(e) { showToast("Re-top failed — try again"); }
+      });
+    }
+    // Wire save and add-to-list (shared)
+    wirePizzaActions();
+  }
+}
+
+function wirePizzaActions() {
+  $("btn-save-pie")?.addEventListener("click",()=>{
+    if (!state.currentPizza) return;
+    const def = state.currentPizza._classicName ||
+      state.currentPizza._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" + ") || "My Pie";
+    const name=prompt("Name this pie:",def);
+    if (name===null) return;
+    state.saved.unshift({id:"saved_"+uid(),name:name.trim()||def,cuisines:[...(state.currentPizza._cuisines||[])],pizza:state.currentPizza,savedAt:Date.now()});
+    saveSaved();
+    showToast("Pie saved 🗂️");
+  });
+  $("btn-add-to-list")?.addEventListener("click",()=>{
+    if (!state.currentPizza) return;
+    if (state.session.length>=6){showToast("Session full — max 6 pizzas");return;}
+    const name=state.currentPizza._classicName||
+      state.currentPizza._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" + ")||"My Pie";
+    state.session.push({id:"sess_"+uid(),pizzaName:name,pizza:state.currentPizza,count:1,checked:{}});
+    saveSession();updateSessionBadge();
+    showToast("Added to shopping list 🛒");
+  });
 }
 
 function renderRecipe(recipe) {
@@ -600,127 +669,95 @@ function renderRecipe(recipe) {
 }
 
 function swapItem(oldId, layer) {
-  const cands = getCandidates(layer)
-    .filter(t=>!state.anchoredItems.has(t.id)&&!state.excludedItems.has(t.id));
-  const currentIds = state.currentPizza[layer].map(t=>t.id);
-  const alts = cands.filter(t=>!currentIds.includes(t.id));
-  if (!alts.length) { showToast("Nothing left to swap to"); return; }
-  const replacement = alts[Math.floor(Math.random()*alts.length)];
-  state.currentPizza[layer] = state.currentPizza[layer].map(t=>t.id===oldId?replacement:t);
+  const profileSet=PROFILE_INCLUDES[state.complexity]||["T","E","C"];
+  const cuisines=state.currentPizza._cuisines||[];
+  const cands=TOPPINGS.filter(t=>
+    t.layer===layer&&profileSet.includes(t.profile)&&
+    !state.excludedItems.has(t.id)&&!state.anchoredItems.has(t.id)&&
+    (cuisines.length===0||t.cuisine.some(c=>cuisines.includes(c)))
+  );
+  const currentIds=state.currentPizza[layer].map(t=>t?.id);
+  const alts=cands.filter(t=>!currentIds.includes(t.id));
+  if (!alts.length){showToast("Nothing left to swap to");return;}
+  const replacement=alts[Math.floor(Math.random()*alts.length)];
+  state.currentPizza[layer]=state.currentPizza[layer].map(t=>t?.id===oldId?replacement:t);
   renderPizza(state.currentPizza);
 }
 
-// ── PIZZA RESULT ACTIONS ──────────────────────────────────────
-$("btn-save-pie").addEventListener("click", () => {
+// ── COPY ──────────────────────────────────────────────────────
+$("btn-copy")?.addEventListener("click",()=>{
   if (!state.currentPizza) return;
-  const cuisineLabels = state.currentPizza._cuisines.map(id=>{
-    const c=CUISINES.find(x=>x.id===id); return c?`${c.emoji} ${c.label}`:id;
-  }).join(" + ") || "My Pie";
-  const name = prompt("Name this pie:", cuisineLabels);
-  if (name===null) return;
-  state.saved.unshift({id:"saved_"+uid(),name:name.trim()||cuisineLabels,cuisines:[...state.currentPizza._cuisines],pizza:state.currentPizza,savedAt:Date.now()});
-  saveSaved();
-  showToast("Pie saved 🗂️");
-});
-
-$("btn-add-to-list").addEventListener("click", () => {
-  if (!state.currentPizza) return;
-  if (state.session.length>=6) { showToast("Session full — max 6 pizzas"); return; }
-  const cuisineLabels = state.currentPizza._cuisines.map(id=>{
-    const c=CUISINES.find(x=>x.id===id); return c?`${c.emoji} ${c.label}`:id;
-  }).join(" + ") || "My Pie";
-  state.session.push({id:"sess_"+uid(),pizzaName:cuisineLabels,pizza:state.currentPizza,count:1,checked:{}});
-  saveSession(); updateSessionBadge();
-  showToast("Added to shopping list 🛒");
-});
-
-$("btn-copy").addEventListener("click", () => {
-  if (!state.currentPizza) return;
-  const p=state.currentPizza, oven=OVEN_GUIDANCE[p._ovenMode];
-  const cl=p._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
+  const p=state.currentPizza,oven=OVEN_GUIDANCE[p._ovenMode||"dome"];
+  const cl=p._classicName||(p._cuisines||[]).map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
   const lines=[`🍕 ${cl} — Omar's Pie`,`${oven.emoji} ${oven.label} · ${oven.time}`,""];
   LAYER_ORDER.forEach(layer=>{
-    const items=p[layer]; if (!items?.length) return;
+    const items=p[layer];if (!items?.length) return;
     lines.push(`${LAYER_META[layer].emoji} ${LAYER_META[layer].label}:`);
-    items.forEach(t=>{lines.push(`  • ${t.name}${t.prep?` [${t.prep}]`:""}${t.postbake?" [post-bake]":""}${t.note?" — "+t.note:""}`);});
+    items.forEach(t=>{if(t)lines.push(`  • ${t.name}${t.prep?` [${t.prep}]`:""}${t.postbake?" [post-bake]":""}${t.note?" — "+t.note:""}`);});
     lines.push("");
   });
   lines.push("Omar's Pie · https://xk5fvhmcht-oss.github.io/pizza-randomizer/");
   navigator.clipboard.writeText(lines.join("\n")).then(()=>showToast("Copied ✓")).catch(()=>showToast("Copy failed"));
 });
 
-$("btn-reroll").addEventListener("click", () => {
-  try {
-    state.currentPizza = rollPizza();
-    renderPizza(state.currentPizza);
-    state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
-    saveHistory();
-  } catch(e) {
-    console.error("Reroll error:", e);
-    showToast("Re-top failed — try again");
-  }
-});
-
-$("btn-back-pizza").addEventListener("click",   ()=>showScreen("sauce"));
-$("btn-back-history").addEventListener("click", ()=>showScreen("setup"));
-$("btn-back-library").addEventListener("click", ()=>{ state.libraryFilter=null; showScreen("setup"); });
+$("btn-back-history").addEventListener("click",()=>showScreen("setup"));
+$("btn-back-library").addEventListener("click",()=>{state.libraryFilter=null;showScreen("setup");});
 
 // ── SESSION BADGE ─────────────────────────────────────────────
 function updateSessionBadge() {
-  const badge=$("session-badge"); if (!badge) return;
+  const badge=$("session-badge");if(!badge)return;
   const count=state.session.length;
   badge.textContent=count>0?count:"";
   badge.style.display=count>0?"flex":"none";
 }
 
 // ── HISTORY ───────────────────────────────────────────────────
-$("btn-history").addEventListener("click",()=>{ renderHistory(); showScreen("history"); });
-
+$("btn-history").addEventListener("click",()=>{renderHistory();showScreen("history");});
 function renderHistory() {
-  const container=$("history-list"); container.innerHTML="";
-  if (!state.history.length) { container.innerHTML=`<p class="empty-state">No pies rolled yet.</p>`; return; }
+  const container=$("history-list");container.innerHTML="";
+  if (!state.history.length){container.innerHTML=`<p class="empty-state">No pies rolled yet.</p>`;return;}
   state.history.slice(0,15).forEach((entry,i)=>{
     const cl=entry.cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
-    const summary=LAYER_ORDER.map(layer=>{const items=entry.pizza[layer];if(!items?.length)return null;return`${LAYER_META[layer].emoji} ${items.map(t=>t.name).join(", ")}`;}).filter(Boolean).join(" · ");
-    const row=document.createElement("div"); row.className="history-entry";
-    row.innerHTML=`<div class="history-title">${cl}</div><div class="history-summary">${summary}</div><button class="btn-ghost history-reload">Reload this pie</button>`;
+    const summary=LAYER_ORDER.map(layer=>{const items=entry.pizza[layer];if(!items?.length)return null;return`${LAYER_META[layer].emoji} ${items.filter(Boolean).map(t=>t.name).join(", ")}`;}).filter(Boolean).join(" · ");
+    const row=document.createElement("div");row.className="history-entry";
+    row.innerHTML=`<div class="history-title">${entry.pizza._classicName||cl}</div><div class="history-summary">${summary}</div><button class="btn-ghost history-reload">Reload this pie</button>`;
     row.querySelector(".history-reload").addEventListener("click",()=>{
-      state.currentPizza=entry.pizza; state.selectedCuisines=[...(entry.cuisines||[])];
-      updateCuisineUI(); renderPizza(state.currentPizza); showScreen("pizza");
+      state.currentPizza=entry.pizza;state.selectedCuisines=[...(entry.cuisines||[])];
+      state.pizzaIsClassic=!!entry.pizza._classicName;state.classicModified=false;
+      updateCuisineUI();renderPizza(state.currentPizza);showScreen("pizza");
     });
     container.appendChild(row);
   });
 }
 
 // ── LIBRARY ───────────────────────────────────────────────────
-$("btn-library").addEventListener("click",()=>{ state.libraryFilter=null; renderLibrary(); showScreen("library"); });
-
+$("btn-library").addEventListener("click",()=>{state.libraryFilter=null;renderLibrary();showScreen("library");});
 function renderLibrary() {
-  const ac=state.anchoredItems.size, ec=state.excludedItems.size;
+  const ac=state.anchoredItems.size,ec=state.excludedItems.size;
   const summary=$("library-summary");
   summary.innerHTML=`
     <button class="lib-summary-btn ${state.libraryFilter==="anchored"?"active":""}" data-filter="anchored">📌 ${ac} Anchored</button>
     <button class="lib-summary-btn ${state.libraryFilter==="excluded"?"active":""}" data-filter="excluded">🚫 ${ec} Excluded</button>
     ${state.libraryFilter?'<button class="lib-summary-btn lib-clear-filter">← All toppings</button>':""}`;
   summary.querySelectorAll(".lib-summary-btn[data-filter]").forEach(btn=>{
-    btn.addEventListener("click",()=>{ state.libraryFilter=state.libraryFilter===btn.dataset.filter?null:btn.dataset.filter; renderLibrary(); });
+    btn.addEventListener("click",()=>{state.libraryFilter=state.libraryFilter===btn.dataset.filter?null:btn.dataset.filter;renderLibrary();});
   });
   const cb=summary.querySelector(".lib-clear-filter");
-  if (cb) cb.addEventListener("click",()=>{ state.libraryFilter=null; renderLibrary(); });
+  if (cb) cb.addEventListener("click",()=>{state.libraryFilter=null;renderLibrary();});
 
-  const container=$("library-list"); container.innerHTML="";
+  const container=$("library-list");container.innerHTML="";
   let items=TOPPINGS;
   if (state.libraryFilter==="anchored") items=TOPPINGS.filter(t=>state.anchoredItems.has(t.id));
   if (state.libraryFilter==="excluded")  items=TOPPINGS.filter(t=>state.excludedItems.has(t.id));
-  if (!items.length) { container.innerHTML=`<p class="empty-state">${state.libraryFilter==="anchored"?"No anchored items.":"No excluded items."}</p>`; return; }
+  if (!items.length){container.innerHTML=`<p class="empty-state">${state.libraryFilter==="anchored"?"No anchored items.":"No excluded items."}</p>`;return;}
 
   LAYER_ORDER.forEach(layer=>{
-    const li=items.filter(t=>t.layer===layer); if (!li.length) return;
+    const li=items.filter(t=>t.layer===layer);if (!li.length) return;
     const meta=LAYER_META[layer];
-    const sec=document.createElement("div"); sec.className="lib-section";
+    const sec=document.createElement("div");sec.className="lib-section";
     sec.innerHTML=`<h3 class="lib-layer-title">${meta.emoji} ${meta.label}</h3>`;
     li.forEach(item=>{
-      const row=document.createElement("div"); row.className="lib-row";
+      const row=document.createElement("div");row.className="lib-row";
       if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
       if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
       const cf=(item.cuisine||[]).map(id=>{const c=CUISINES.find(x=>x.id===id);return c?c.emoji:"";}).join(" ");
@@ -738,26 +775,16 @@ function renderLibrary() {
         ${item.desc?`<div class="lib-note">${item.desc}</div>`:item.note?`<div class="lib-note">${item.note}</div>`:""}
         ${item.homemade&&item.recipe?`<button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button><div class="recipe-section">${renderRecipeInner(item.recipe)}</div>`:""}
         <div class="lib-actions">
-          <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">${state.anchoredItems.has(item.id)?"📌 Anchored":"Anchor"}</button>
+          <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">${state.anchoredItems.has(item.id)?"⚓ Anchored":"Anchor"}</button>
           <button class="lib-btn${state.excludedItems.has(item.id)?" active ban":""}" data-action="exclude" data-id="${item.id}">${state.excludedItems.has(item.id)?"🚫 Excluded":"Exclude"}</button>
         </div>`;
       const lt=row.querySelector(".lib-recipe-toggle");
-      if (lt) {
-        const rs=row.querySelector(".recipe-section");
-        lt.addEventListener("click",()=>{ const o=rs.classList.toggle("open"); lt.textContent=o?"Hide recipe ▲":"Show recipe ▼"; });
-      }
+      if (lt){const rs=row.querySelector(".recipe-section");lt.addEventListener("click",()=>{const o=rs.classList.toggle("open");lt.textContent=o?"Hide recipe ▲":"Show recipe ▼";});}
       row.querySelectorAll(".lib-btn").forEach(btn=>{
         btn.addEventListener("click",()=>{
           const {action,id}=btn.dataset;
-          if (action==="anchor") {
-            if (state.anchoredItems.has(id)) state.anchoredItems.delete(id);
-            else { state.anchoredItems.add(id); state.excludedItems.delete(id); }
-            saveAnchored(); saveExcluded();
-          } else {
-            if (state.excludedItems.has(id)) state.excludedItems.delete(id);
-            else { state.excludedItems.add(id); state.anchoredItems.delete(id); }
-            saveExcluded(); saveAnchored();
-          }
+          if (action==="anchor"){if(state.anchoredItems.has(id))state.anchoredItems.delete(id);else{state.anchoredItems.add(id);state.excludedItems.delete(id);}saveAnchored();saveExcluded();}
+          else{if(state.excludedItems.has(id))state.excludedItems.delete(id);else{state.excludedItems.add(id);state.anchoredItems.delete(id);}saveExcluded();saveAnchored();}
           renderLibrary();
         });
       });
@@ -775,17 +802,88 @@ function renderRecipeInner(recipe) {
     <ol class="recipe-list recipe-method">${recipe.method.map(m=>`<li>${m}</li>`).join("")}</ol>`;
 }
 
-// ── SHOPPING LIST ─────────────────────────────────────────────
-$("btn-shopping").addEventListener("click",()=>{ renderShoppingList(); showScreen("shopping"); });
-$("btn-back-shopping").addEventListener("click",()=>showScreen("setup"));
+// ── THE CLASSICS ──────────────────────────────────────────────
+$("btn-classics").addEventListener("click",()=>{renderClassics();showScreen("classics");});
+$("btn-back-classics").addEventListener("click",()=>showScreen("setup"));
 
-function renderShoppingList() { renderSessionCards(); renderCalculatedList(); }
+function renderClassics() {
+  const container=$("classics-list");
+  container.innerHTML="";
+
+  // Group by cuisine
+  const cuisineOrder=["neapolitan","levantine","turkish","greek","northafrican","mexican","american","indian"];
+
+  cuisineOrder.forEach(cuisineId=>{
+    const cuisine=CUISINES.find(c=>c.id===cuisineId);
+    if (!cuisine) return;
+    const pizzas=CLASSICS.filter(c=>c.cuisine===cuisineId);
+    if (!pizzas.length) return;
+
+    // Section header
+    const header=document.createElement("div");
+    header.className="classics-section-header";
+    header.innerHTML=`<span class="classics-cuisine-emoji">${cuisine.emoji}</span><span class="classics-cuisine-name">${cuisine.label}</span>`;
+    container.appendChild(header);
+
+    // Pizza cards
+    pizzas.forEach(classic=>{
+      const allToppings=LAYER_ORDER.flatMap(l=>(classic.pizza[l]||[]).filter(Boolean).map(t=>t.name)).join(", ");
+      const card=document.createElement("div");
+      card.className="classic-card";
+      card.innerHTML=`
+        <div class="classic-card-top">
+          <span class="classic-name">${classic.name}</span>
+        </div>
+        <p class="classic-desc">${classic.description}</p>
+        <p class="classic-ingredients">${allToppings}</p>
+        <div class="classic-actions">
+          <button class="btn-ghost classic-add-list">+ List 🛒</button>
+          <button class="btn-primary classic-open">Open in builder →</button>
+        </div>`;
+
+      card.querySelector(".classic-add-list").addEventListener("click",()=>{
+        if (state.session.length>=6){showToast("Session full — max 6 pizzas");return;}
+        const pizza=buildClassicPizza(classic);
+        state.session.push({id:"sess_"+uid(),pizzaName:classic.name,pizza,count:1,checked:{}});
+        saveSession();updateSessionBadge();
+        showToast(`${classic.name} added to list 🛒`);
+      });
+
+      card.querySelector(".classic-open").addEventListener("click",()=>{
+        state.currentPizza=buildClassicPizza(classic);
+        state.pizzaIsClassic=true;
+        state.classicModified=false;
+        renderPizza(state.currentPizza);
+        showScreen("pizza");
+      });
+
+      container.appendChild(card);
+    });
+  });
+}
+
+function buildClassicPizza(classic) {
+  const pizza={
+    _ovenMode: classic.ovenMode||"dome",
+    _cuisines: [classic.cuisine],
+    _complexity: "elevated",
+    _classicName: classic.name,
+    _chefNote: classic.chefNote||"",
+  };
+  LAYER_ORDER.forEach(l=>{pizza[l]=(classic.pizza[l]||[]).filter(Boolean);});
+  return pizza;
+}
+
+// ── SHOPPING LIST ─────────────────────────────────────────────
+$("btn-shopping").addEventListener("click",()=>{renderShoppingList();showScreen("shopping");});
+$("btn-back-shopping").addEventListener("click",()=>showScreen("setup"));
+function renderShoppingList(){renderSessionCards();renderCalculatedList();}
 
 function renderSessionCards() {
-  const container=$("session-cards"); container.innerHTML="";
-  if (!state.session.length) {
-    container.innerHTML=`<p class="empty-state">No pizzas added yet — roll a pie and tap "+ List"</p>`;
-    $("session-summary").textContent=""; $("calculated-list").innerHTML=""; return;
+  const container=$("session-cards");container.innerHTML="";
+  if (!state.session.length){
+    container.innerHTML=`<p class="empty-state">No pizzas added yet — roll a pie or pick a Classic and tap "+ List"</p>`;
+    $("session-summary").textContent="";$("calculated-list").innerHTML="";return;
   }
   const total=state.session.reduce((s,e)=>s+e.count,0);
   const stops=optimizeStores();
@@ -794,8 +892,8 @@ function renderSessionCards() {
     <span class="store-suggestion">Suggested stops: ${stops.map(s=>STORES[s]?.name||s).join(" + ")}</span>`;
 
   state.session.forEach((entry,idx)=>{
-    const card=document.createElement("div"); card.className="session-card";
-    const names=LAYER_ORDER.flatMap(l=>(entry.pizza[l]||[]).map(t=>t.name)).join(", ");
+    const card=document.createElement("div");card.className="session-card";
+    const names=LAYER_ORDER.flatMap(l=>(entry.pizza[l]||[]).filter(Boolean).map(t=>t.name)).join(", ");
     card.innerHTML=`
       <div class="session-card-top">
         <div class="session-name-wrap">
@@ -822,14 +920,14 @@ function renderSessionCards() {
     });
     container.appendChild(card);
   });
-  const cb=document.createElement("button"); cb.className="btn-clear-session"; cb.textContent="Clear entire list";
+  const cb=document.createElement("button");cb.className="btn-clear-session";cb.textContent="Clear entire list";
   cb.addEventListener("click",()=>{if(confirm("Clear the entire shopping list?")){state.session=[];saveSession();updateSessionBadge();renderShoppingList();}});
   container.appendChild(cb);
 }
 
 function optimizeStores() {
   const all=[];
-  state.session.forEach(e=>{LAYER_ORDER.forEach(l=>{(e.pizza[l]||[]).forEach(t=>{if(!all.find(x=>x.id===t.id))all.push(t);});});});
+  state.session.forEach(e=>{LAYER_ORDER.forEach(l=>{(e.pizza[l]||[]).filter(Boolean).forEach(t=>{if(!all.find(x=>x.id===t.id))all.push(t);});});});
   const needs={};STORE_ORDER.forEach(s=>{needs[s]=new Set();});
   all.forEach(t=>{const d=TOPPINGS.find(x=>x.id===t.id);if(!d?.stores?.length)return;d.stores.forEach(s=>{if(needs[s])needs[s].add(t.id);});});
   const purchasable=all.filter(t=>{const d=TOPPINGS.find(x=>x.id===t.id);return d?.stores?.length>0&&t.id!=="nosause";});
@@ -844,12 +942,12 @@ function optimizeStores() {
 }
 
 function renderCalculatedList() {
-  const container=$("calculated-list"); container.innerHTML="";
+  const container=$("calculated-list");container.innerHTML="";
   if (!state.session.length) return;
   const agg={};
   state.session.forEach(entry=>{
     LAYER_ORDER.forEach(layer=>{
-      (entry.pizza[layer]||[]).forEach(item=>{
+      (entry.pizza[layer]||[]).filter(Boolean).forEach(item=>{
         const data=TOPPINGS.find(t=>t.id===item.id);
         if (!data||item.id==="nosause") return;
         if (!agg[item.id]) agg[item.id]={data,total_g:0,total_tsp:0,total_tbsp:0,total_unit_count:0,total_pizzas:0,checked:false};
@@ -862,47 +960,35 @@ function renderCalculatedList() {
       });
     });
   });
-
   Object.values(agg).forEach(a=>{
     const q=a.data.qty||{};
     a.total_oz=a.total_g>0?parseFloat(gToOz(a.total_g)):0;
     a.purchase_units=q.shared_yield?Math.ceil(a.total_pizzas/q.shared_yield):q.yield_g&&q.yield_g>0&&a.total_g>0?Math.ceil(a.total_g/q.yield_g):1;
     a.purchase_units=Math.max(a.purchase_units,q.min_purchase||1);
   });
-
-  const makeAhead = Object.values(agg).filter(a=>a.data.make_ahead);
-  const pantry    = Object.values(agg).filter(a=>!a.data.make_ahead&&a.data.qty?.pantry);
-  const fresh     = Object.values(agg).filter(a=>!a.data.make_ahead&&!a.data.qty?.pantry);
-
+  const makeAhead=Object.values(agg).filter(a=>a.data.make_ahead);
+  const pantry   =Object.values(agg).filter(a=>!a.data.make_ahead&&a.data.qty?.pantry);
+  const fresh    =Object.values(agg).filter(a=>!a.data.make_ahead&&!a.data.qty?.pantry);
   const byStore={};STORE_ORDER.forEach(s=>{byStore[s]=[];});
   fresh.forEach(a=>{const st=a.data.stores||[];if(st.length&&byStore[st[0]])byStore[st[0]].push(a);});
-
-  STORE_ORDER.forEach(storeId=>{
-    const items=byStore[storeId]; if (!items.length) return;
-    const sec=document.createElement("div"); sec.className="list-store-section";
-    sec.innerHTML=`<h3 class="list-store-heading" data-store="${storeId}">${STORES[storeId].name}</h3>`;
+  STORE_ORDER.forEach(sid=>{
+    const items=byStore[sid];if (!items.length) return;
+    const sec=document.createElement("div");sec.className="list-store-section";
+    sec.innerHTML=`<h3 class="list-store-heading" data-store="${sid}">${STORES[sid].name}</h3>`;
     LAYER_ORDER.forEach(layer=>{items.filter(a=>a.data.layer===layer).forEach(a=>sec.appendChild(renderListItem(a)));});
     container.appendChild(sec);
   });
-  if (pantry.length) {
-    const sec=document.createElement("div"); sec.className="list-store-section pantry-section";
-    sec.innerHTML=`<h3 class="list-store-heading pantry-heading">🗄️ Pantry — check stock</h3>`;
-    pantry.forEach(a=>sec.appendChild(renderListItem(a))); container.appendChild(sec);
-  }
-  if (makeAhead.length) {
-    const sec=document.createElement("div"); sec.className="list-store-section make-ahead-section";
-    sec.innerHTML=`<h3 class="list-store-heading make-ahead-heading">⏱️ Make Ahead</h3>`;
-    makeAhead.forEach(a=>sec.appendChild(renderListItem(a))); container.appendChild(sec);
-  }
+  if (pantry.length){const sec=document.createElement("div");sec.className="list-store-section pantry-section";sec.innerHTML=`<h3 class="list-store-heading pantry-heading">🗄️ Pantry — check stock</h3>`;pantry.forEach(a=>sec.appendChild(renderListItem(a)));container.appendChild(sec);}
+  if (makeAhead.length){const sec=document.createElement("div");sec.className="list-store-section make-ahead-section";sec.innerHTML=`<h3 class="list-store-heading make-ahead-heading">⏱️ Make Ahead</h3>`;makeAhead.forEach(a=>sec.appendChild(renderListItem(a)));container.appendChild(sec);}
 }
 
 function renderListItem(a) {
-  const row=document.createElement("div"); row.className=`list-item${a.checked?" checked":""}`;
+  const row=document.createElement("div");row.className=`list-item${a.checked?" checked":""}`;
   const q=a.data.qty||{};
   let qs="";
-  if (a.total_g>0)            qs=`${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit||""}`;
-  else if (a.total_tsp>0)     qs=`${fmt(a.total_tsp,"tsp")} · pantry`;
-  else if (a.total_tbsp>0)    qs=`${fmt(a.total_tbsp,"tbsp")} · pantry`;
+  if (a.total_g>0) qs=`${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit||""}`;
+  else if (a.total_tsp>0) qs=`${fmt(a.total_tsp,"tsp")} · pantry`;
+  else if (a.total_tbsp>0) qs=`${fmt(a.total_tbsp,"tbsp")} · pantry`;
   else if (a.total_unit_count>0) qs=`${Math.ceil(a.total_unit_count)} ${q.unit||""}`;
   else if (q.shared_yield&&q.shared_yield<999) qs=`${a.purchase_units} ${q.unit||""}`;
   else qs=q.unit==="wedge (pantry)"?"wedge — use to taste":q.unit||"as needed";
@@ -929,14 +1015,13 @@ function fmt(value,unit) {
 }
 
 $("btn-print").addEventListener("click",()=>window.print());
-
 $("btn-copy-list").addEventListener("click",()=>{
   if (!state.session.length) return;
   const lines=["🍕 Omar's Pie — Shopping List",new Date().toLocaleDateString(),"","SESSION:"];
   state.session.forEach(e=>lines.push(`  ${e.pizzaName} × ${e.count}`));
   lines.push("");
   const agg={};
-  state.session.forEach(entry=>{LAYER_ORDER.forEach(layer=>{(entry.pizza[layer]||[]).forEach(item=>{
+  state.session.forEach(entry=>{LAYER_ORDER.forEach(layer=>{(entry.pizza[layer]||[]).filter(Boolean).forEach(item=>{
     const data=TOPPINGS.find(t=>t.id===item.id);if(!data||item.id==="nosause")return;
     if(!agg[item.id])agg[item.id]={data,total_g:0,total_tsp:0,total_tbsp:0,total_unit_count:0,total_pizzas:0};
     const q=data.qty||{};
@@ -946,39 +1031,28 @@ $("btn-copy-list").addEventListener("click",()=>{
     agg[item.id].total_unit_count+=(q.per_pizza_unit||0)*entry.count;
     agg[item.id].total_pizzas+=entry.count;
   });});});
-  Object.values(agg).forEach(a=>{
-    const q=a.data.qty||{};
-    a.total_oz=a.total_g>0?parseFloat(gToOz(a.total_g)):0;
-    a.purchase_units=q.shared_yield?Math.ceil(a.total_pizzas/q.shared_yield):q.yield_g&&q.yield_g>0&&a.total_g>0?Math.ceil(a.total_g/q.yield_g):1;
-    a.purchase_units=Math.max(a.purchase_units,q.min_purchase||1);
-  });
+  Object.values(agg).forEach(a=>{const q=a.data.qty||{};a.total_oz=a.total_g>0?parseFloat(gToOz(a.total_g)):0;a.purchase_units=q.shared_yield?Math.ceil(a.total_pizzas/q.shared_yield):q.yield_g&&q.yield_g>0&&a.total_g>0?Math.ceil(a.total_g/q.yield_g):1;a.purchase_units=Math.max(a.purchase_units,q.min_purchase||1);});
   STORE_ORDER.forEach(sid=>{
     const items=Object.values(agg).filter(a=>!a.data.make_ahead&&!a.data.qty?.pantry&&(a.data.stores||[])[0]===sid);
     if (!items.length) return;
     lines.push(`${STORES[sid].name.toUpperCase()}:`);
-    items.forEach(a=>{
-      const q=a.data.qty||{};
-      const qs=a.total_g>0?`${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit||""}`:a.total_tsp>0?`${fmt(a.total_tsp,"tsp")} (pantry)`:a.total_tbsp>0?`${fmt(a.total_tbsp,"tbsp")} (pantry)`:q.unit||"as needed";
-      lines.push(`  ☐ ${a.data.name} — ${qs}`);
-      if (a.data.note) lines.push(`      → ${a.data.note}`);
-    });
+    items.forEach(a=>{const q=a.data.qty||{};const qs=a.total_g>0?`${a.total_g}g / ${a.total_oz}oz · ${a.purchase_units} ${q.unit||""}`:a.total_tsp>0?`${fmt(a.total_tsp,"tsp")} (pantry)`:a.total_tbsp>0?`${fmt(a.total_tbsp,"tbsp")} (pantry)`:q.unit||"as needed";lines.push(`  ☐ ${a.data.name} — ${qs}`);if(a.data.note)lines.push(`      → ${a.data.note}`);});
     lines.push("");
   });
   navigator.clipboard.writeText(lines.join("\n")).then(()=>showToast("List copied ✓")).catch(()=>showToast("Copy failed"));
 });
 
 // ── SAVED PIZZAS ─────────────────────────────────────────────
-$("btn-saved").addEventListener("click",()=>{ renderSaved(); showScreen("saved"); });
+$("btn-saved").addEventListener("click",()=>{renderSaved();showScreen("saved");});
 $("btn-back-saved").addEventListener("click",()=>showScreen("setup"));
-
 function renderSaved() {
-  const container=$("saved-list"); container.innerHTML="";
-  if (!state.saved.length){container.innerHTML=`<p class="empty-state">No saved pies yet — roll one and tap Save 🗂️</p>`;return;}
+  const container=$("saved-list");container.innerHTML="";
+  if (!state.saved.length){container.innerHTML=`<p class="empty-state">No saved pies yet — roll one or pick a Classic and tap Save 🗂️</p>`;return;}
   state.saved.forEach((entry,idx)=>{
-    const names=LAYER_ORDER.flatMap(l=>(entry.pizza[l]||[]).map(t=>t.name)).join(", ");
+    const names=LAYER_ORDER.flatMap(l=>(entry.pizza[l]||[]).filter(Boolean).map(t=>t.name)).join(", ");
     const flags=entry.cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?c.emoji:"";}).join(" ");
     const date=new Date(entry.savedAt).toLocaleDateString();
-    const card=document.createElement("div"); card.className="saved-card";
+    const card=document.createElement("div");card.className="saved-card";
     card.innerHTML=`
       <div class="saved-card-top">
         <div class="saved-name-wrap"><span class="saved-name">${entry.name}</span><button class="saved-rename">✏️</button></div>
@@ -1000,6 +1074,7 @@ function renderSaved() {
     card.querySelector(".saved-open-builder").addEventListener("click",()=>{
       state.currentPizza=entry.pizza;state.selectedCuisines=[...(entry.cuisines||[])];
       state.selectedSauce=entry.pizza.sauce?.[0]||null;
+      state.pizzaIsClassic=!!entry.pizza._classicName;state.classicModified=false;
       updateCuisineUI();renderPizza(state.currentPizza);showScreen("pizza");
     });
     container.appendChild(card);
@@ -1011,7 +1086,7 @@ $("btn-theme").addEventListener("click",()=>applyTheme(currentTheme==="day"?"nig
 
 // ── TOAST ────────────────────────────────────────────────────
 function showToast(msg) {
-  const t=$("toast"); t.textContent=msg; t.classList.add("visible");
+  const t=$("toast");t.textContent=msg;t.classList.add("visible");
   setTimeout(()=>t.classList.remove("visible"),2200);
 }
 

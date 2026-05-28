@@ -1514,3 +1514,172 @@ body::before {
   border: 1px solid var(--gold);
   color: var(--gold);
 }
+
+/* ══════════════════════════════════════════
+   v2.0.0 — THE CLASSICS
+═══════════════════════════════════════════ */
+
+/* Cuisine + Classics side by side layout */
+.cuisine-and-classics {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  flex: 1;
+}
+
+/* Classics tile — tall, same height as 2-row cuisine grid */
+.classics-tile {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  padding: 14px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  min-width: 90px;
+  max-width: 110px;
+  flex-shrink: 0;
+}
+.classics-tile:hover {
+  border-color: var(--terra);
+  background: var(--terra-light);
+  transform: scale(1.02);
+}
+.classics-tile:active { transform: scale(0.98); }
+
+.classics-tile-emoji { font-size: 1.8rem; }
+.classics-tile-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+.classics-tile:hover .classics-tile-title { color: var(--terra); }
+.classics-tile-sub {
+  font-size: 0.6rem;
+  color: var(--text3);
+  line-height: 1.3;
+}
+
+/* Classics screen */
+.classics-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.classics-cuisine-emoji { font-size: 1.3rem; }
+.classics-cuisine-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Classic pizza card */
+.classic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: border-color 0.12s;
+}
+.classic-card:hover { border-color: var(--border2); }
+
+.classic-card-top {
+  margin-bottom: 6px;
+}
+.classic-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.classic-desc {
+  font-size: 0.78rem;
+  color: var(--text2);
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+.classic-ingredients {
+  font-size: 0.7rem;
+  color: var(--text3);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.classic-actions {
+  display: flex;
+  gap: 8px;
+}
+.classic-actions .btn-ghost { flex: 1; text-align: center; font-size: 0.8rem; }
+.classic-actions .btn-primary { flex: 1; font-size: 0.85rem; }
+
+/* Modified from original banner */
+.modified-banner {
+  background: var(--gold-light);
+  border-bottom: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 8px 20px;
+  text-align: center;
+}
+
+/* Chef note bar */
+.chef-note-bar {
+  background: var(--char-light);
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 0.75rem;
+  font-style: italic;
+  padding: 10px 20px;
+  line-height: 1.5;
+}
+[data-theme="night"] .chef-note-bar {
+  background: var(--surface2);
+}
+
+/* Anchor button — now emoji */
+.anchor-btn {
+  font-size: 0.85rem;
+  opacity: 0.4;
+  transition: opacity 0.12s;
+}
+.anchor-btn:hover { opacity: 1; }
+.anchor-btn.is-anchored { opacity: 1; color: var(--gold); }
+
+/* Remove button (Classics) */
+.remove-btn {
+  color: var(--text4);
+  transition: color 0.12s;
+}
+.remove-btn:hover { color: var(--red); }
+
+/* Mobile: stack cuisine grid 2 columns on very small screens */
+@media (max-width: 380px) {
+  .cuisine-grid { grid-template-columns: repeat(2, 1fr); }
+  .classics-tile { min-width: 70px; }
+}
+
+/* Print: hide classics screen chrome */
+@media print {
+  #screen-classics, .classics-tile { display: none !important; }
+  .modified-banner, .chef-note-bar { display: none !important; }
+}
