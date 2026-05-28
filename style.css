@@ -1524,8 +1524,15 @@ body::before {
 /* Cuisine + Classics side by side layout */
 .cuisine-and-classics {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: stretch;
+}
+
+@media (min-width: 480px) {
+  .cuisine-and-classics {
+    flex-direction: row;
+    align-items: stretch;
+  }
 }
 
 
@@ -1668,10 +1675,20 @@ body::before {
 }
 .remove-btn:hover { color: var(--red); }
 
-/* Mobile: small screens */
-@media (max-width: 360px) {
-  .classics-tile { min-width: 70px; max-width: 80px; }
-  .classics-tile-sub { display: none; }
+/* Mobile: classics tile goes full width below grid */
+@media (max-width: 479px) {
+  .classics-tile {
+    flex-direction: row;
+    justify-content: flex-start;
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .classics-tile-emoji { font-size: 1.3rem; }
+  .classics-tile-title { font-size: 0.9rem; }
+  .classics-tile-sub { display: block; text-align: left; }
 }
 
 /* Print: hide classics screen chrome */
