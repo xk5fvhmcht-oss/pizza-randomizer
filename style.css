@@ -763,6 +763,10 @@ body::before {
   font-size: 1.2rem;
   font-weight: 700;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sub-main { padding: 16px 20px 60px; max-width: 580px; margin: 0 auto; }
@@ -1885,6 +1889,8 @@ body::before {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 8px;
 }
 .sub-nav-home,
 .sub-nav-shopping {
