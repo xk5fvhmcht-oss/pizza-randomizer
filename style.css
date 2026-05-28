@@ -177,11 +177,13 @@ body::before {
 /* ── CUISINE GRID ── */
 .cuisine-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
-@media (min-width: 400px) {
-  .cuisine-grid { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 400px) {
+  .cuisine-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 .cuisine-tile {
@@ -1526,12 +1528,6 @@ body::before {
   align-items: stretch;
 }
 
-.cuisine-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  flex: 1;
-}
 
 /* Classics tile — tall, same height as 2-row cuisine grid */
 .classics-tile {
@@ -1672,10 +1668,10 @@ body::before {
 }
 .remove-btn:hover { color: var(--red); }
 
-/* Mobile: stack cuisine grid 2 columns on very small screens */
-@media (max-width: 380px) {
-  .cuisine-grid { grid-template-columns: repeat(2, 1fr); }
-  .classics-tile { min-width: 70px; }
+/* Mobile: small screens */
+@media (max-width: 360px) {
+  .classics-tile { min-width: 70px; max-width: 80px; }
+  .classics-tile-sub { display: none; }
 }
 
 /* Print: hide classics screen chrome */

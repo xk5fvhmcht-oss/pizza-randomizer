@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.0.0
+// OMAR'S PIE — app.js v2.0.1
 // The Classics + clean engine
 // ============================================================
 
@@ -225,7 +225,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.0.0 — cleaned, no flatbread/meatbase
+// ROLL ENGINE v2.0.1 — cleaned, no flatbread/meatbase
 // ══════════════════════════════════════════════════════════════
 
 function rollPizza() {
@@ -701,6 +701,10 @@ $("btn-copy")?.addEventListener("click",()=>{
 });
 
 $("btn-back-history").addEventListener("click",()=>showScreen("setup"));
+$("btn-back-pizza").addEventListener("click",()=>{
+  if (state.pizzaIsClassic) showScreen("classics");
+  else showScreen("sauce");
+});
 $("btn-back-library").addEventListener("click",()=>{state.libraryFilter=null;showScreen("setup");});
 
 // ── SESSION BADGE ─────────────────────────────────────────────
