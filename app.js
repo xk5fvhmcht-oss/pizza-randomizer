@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v1.5.2
+// OMAR'S PIE — app.js v1.5.3
 // Chef-driven engine: conflict · amplifying pairs · budget
 // ============================================================
 
@@ -228,7 +228,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// CHEF-DRIVEN ROLL ENGINE v1.5.2
+// CHEF-DRIVEN ROLL ENGINE v1.5.3
 // Single clean scope — no duplicate function definitions
 // ══════════════════════════════════════════════════════════════
 
