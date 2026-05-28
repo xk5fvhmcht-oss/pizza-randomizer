@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.2.0
+// OMAR'S PIE — app.js v2.2.1
 // The Classics + clean engine
 // ============================================================
 
@@ -232,7 +232,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.2.0 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.2.1 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -783,7 +783,7 @@ function renderPizza(pizza) {
         <button class="btn-ghost" id="btn-back-pizza-classic">← Classics</button>
         <button class="btn-ghost" id="btn-save-pie">Save 🗂️</button>
         <button class="btn-ghost" id="btn-add-to-list">+ List 🛒</button>`;
-      $("btn-back-pizza-classic")?.addEventListener("click",()=>showScreen("classics"));
+      $("btn-back-pizza-classic")?.addEventListener("click",()=>{ renderClassics(); showScreen("classics"); restoreScroll("classics"); });
     } else {
       bar.innerHTML=`
         <button class="btn-ghost" id="btn-back-pizza-sauce">← Sauce</button>
@@ -874,6 +874,7 @@ $("btn-copy")?.addEventListener("click",()=>{
 $("btn-back-history").addEventListener("click",()=>showScreen("setup"));
 $("btn-back-pizza").addEventListener("click",()=>{
   if (state.pizzaIsClassic) {
+    renderClassics();
     showScreen("classics");
     restoreScroll("classics");
   } else {
@@ -930,7 +931,7 @@ function saveScroll(screen) {
 }
 function restoreScroll(screen) {
   const el = document.querySelector(`#screen-${screen} .sub-main`);
-  if (el) requestAnimationFrame(()=>{ el.scrollTop = scrollMemory[screen]||0; });
+  if (el) requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.scrollTop = scrollMemory[screen]||0; }));
 }
 
 // ── LIBRARY STATE ─────────────────────────────────────────
