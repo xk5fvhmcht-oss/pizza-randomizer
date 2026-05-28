@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.2.1
+// OMAR'S PIE — app.js v2.2.2
 // The Classics + clean engine
 // ============================================================
 
@@ -232,7 +232,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.2.1 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.2.2 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -889,10 +889,15 @@ $("btn-back-library").addEventListener("click",()=>{
 
 // ── SESSION BADGE ─────────────────────────────────────────────
 function updateSessionBadge() {
-  const badge=$("session-badge");if(!badge)return;
-  const count=state.session.length;
-  badge.textContent=count>0?count:"";
-  badge.style.display=count>0?"flex":"none";
+  const count = state.session.length;
+  // Main badge
+  const badge = $("session-badge");
+  if (badge) { badge.textContent=count>0?count:""; badge.style.display=count>0?"flex":"none"; }
+  // Sub-nav badges on all sub-screens
+  document.querySelectorAll(".sub-nav-badge").forEach(b => {
+    b.textContent = count>0?count:"";
+    b.style.display = count>0?"flex":"none";
+  });
 }
 
 // ── HISTORY ───────────────────────────────────────────────────

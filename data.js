@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.2.0";
+const APP_VERSION = "2.2.2";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -243,7 +243,7 @@ const QTY_STANDARDS = {
 const CHEESE_PREFERENCES = {
   neapolitan:   ["fior_di_latte","bufala","burrata","ricotta_dollop","fresh_mozz","gorgonzola","fontina","provolone","parmigiano_primary"],
   levantine:    ["akawi","beyaz_peynir","feta","kasar_peyniri","kashkaval","shanklish","halloumi","goat_cheese"],
-  turkish:      ["kasar_peyniri","beyaz_peynir","kashkaval","akawi","halloumi","feta"],
+  turkish:      ["kasar_peyniri","beyaz_peynir","kashkaval","mihalic","akawi","halloumi","feta","tulum_peynir"],
   greek:        ["feta","halloumi","ricotta_dollop","goat_cheese"],
   northafrican: ["feta","goat_cheese","ricotta_dollop"],
   mexican:      ["cotija"],
@@ -635,6 +635,26 @@ const TOPPINGS = [
     desc:"Turkish brined white cheese — moister and milder than Greek feta, less sharp brine. The ubiquitous Turkish breakfast cheese. Available at Sara's and Altin.",
     note:"Add last 90 seconds or post-bake — behaves like feta but milder",
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:5, min_purchase:1 },
+  },
+  {
+    id:"tulum_peynir", name:"Tulum peyniri",
+    layer:"cheese", cuisine:["turkish"],
+    profile:"C", sauceFamilies:["nosause","herb","dairy","tomato"],
+    stores:["sara","altin"],
+    flavorNotes:["acid","brine","fat","spice"], moisture:"dry", weight:"light", presence:"supporting",
+    desc:"Aged Turkish goat's milk cheese cured in skin or cloth — crumbly, pungent, ranges from mild to intensely sharp. Known as the Turkish Roquefort. Available at Sara's or Altin.",
+    note:"Crumble sparingly — strong flavor. Pairs with figs, walnuts, honey. Post-bake or last 60 seconds.",
+    qty:{ unit:"block (150g)", yield_g:150, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:5, min_purchase:1 },
+  },
+  {
+    id:"mihalic", name:"Mihalıç peyniri",
+    layer:"cheese", cuisine:["turkish"],
+    profile:"E", sauceFamilies:["tomato","spicepaste","nosause"],
+    stores:["altin"],
+    flavorNotes:["brine","fat","umami"], moisture:"low", weight:"medium", presence:"supporting",
+    desc:"Turkish semi-hard elastic cheese — slightly saltier than kaşar, used specifically on pide and baked dishes. Named after Mihaliç (Karacabey) in Bursa. Availability: Altin Grocery — check stock, not always available.",
+    note:"⚠️ Availability varies — check Altin before planning. Swap to kaşar if unavailable.",
+    qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:80, per_pizza_oz:2.8, shared_yield:2, min_purchase:1 },
   },
   {
     id:"akawi", name:"Akawi (white Levantine cheese)",

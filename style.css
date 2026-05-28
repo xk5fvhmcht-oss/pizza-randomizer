@@ -1874,3 +1874,30 @@ body::before {
 .lib-section-body .lib-row {
   margin-bottom: 8px;
 }
+
+/* ══════════════════════════════════════════
+   v2.2.2 — PERSISTENT SUB-NAV
+═══════════════════════════════════════════ */
+
+.sub-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sub-header h2 {
+  flex: 1;
+  margin: 0;
+}
+.sub-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.sub-nav-home,
+.sub-nav-shopping {
+  opacity: 0.7;
+  transition: opacity 0.12s;
+}
+.sub-nav-home:hover,
+.sub-nav-shopping:hover { opacity: 1; }
