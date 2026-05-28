@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.3.0";
+const APP_VERSION = "2.4.1";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -762,18 +762,18 @@ const TOPPINGS = [
     id:"beef_kofta", name:"Spiced beef kofta",
     layer:"protein", cuisine:["turkish","levantine","northafrican","greek"],
     profile:"E", sauceFamilies:["tomato","dairy","spicepaste","herb"],
-    stores:["sara"], prep:PREP.PRE,
+    stores:["sara"], prep:PREP.RAW,
     flavorNotes:["spice","umami","fat"], moisture:"low", weight:"heavy", presence:"anchor",
-    note:"Par-cook before adding — crumble or slice thin",
+    note:"Spread thin directly on dough — cooks with the pizza at any temp. Dome: 60-90s. Steel: 5 min at 550°F. Pre-cook only if using thick pieces or chunks.",
     qty:{ unit:"300g ground beef", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
   },
   {
     id:"lamb_mince", name:"Spiced lamb mince",
     layer:"protein", cuisine:["turkish","greek","northafrican","levantine"],
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb"],
-    stores:["sara"], prep:PREP.PRE,
+    stores:["sara"], prep:PREP.RAW,
     flavorNotes:["spice","umami","fat"], moisture:"low", weight:"heavy", presence:"anchor",
-    note:"Season with cumin, allspice, Aleppo — par-cook, drain fat",
+    note:"Spread thin directly on dough — cooks with the pizza at any temp. Dome: 60-90s. Steel: 5 min at 550°F. Pre-cook only if using thick pieces. Thin layer = lahmajun principle.",
     qty:{ unit:"300g ground lamb", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
   },
   {

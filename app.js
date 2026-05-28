@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.3.0
+// OMAR'S PIE — app.js v2.4.1
 // The Classics + clean engine
 // ============================================================
 
@@ -30,6 +30,7 @@ const state = {
   session:        JSON.parse(localStorage.getItem("op_session")  || "[]"),
   saved:          JSON.parse(localStorage.getItem("op_saved")    || "[]"),
   libraryFilter:  null,
+  swapSequences:  {},   // itemId → { sequence:[], index:0 }
 };
 
 const $ = id => document.getElementById(id);
@@ -118,8 +119,8 @@ function updateCuisineUI() {
   $("proceed-hint").textContent = sel.length===0
     ? "Pick a cuisine to continue"
     : sel.length===1
-      ? `${CUISINES.find(c=>c.id===sel[0]).label} · Choose your sauce →`
-      : `${CUISINES.find(c=>c.id===sel[0]).label} + ${CUISINES.find(c=>c.id===sel[1]).label} fusion`;
+      ? `${CUISINES.find(c=>c.id===sel[0]).label} · Add an influence or choose sauce →`
+      : `${CUISINES.find(c=>c.id===sel[0]).emoji} ${CUISINES.find(c=>c.id===sel[0]).label} + ${CUISINES.find(c=>c.id===sel[1]).emoji} ${CUISINES.find(c=>c.id===sel[1]).label} influence`;
   updateSessionBadge();
 }
 
@@ -220,6 +221,7 @@ $("btn-roll").addEventListener("click", () => {
   try {
     state.pizzaIsClassic = false;
     state.classicModified = false;
+    state.swapSequences = {};  // clear swap state on new roll
     state.currentPizza = rollPizza();
     renderPizza(state.currentPizza);
     state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
@@ -232,7 +234,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.3.0 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.4.1 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -253,16 +255,41 @@ function rollPizza() {
   const isElevated    = state.complexity === "elevated";
   const pizza         = {};
 
+  // ── PRIMARY / SECONDARY CUISINE ─────────────────────────────
+  // First selected = primary (foundation: sauce, cheese, protein)
+  // Second selected = secondary (influence: finish, veg accent)
+  const primaryCuisine   = cuisines[0] || null;
+  const secondaryCuisine = cuisines[1] || null;
+
   // ── SCORING WEIGHTS BY RANGE ──────────────────────────────
   const SW = isTraditional ? {
-    gapFill: 0.6, cuisineOverlap: 0.3, sauceAffinity: 0.6,
+    gapFill: 0.6, sauceAffinity: 0.6,
     presenceBalance: 0.2, redundancy: -0.8, cheesePreference: 1.2,
+    // Primary/secondary layer weights
+    primaryFoundation: 0.8,   // sauce, cheese, protein
+    secondaryFoundation: 0.2,
+    primaryFinish: 0.3,       // finish: secondary leads
+    secondaryFinish: 0.7,
+    primaryVeg: 0.5,          // veg: balanced
+    secondaryVeg: 0.4,
   } : isElevated ? {
-    gapFill: 0.8, cuisineOverlap: 0.5, sauceAffinity: 0.4,
+    gapFill: 0.8, sauceAffinity: 0.4,
     presenceBalance: 0.3, redundancy: -1.0, cheesePreference: 0.8,
+    primaryFoundation: 0.7,
+    secondaryFoundation: 0.3,
+    primaryFinish: 0.3,
+    secondaryFinish: 0.6,
+    primaryVeg: 0.5,
+    secondaryVeg: 0.4,
   } : { // connoisseur
-    gapFill: 1.0, cuisineOverlap: 0.8, sauceAffinity: 0.3,
+    gapFill: 1.0, sauceAffinity: 0.3,
     presenceBalance: 0.5, redundancy: -1.5, cheesePreference: 0.5,
+    primaryFoundation: 0.6,
+    secondaryFoundation: 0.4,
+    primaryFinish: 0.3,
+    secondaryFinish: 0.6,
+    primaryVeg: 0.5,
+    secondaryVeg: 0.5,
   };
 
   // ── BUDGET ────────────────────────────────────────────────
@@ -320,45 +347,69 @@ function rollPizza() {
 
   // ── SCORE A CANDIDATE ────────────────────────────────────
   // Higher = better fit for this build
+  // Primary cuisine owns foundation layers (sauce, cheese, protein)
+  // Secondary cuisine influences finish layer
+  // Veg is balanced between both
   function scoreItem(item, layer) {
     let score = 1.0;
-    const notes = item.flavorNotes||[];
+    const notes      = item.flavorNotes||[];
+    const itemCuisine = item.cuisine||[];
 
     // Gap fill — reward adding dimensions not yet in build
     const missingNotes = notes.filter(n=>(B.notes[n]||0)===0);
     score += missingNotes.length * SW.gapFill;
 
-    // Cuisine overlap — reward items shared by both selected cuisines
-    if (cuisines.length===2) {
-      const inBoth = cuisines.every(c=>(item.cuisine||[]).includes(c));
-      if (inBoth) score += SW.cuisineOverlap;
+    // Primary / secondary cuisine scoring by layer
+    if (primaryCuisine && secondaryCuisine) {
+      const inPrimary   = itemCuisine.includes(primaryCuisine);
+      const inSecondary = itemCuisine.includes(secondaryCuisine);
+
+      if (["sauce","cheese","protein"].includes(layer)) {
+        // Foundation layers — primary cuisine leads
+        if (inPrimary)   score += SW.primaryFoundation;
+        if (inSecondary) score += SW.secondaryFoundation;
+      } else if (layer === "finish") {
+        // Finish — secondary cuisine expresses itself
+        if (inSecondary) score += SW.secondaryFinish;
+        if (inPrimary)   score += SW.primaryFinish;
+      } else if (layer === "veg") {
+        // Veg — balanced
+        if (inPrimary)   score += SW.primaryVeg;
+        if (inSecondary) score += SW.secondaryVeg;
+      } else if (layer === "base") {
+        // Base follows primary
+        if (inPrimary) score += SW.primaryFoundation;
+      }
+    } else if (primaryCuisine) {
+      // Single cuisine — standard affinity
+      if (itemCuisine.includes(primaryCuisine)) score += 0.5;
     }
 
     // Sauce affinity — reward items compatible with sauce family
     if ((item.sauceFamilies||[]).includes(sauceFamPrim)) score += SW.sauceAffinity;
 
     // Presence balance — reward accents when build already has anchor+supporting
-    const hasAnchor   = Object.values(B.anchors).some(v=>v>0);
-    const hasSupport  = B.picked.size > 1;
+    const hasAnchor  = Object.values(B.anchors).some(v=>v>0);
+    const hasSupport = B.picked.size > 1;
     if (item.presence==="accent"&&hasAnchor&&hasSupport) score += SW.presenceBalance;
 
-    // Redundancy penalty — punish doubling notes already at max
+    // Redundancy penalty
     const redundantNotes = notes.filter(n=>(B.notes[n]||0)>=1&&!amplifying(notes));
     score += redundantNotes.length * SW.redundancy;
 
-    // Cheese preference bonus — reward cuisinally appropriate cheese
+    // Cheese preference bonus
     if (layer==="cheese") {
-      const cuisinePref = cuisines.length>0 ? CHEESE_PREFERENCES[cuisines[0]] : [];
+      const cuisinePref = primaryCuisine ? (CHEESE_PREFERENCES[primaryCuisine]||[]) : [];
       const saucePref   = SAUCE_CHEESE_PREFERENCES[sauceFamPrim] || [];
       const cpIdx = cuisinePref.indexOf(item.id);
       const spIdx = saucePref.indexOf(item.id);
-      if (cpIdx === 0) score += SW.cheesePreference * 1.0;  // top pick
+      if (cpIdx === 0) score += SW.cheesePreference * 1.0;
       else if (cpIdx > 0) score += SW.cheesePreference * (1 - cpIdx/10);
       if (spIdx === 0) score += SW.cheesePreference * 0.5;
       else if (spIdx > 0) score += SW.cheesePreference * (0.5 - spIdx/20);
     }
 
-    return Math.max(score, 0.1); // never zero
+    return Math.max(score, 0.1);
   }
 
   // ── SPEND BUDGET ─────────────────────────────────────────
@@ -621,9 +672,19 @@ function renderPizza(pizza) {
     $("pizza-title").textContent = pizza._classicName;
     $("pizza-oven-label").textContent = `${oven.emoji} ${oven.label} · ${oven.time}`;
   } else {
-    const cl=pizza._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
-    $("pizza-title").textContent=cl;
-    $("pizza-oven-label").textContent=`${oven.emoji} ${oven.label} · ${oven.time}`;
+    let titleStr;
+    if (pizza._cuisines.length === 2) {
+      const p = CUISINES.find(x=>x.id===pizza._cuisines[0]);
+      const s = CUISINES.find(x=>x.id===pizza._cuisines[1]);
+      titleStr = p && s
+        ? `${p.emoji} ${p.label} + ${s.emoji} ${s.label} influence`
+        : pizza._cuisines.join(" + ");
+    } else {
+      const c = CUISINES.find(x=>x.id===pizza._cuisines[0]);
+      titleStr = c ? `${c.emoji} ${c.label}` : pizza._cuisines[0] || "Freestyle";
+    }
+    $("pizza-title").textContent = titleStr;
+    $("pizza-oven-label").textContent = `${oven.emoji} ${oven.label} · ${oven.time}`;
   }
 
   // Modified from original banner (Classics only)
@@ -802,6 +863,7 @@ function renderPizza(pizza) {
         try {
           state.currentPizza=rollPizza();
           renderPizza(state.currentPizza);
+          state.swapSequences = {};
           state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
           saveHistory();
         } catch(e) { showToast("Re-top failed — try again"); }
@@ -846,19 +908,92 @@ function renderRecipe(recipe) {
     </div>`;
 }
 
-function swapItem(oldId, layer) {
-  const profileSet=PROFILE_INCLUDES[state.complexity]||["T","E","C"];
-  const cuisines=state.currentPizza._cuisines||[];
-  const cands=TOPPINGS.filter(t=>
-    t.layer===layer&&profileSet.includes(t.profile)&&
-    !state.excludedItems.has(t.id)&&!state.anchoredItems.has(t.id)&&
+// ── SWAP SIMILARITY SCORING ──────────────────────────────────
+function swapSimilarityScore(original, candidate) {
+  let score = 0;
+  const origNotes = original.flavorNotes||[];
+  const candNotes = candidate.flavorNotes||[];
+
+  // Tier 1: overlapping flavor notes
+  const sharedNotes = origNotes.filter(n=>candNotes.includes(n));
+  score += sharedNotes.length * 3;
+
+  // Tier 1: same presence level
+  if (original.presence === candidate.presence) score += 2;
+
+  // Tier 2: same cuisine overlap
+  const origCuisine = original.cuisine||[];
+  const candCuisine = candidate.cuisine||[];
+  const sharedCuisine = origCuisine.filter(c=>candCuisine.includes(c));
+  score += sharedCuisine.length * 1.5;
+
+  // Tier 2: same sauce family compatibility
+  const origSauce = original.sauceFamilies||[];
+  const candSauce = candidate.sauceFamilies||[];
+  const sharedSauce = origSauce.filter(s=>candSauce.includes(s));
+  score += sharedSauce.length * 1;
+
+  // Tier 3: same weight
+  if (original.weight === candidate.weight) score += 0.5;
+
+  // Tier 3: same profile
+  if (original.profile === candidate.profile) score += 0.5;
+
+  return score;
+}
+
+function buildSwapSequence(oldId, layer) {
+  const profileSet = PROFILE_INCLUDES[state.complexity]||["T","E","C"];
+  const cuisines   = state.currentPizza._cuisines||[];
+  const original   = TOPPINGS.find(t=>t.id===oldId);
+  if (!original) return [];
+
+  const currentIds = state.currentPizza[layer].map(t=>t?.id);
+  const cands = TOPPINGS.filter(t=>
+    t.layer===layer &&
+    profileSet.includes(t.profile) &&
+    !state.excludedItems.has(t.id) &&
+    !state.anchoredItems.has(t.id) &&
+    !currentIds.includes(t.id) &&
     (cuisines.length===0||t.cuisine.some(c=>cuisines.includes(c)))
   );
-  const currentIds=state.currentPizza[layer].map(t=>t?.id);
-  const alts=cands.filter(t=>!currentIds.includes(t.id));
-  if (!alts.length){showToast("Nothing left to swap to");return;}
-  const replacement=alts[Math.floor(Math.random()*alts.length)];
-  state.currentPizza[layer]=state.currentPizza[layer].map(t=>t?.id===oldId?replacement:t);
+
+  if (!cands.length) return [];
+
+  // Score all candidates by similarity to original
+  const scored = cands.map(t=>({t, score:swapSimilarityScore(original,t)}));
+
+  // Sort by score descending — similar first
+  scored.sort((a,b)=>b.score-a.score);
+
+  return scored.map(x=>x.t);
+}
+
+function swapItem(oldId, layer) {
+  const seqKey = `${oldId}:${layer}`;
+
+  // Build or retrieve sequence
+  if (!state.swapSequences[seqKey] || state.swapSequences[seqKey].sequence.length === 0) {
+    const seq = buildSwapSequence(oldId, layer);
+    if (!seq.length) { showToast("Nothing left to swap to"); return; }
+    state.swapSequences[seqKey] = { sequence: seq, index: 0 };
+  }
+
+  const swapState = state.swapSequences[seqKey];
+  const total     = swapState.sequence.length;
+  const idx       = swapState.index % total;
+  const replacement = swapState.sequence[idx];
+
+  // Advance index for next tap
+  swapState.index = (idx + 1) % total;
+
+  // Apply replacement
+  state.currentPizza[layer] = state.currentPizza[layer].map(t=>t?.id===oldId?replacement:t);
+
+  // Show counter
+  const position = idx + 1;
+  showToast(`${replacement.name} · ${position}/${total}`);
+
   renderPizza(state.currentPizza);
 }
 
@@ -927,14 +1062,6 @@ function renderHistory() {
 }
 
 // ── LIBRARY ───────────────────────────────────────────────────
-$("btn-library").addEventListener("click",()=>{
-  state.libraryFilter=null;
-  state.libraryCuisineFilters=new Set();
-  renderLibrary();
-  showScreen("library");
-  restoreScroll("library");
-});
-
 // ── SCROLL MEMORY ─────────────────────────────────────────
 const scrollMemory = { classics:0, library:0 };
 function saveScroll(screen) {
@@ -946,9 +1073,27 @@ function restoreScroll(screen) {
   if (el) requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.scrollTop = scrollMemory[screen]||0; }));
 }
 
+$("btn-library").addEventListener("click",()=>{
+  state.libraryFilter=null;
+  state.libraryCuisineFilters=new Set();
+  renderLibrary();
+  showScreen("library");
+  restoreScroll("library");
+});
+
+
 // ── LIBRARY STATE ─────────────────────────────────────────
 if (!state.libraryCuisineFilters) state.libraryCuisineFilters = new Set();
 if (!state.librarySectionState)   state.librarySectionState   = {};
+
+function renderRecipeInner(recipe) {
+  if (!recipe) return "";
+  return `<div class="recipe-makes">Makes: ${recipe.makes||""}</div>
+    <div class="recipe-heading">Ingredients</div>
+    <ul class="recipe-list">${(recipe.ingredients||[]).map(i=>`<li>${i}</li>`).join("")}</ul>
+    <div class="recipe-heading">Method</div>
+    <ol class="recipe-list recipe-method">${(recipe.method||[]).map(m=>`<li>${m}</li>`).join("")}</ol>`;
+}
 
 function renderLibrary() {
   const filters   = state.libraryCuisineFilters || new Set();
@@ -1052,15 +1197,19 @@ function renderLibrary() {
       const body = document.createElement("div");
       body.className = "lib-section-body";
       visible.forEach(item => {
+        try {
         const row = document.createElement("div");
         row.className = "lib-row";
         if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
         if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
         const cf  = (item.cuisine||[]).map(id=>{const c=CUISINES.find(x=>x.id===id);return c?c.emoji:"";}).join(" ");
         const st  = (item.stores||[]).map(s=>`<span class="lib-store" data-store="${s}">${STORES[s]?.short||s}</span>`).join("");
+        // Safely escape content to prevent template literal breaks
+        const safeDesc = (item.desc||item.note||"").replace(/`/g,"'").replace(/\${/g,"&#36;{");
+        const safeName = (item.name||"").replace(/`/g,"'");
         row.innerHTML = `
           <div class="lib-row-top">
-            <span class="lib-name">${item.name}</span>
+            <span class="lib-name">${safeName}</span>
             <span class="lib-cuisines">${cf}</span>
             <span class="lib-profile">${item.profile}</span>
             ${st}
@@ -1068,7 +1217,7 @@ function renderLibrary() {
             ${item.homemade?'<span class="lib-homemade">📋 recipe</span>':""}
             ${item.multiLayer?'<span class="lib-multilayer">multi-layer</span>':""}
           </div>
-          ${item.desc?`<div class="lib-note">${item.desc}</div>`:item.note?`<div class="lib-note">${item.note}</div>`:""}
+          ${safeDesc?`<div class="lib-note">${safeDesc}</div>`:""}
           ${item.homemade&&item.recipe?`<button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button><div class="recipe-section">${renderRecipeInner(item.recipe)}</div>`:""}
           <div class="lib-actions">
             <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">${state.anchoredItems.has(item.id)?"⚓ Anchored":"Anchor"}</button>
@@ -1099,6 +1248,7 @@ function renderLibrary() {
           });
         });
         body.appendChild(row);
+        } catch(e) { console.warn("Library item render error:", item?.id, e); }
       });
       sec.appendChild(body);
     }
