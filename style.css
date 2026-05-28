@@ -1879,20 +1879,12 @@ body::before {
    v2.2.2 — PERSISTENT SUB-NAV
 ═══════════════════════════════════════════ */
 
-.sub-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.sub-header h2 {
-  flex: 1;
-  margin: 0;
-}
+/* sub-header layout already defined above — just add nav styles */
 .sub-header-nav {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-left: auto;
+  flex-shrink: 0;
 }
 .sub-nav-home,
 .sub-nav-shopping {
