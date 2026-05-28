@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.4.2
+// OMAR'S PIE — app.js v2.4.4
 // The Classics + clean engine
 // ============================================================
 
@@ -88,11 +88,14 @@ function updateCuisineUI() {
   const sel = state.selectedCuisines;
   document.querySelectorAll(".cuisine-tile").forEach(tile => {
     const id = tile.dataset.id;
-    const isSelected = sel.includes(id);
-    tile.classList.toggle("selected", isSelected);
-    tile.setAttribute("aria-pressed", isSelected?"true":"false");
+    const isPrimary   = sel[0] === id;
+    const isSecondary = sel[1] === id;
+    const isSelected  = isPrimary || isSecondary;
     // Remove all state classes first
-    tile.classList.remove("affinity-strong","affinity-weak","clash");
+    tile.classList.remove("selected","selected-primary","selected-secondary","affinity-strong","affinity-weak","clash");
+    tile.setAttribute("aria-pressed", isSelected?"true":"false");
+    if (isPrimary)   tile.classList.add("selected-primary");
+    if (isSecondary) tile.classList.add("selected-secondary");
     if (sel.length === 1 && !isSelected) {
       const isStrong = CUISINE_AFFINITIES.some(pair => pair.includes(sel[0]) && pair.includes(id));
       const isWeak   = CUISINE_AFFINITIES_WEAK.some(pair => pair.includes(sel[0]) && pair.includes(id));
@@ -119,8 +122,8 @@ function updateCuisineUI() {
   $("proceed-hint").textContent = sel.length===0
     ? "Pick a cuisine to continue"
     : sel.length===1
-      ? `${CUISINES.find(c=>c.id===sel[0]).label} · Add an influence or choose sauce →`
-      : `${CUISINES.find(c=>c.id===sel[0]).emoji} ${CUISINES.find(c=>c.id===sel[0]).label} + ${CUISINES.find(c=>c.id===sel[1]).emoji} ${CUISINES.find(c=>c.id===sel[1]).label} influence`;
+      ? `${CUISINES.find(c=>c.id===sel[0]).emoji} ${CUISINES.find(c=>c.id===sel[0]).label} is your primary — add an influence or proceed →`
+      : `${CUISINES.find(c=>c.id===sel[0]).emoji} ${CUISINES.find(c=>c.id===sel[0]).label} with ${CUISINES.find(c=>c.id===sel[1]).emoji} ${CUISINES.find(c=>c.id===sel[1]).label} influence`;
   updateSessionBadge();
 }
 
@@ -234,7 +237,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.4.2 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.4.4 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
