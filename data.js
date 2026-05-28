@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "2.2.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -28,19 +28,41 @@ const CUISINES = [
   { id:"indian",       label:"Indian",        emoji:"🫚", desc:"Tikka masala · paneer · chaat masala · chutney" },
 ];
 
+// Strong affinity — green glow
 const CUISINE_AFFINITIES = [
-  ["neapolitan","greek"],["neapolitan","levantine"],
-  ["levantine","turkish"],["levantine","greek"],
-  ["levantine","northafrican"],["turkish","greek"],
-  ["northafrican","levantine"],["northafrican","turkish"],
-  ["neapolitan","northafrican"],["neapolitan","turkish"],
+  ["neapolitan","levantine"],
+  ["neapolitan","greek"],
+  ["levantine","turkish"],
+  ["levantine","greek"],
+  ["levantine","northafrican"],
+  ["turkish","greek"],
+  ["mexican","american"],
 ];
 
+// Weak affinity — amber glow
+const CUISINE_AFFINITIES_WEAK = [
+  ["neapolitan","turkish"],
+  ["neapolitan","northafrican"],
+  ["turkish","northafrican"],
+  ["greek","northafrican"],
+  ["northafrican","mexican"],
+  ["northafrican","indian"],
+  ["levantine","indian"],
+  ["turkish","indian"],
+];
+
+// Clashes — dimmed tiles + friendly warning
 const CUISINE_CLASHES = [
-  ["neapolitan","mexican"],["neapolitan","indian"],["neapolitan","american"],
-  ["mexican","indian"],["mexican","northafrican"],
-  ["american","indian"],["american","levantine"],["american","northafrican"],
-  ["indian","turkish"],["indian","greek"],
+  ["neapolitan","mexican"],
+  ["neapolitan","indian"],
+  ["levantine","mexican"],
+  ["levantine","american"],
+  ["turkish","mexican"],
+  ["greek","mexican"],
+  ["greek","indian"],
+  ["greek","american"],
+  ["northafrican","american"],
+  ["american","indian"],
 ];
 
 const CUISINE_LOCKED_SAUCES = new Set([
@@ -220,8 +242,8 @@ const QTY_STANDARDS = {
 // Engine uses these to weight cheese selection
 const CHEESE_PREFERENCES = {
   neapolitan:   ["fior_di_latte","bufala","burrata","ricotta_dollop","fresh_mozz","gorgonzola","fontina","provolone","parmigiano_primary"],
-  levantine:    ["akawi","feta","kashkaval","shanklish","halloumi","goat_cheese","ricotta_dollop"],
-  turkish:      ["kashkaval","akawi","halloumi","feta"],
+  levantine:    ["akawi","beyaz_peynir","feta","kasar_peyniri","kashkaval","shanklish","halloumi","goat_cheese"],
+  turkish:      ["kasar_peyniri","beyaz_peynir","kashkaval","akawi","halloumi","feta"],
   greek:        ["feta","halloumi","ricotta_dollop","goat_cheese"],
   northafrican: ["feta","goat_cheese","ricotta_dollop"],
   mexican:      ["cotija"],
@@ -595,6 +617,26 @@ const TOPPINGS = [
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:90, per_pizza_oz:3.2, shared_yield:2, min_purchase:1 },
   },
   {
+    id:"kasar_peyniri", name:"Kaşar peyniri (taze)",
+    layer:"cheese", cuisine:["turkish","levantine"],
+    profile:"E", sauceFamilies:["tomato","spicepaste","dairy","nosause"],
+    stores:["sara","altin"],
+    flavorNotes:["cream","fat","umami"], moisture:"low", weight:"medium", presence:"anchor",
+    desc:"Fresh Turkish stretched-curd cheese — mild, buttery, exceptional melt. The authentic pide cheese. Distinctly different from kashkaval — milder, creamier, less sharp.",
+    note:"Grate or slice thin — melts beautifully. First reach for any Turkish build.",
+    qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:90, per_pizza_oz:3.2, shared_yield:2, min_purchase:1 },
+  },
+  {
+    id:"beyaz_peynir", name:"Beyaz peynir (Turkish white cheese)",
+    layer:"cheese", cuisine:["turkish","levantine"],
+    profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
+    stores:["sara","altin"],
+    flavorNotes:["brine","acid","fat"], moisture:"low", weight:"light", presence:"supporting",
+    desc:"Turkish brined white cheese — moister and milder than Greek feta, less sharp brine. The ubiquitous Turkish breakfast cheese. Available at Sara's and Altin.",
+    note:"Add last 90 seconds or post-bake — behaves like feta but milder",
+    qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:5, min_purchase:1 },
+  },
+  {
     id:"akawi", name:"Akawi (white Levantine cheese)",
     layer:"cheese", cuisine:["levantine","turkish"],
     profile:"E", sauceFamilies:["nosause","herb","tomato"],
@@ -606,7 +648,7 @@ const TOPPINGS = [
   },
   {
     id:"shanklish", name:"Shanklish (crumbled)",
-    layer:"cheese", cuisine:["levantine","turkish"],
+    layer:"cheese", cuisine:["levantine"],
     profile:"C", sauceFamilies:["tomato","herb","nosause"],
     stores:["sara"],
     flavorNotes:["brine","spice","umami","acid"], moisture:"dry", weight:"light", presence:"supporting",
@@ -1952,7 +1994,7 @@ const CLASSICS = [
     pizza:{
       base:    [],
       sauce:   [T("biber_salcasi")],
-      cheese:  [T("kashkaval")],
+      cheese:  [T("kasar_peyniri")],
       protein: [T("lamb_mince"), T("egg")],
       veg:     [],
       finish:  [T("dried_mint"), T("aleppo_pepper")],
@@ -1984,7 +2026,7 @@ const CLASSICS = [
     pizza:{
       base:    [T("evoo_base")],
       sauce:   [T("labneh_sauce")],
-      cheese:  [T("halloumi")],
+      cheese:  [T("beyaz_peynir"), T("halloumi")],
       protein: [],
       veg:     [],
       finish:  [T("zaatar_finish"), T("sesame_seeds"), T("fresh_mint")],
@@ -2000,7 +2042,7 @@ const CLASSICS = [
     pizza:{
       base:    [],
       sauce:   [T("san_marzano")],
-      cheese:  [T("kashkaval")],
+      cheese:  [T("kasar_peyniri")],
       protein: [T("basturma"), T("egg")],
       veg:     [],
       finish:  [T("flat_parsley"), T("aleppo_pepper")],

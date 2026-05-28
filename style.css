@@ -1696,3 +1696,181 @@ body::before {
   #screen-classics, .classics-tile { display: none !important; }
   .modified-banner, .chef-note-bar { display: none !important; }
 }
+
+/* ══════════════════════════════════════════
+   v2.2.0 — CUISINE TILES · LIBRARY · CLASSICS
+═══════════════════════════════════════════ */
+
+/* ── CUISINE TILE AFFINITY STATES ────────────────────────── */
+.cuisine-tile.affinity-strong {
+  border-color: var(--green);
+  background: var(--green-light);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 30%, transparent);
+}
+.cuisine-tile.affinity-strong .tile-name { color: var(--green); }
+
+.cuisine-tile.affinity-weak {
+  border-color: var(--gold);
+  background: var(--gold-light);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 20%, transparent);
+}
+.cuisine-tile.affinity-weak .tile-name { color: var(--gold); }
+
+.cuisine-tile.clash {
+  opacity: 0.55;
+  filter: saturate(0.4);
+  border-color: var(--border);
+}
+.cuisine-tile.clash:hover {
+  opacity: 0.75;
+  filter: saturate(0.6);
+}
+
+/* ── LIBRARY FILTER ROW ──────────────────────────────────── */
+.library-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cuisine-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  background: var(--surface);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+  flex-shrink: 0;
+}
+.cuisine-chip:hover { border-color: var(--terra); transform: scale(1.08); }
+.cuisine-chip.active {
+  border-color: var(--terra);
+  background: var(--terra-light);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--terra) 25%, transparent);
+}
+
+/* ── LIBRARY FILTER BANNER ───────────────────────────────── */
+.library-filter-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--terra-light);
+  border-bottom: 1px solid var(--terra);
+  font-size: 0.75rem;
+  color: var(--terra);
+  font-family: var(--font-mono);
+  flex-wrap: wrap;
+}
+.chip-clear-all {
+  background: none;
+  border: 1px solid var(--terra);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  color: var(--terra);
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.chip-clear-all:hover { background: var(--terra); color: white; }
+
+/* ── LIBRARY COLLAPSIBLE SECTIONS ────────────────────────── */
+.lib-collapsible-section {
+  border-bottom: 1px solid var(--border);
+}
+
+.lib-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.lib-section-header:hover { background: var(--char-light); }
+[data-theme="night"] .lib-section-header:hover { background: var(--surface); }
+
+.lib-section-toggle {
+  font-size: 0.65rem;
+  color: var(--text3);
+  width: 12px;
+  flex-shrink: 0;
+}
+.lib-section-emoji { font-size: 1rem; }
+.lib-section-label {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.lib-section-count {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text3);
+  background: var(--char-light);
+  border-radius: 10px;
+  padding: 2px 7px;
+}
+[data-theme="night"] .lib-section-count { background: var(--surface); }
+
+.lib-section-body {
+  padding: 4px 0 8px;
+}
+
+/* ── CLASSICS COLLAPSIBLE SECTIONS ───────────────────────── */
+.classics-collapsible-section {
+  border-bottom: 1px solid var(--border);
+}
+
+.classics-section-header.clickable {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface2);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.classics-section-header.clickable:hover { background: var(--char-light); }
+[data-theme="night"] .classics-section-header.clickable:hover { background: var(--surface); }
+
+.classics-section-toggle {
+  font-size: 0.65rem;
+  color: var(--text3);
+  width: 12px;
+  flex-shrink: 0;
+}
+.classics-section-count {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text3);
+  background: var(--char-light);
+  border-radius: 10px;
+  padding: 2px 7px;
+  margin-left: auto;
+}
+[data-theme="night"] .classics-section-count { background: var(--surface); }
+
+.classics-section-body {
+  padding: 8px 12px;
+}
+
+/* ── LIB ROW padding when inside body ───────────────────── */
+.lib-section-body .lib-row {
+  margin-bottom: 8px;
+}

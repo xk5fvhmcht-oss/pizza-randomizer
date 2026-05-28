@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.1.0
+// OMAR'S PIE — app.js v2.2.0
 // The Classics + clean engine
 // ============================================================
 
@@ -90,11 +90,16 @@ function updateCuisineUI() {
     const isSelected = sel.includes(id);
     tile.classList.toggle("selected", isSelected);
     tile.setAttribute("aria-pressed", isSelected?"true":"false");
-    if (sel.length===1 && !isSelected) {
-      const isAffinity = CUISINE_AFFINITIES.some(pair => pair.includes(sel[0]) && pair.includes(id));
-      tile.classList.toggle("affinity", isAffinity);
-    } else {
-      tile.classList.remove("affinity");
+    // Remove all state classes first
+    tile.classList.remove("affinity-strong","affinity-weak","clash");
+    if (sel.length === 1 && !isSelected) {
+      const isStrong = CUISINE_AFFINITIES.some(pair => pair.includes(sel[0]) && pair.includes(id));
+      const isWeak   = CUISINE_AFFINITIES_WEAK.some(pair => pair.includes(sel[0]) && pair.includes(id));
+      const isClash  = CUISINE_CLASHES.some(pair => pair.includes(sel[0]) && pair.includes(id));
+      if (isStrong)     tile.classList.add("affinity-strong");
+      else if (isWeak)  tile.classList.add("affinity-weak");
+      else if (isClash) tile.classList.add("clash");
+      // neutral — no class
     }
   });
   let clashText = "";
@@ -103,7 +108,7 @@ function updateCuisineUI() {
     if (isClash) {
       const a = CUISINES.find(c=>c.id===sel[0]);
       const b = CUISINES.find(c=>c.id===sel[1]);
-      clashText = `${a.label} + ${b.label} don't share a flavor language — tomato sauce is the safest anchor if you continue.`;
+      clashText = `${a.label} + ${b.label} pull in different directions — tomato sauce is the safest common ground, or explore The Classics for each cuisine separately.`;
     }
   }
   const warn = $("clash-warning");
@@ -119,7 +124,9 @@ function updateCuisineUI() {
 }
 
 $("btn-surprise").addEventListener("click", () => {
-  const pick = CUISINE_AFFINITIES[Math.floor(Math.random()*CUISINE_AFFINITIES.length)];
+  // Only pick from strong affinities for surprise
+  const allAffinities = [...CUISINE_AFFINITIES, ...CUISINE_AFFINITIES_WEAK];
+  const pick = allAffinities[Math.floor(Math.random()*allAffinities.length)];
   state.selectedCuisines = [...pick];
   updateCuisineUI();
 });
@@ -225,7 +232,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.1.0 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.2.0 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -866,10 +873,18 @@ $("btn-copy")?.addEventListener("click",()=>{
 
 $("btn-back-history").addEventListener("click",()=>showScreen("setup"));
 $("btn-back-pizza").addEventListener("click",()=>{
-  if (state.pizzaIsClassic) showScreen("classics");
-  else showScreen("sauce");
+  if (state.pizzaIsClassic) {
+    showScreen("classics");
+    restoreScroll("classics");
+  } else {
+    showScreen("sauce");
+  }
 });
-$("btn-back-library").addEventListener("click",()=>{state.libraryFilter=null;showScreen("setup");});
+$("btn-back-library").addEventListener("click",()=>{
+  saveScroll("library");
+  state.libraryFilter=null;
+  showScreen("setup");
+});
 
 // ── SESSION BADGE ─────────────────────────────────────────────
 function updateSessionBadge() {
@@ -899,134 +914,295 @@ function renderHistory() {
 }
 
 // ── LIBRARY ───────────────────────────────────────────────────
-$("btn-library").addEventListener("click",()=>{state.libraryFilter=null;renderLibrary();showScreen("library");});
+$("btn-library").addEventListener("click",()=>{
+  state.libraryFilter=null;
+  state.libraryCuisineFilters=new Set();
+  renderLibrary();
+  showScreen("library");
+  restoreScroll("library");
+});
+
+// ── SCROLL MEMORY ─────────────────────────────────────────
+const scrollMemory = { classics:0, library:0 };
+function saveScroll(screen) {
+  const el = document.querySelector(`#screen-${screen} .sub-main`);
+  if (el) scrollMemory[screen] = el.scrollTop;
+}
+function restoreScroll(screen) {
+  const el = document.querySelector(`#screen-${screen} .sub-main`);
+  if (el) requestAnimationFrame(()=>{ el.scrollTop = scrollMemory[screen]||0; });
+}
+
+// ── LIBRARY STATE ─────────────────────────────────────────
+if (!state.libraryCuisineFilters) state.libraryCuisineFilters = new Set();
+if (!state.librarySectionState)   state.librarySectionState   = {};
+
 function renderLibrary() {
-  const ac=state.anchoredItems.size,ec=state.excludedItems.size;
-  const summary=$("library-summary");
-  summary.innerHTML=`
+  const filters   = state.libraryCuisineFilters || new Set();
+  const anyFilter = filters.size > 0;
+
+  // ── CUISINE FILTER CHIPS ─────────────────────────────────
+  const filterRow = $("library-filter-row");
+  filterRow.innerHTML = "";
+  CUISINES.forEach(c => {
+    const chip = document.createElement("button");
+    chip.className = "cuisine-chip" + (filters.has(c.id) ? " active" : "");
+    chip.dataset.id = c.id;
+    chip.setAttribute("aria-label", c.label);
+    chip.textContent = c.emoji;
+    chip.addEventListener("click", () => {
+      if (filters.has(c.id)) filters.delete(c.id);
+      else filters.add(c.id);
+      renderLibrary();
+    });
+    filterRow.appendChild(chip);
+  });
+
+  // ── ACTIVE FILTER BANNER ─────────────────────────────────
+  const banner = $("library-filter-banner");
+  if (anyFilter) {
+    const names = [...filters].map(id => {
+      const c = CUISINES.find(x=>x.id===id);
+      return c ? `${c.emoji} ${c.label}` : id;
+    }).join(" · ");
+    banner.innerHTML = `Showing: ${names} <button class="chip-clear-all" id="lib-clear-all">Clear all ×</button>`;
+    banner.style.display = "flex";
+    $("lib-clear-all").addEventListener("click", () => {
+      state.libraryCuisineFilters = new Set();
+      renderLibrary();
+    });
+  } else {
+    banner.style.display = "none";
+    banner.innerHTML = "";
+  }
+
+  // ── ANCHORED / EXCLUDED FILTER BUTTONS ───────────────────
+  const ac = state.anchoredItems.size, ec = state.excludedItems.size;
+  const summary = $("library-summary");
+  summary.innerHTML = `
     <button class="lib-summary-btn ${state.libraryFilter==="anchored"?"active":""}" data-filter="anchored">📌 ${ac} Anchored</button>
     <button class="lib-summary-btn ${state.libraryFilter==="excluded"?"active":""}" data-filter="excluded">🚫 ${ec} Excluded</button>
-    ${state.libraryFilter?'<button class="lib-summary-btn lib-clear-filter">← All toppings</button>':""}`;
-  summary.querySelectorAll(".lib-summary-btn[data-filter]").forEach(btn=>{
-    btn.addEventListener("click",()=>{state.libraryFilter=state.libraryFilter===btn.dataset.filter?null:btn.dataset.filter;renderLibrary();});
-  });
-  const cb=summary.querySelector(".lib-clear-filter");
-  if (cb) cb.addEventListener("click",()=>{state.libraryFilter=null;renderLibrary();});
-
-  const container=$("library-list");container.innerHTML="";
-  let items=TOPPINGS;
-  if (state.libraryFilter==="anchored") items=TOPPINGS.filter(t=>state.anchoredItems.has(t.id));
-  if (state.libraryFilter==="excluded")  items=TOPPINGS.filter(t=>state.excludedItems.has(t.id));
-  if (!items.length){container.innerHTML=`<p class="empty-state">${state.libraryFilter==="anchored"?"No anchored items.":"No excluded items."}</p>`;return;}
-
-  LAYER_ORDER.forEach(layer=>{
-    const li=items.filter(t=>t.layer===layer);if (!li.length) return;
-    const meta=LAYER_META[layer];
-    const sec=document.createElement("div");sec.className="lib-section";
-    sec.innerHTML=`<h3 class="lib-layer-title">${meta.emoji} ${meta.label}</h3>`;
-    li.forEach(item=>{
-      const row=document.createElement("div");row.className="lib-row";
-      if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
-      if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
-      const cf=(item.cuisine||[]).map(id=>{const c=CUISINES.find(x=>x.id===id);return c?c.emoji:"";}).join(" ");
-      const st=(item.stores||[]).map(s=>`<span class="lib-store" data-store="${s}">${STORES[s]?.short||s}</span>`).join("");
-      row.innerHTML=`
-        <div class="lib-row-top">
-          <span class="lib-name">${item.name}</span>
-          <span class="lib-cuisines">${cf}</span>
-          <span class="lib-profile">${item.profile}</span>
-          ${st}
-          ${item.jarred?'<span class="lib-jar">jarred</span>':""}
-          ${item.homemade?'<span class="lib-homemade">📋 recipe</span>':""}
-          ${item.multiLayer?'<span class="lib-multilayer">multi-layer</span>':""}
-        </div>
-        ${item.desc?`<div class="lib-note">${item.desc}</div>`:item.note?`<div class="lib-note">${item.note}</div>`:""}
-        ${item.homemade&&item.recipe?`<button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button><div class="recipe-section">${renderRecipeInner(item.recipe)}</div>`:""}
-        <div class="lib-actions">
-          <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">${state.anchoredItems.has(item.id)?"⚓ Anchored":"Anchor"}</button>
-          <button class="lib-btn${state.excludedItems.has(item.id)?" active ban":""}" data-action="exclude" data-id="${item.id}">${state.excludedItems.has(item.id)?"🚫 Excluded":"Exclude"}</button>
-        </div>`;
-      const lt=row.querySelector(".lib-recipe-toggle");
-      if (lt){const rs=row.querySelector(".recipe-section");lt.addEventListener("click",()=>{const o=rs.classList.toggle("open");lt.textContent=o?"Hide recipe ▲":"Show recipe ▼";});}
-      row.querySelectorAll(".lib-btn").forEach(btn=>{
-        btn.addEventListener("click",()=>{
-          const {action,id}=btn.dataset;
-          if (action==="anchor"){if(state.anchoredItems.has(id))state.anchoredItems.delete(id);else{state.anchoredItems.add(id);state.excludedItems.delete(id);}saveAnchored();saveExcluded();}
-          else{if(state.excludedItems.has(id))state.excludedItems.delete(id);else{state.excludedItems.add(id);state.anchoredItems.delete(id);}saveExcluded();saveAnchored();}
-          renderLibrary();
-        });
-      });
-      sec.appendChild(row);
+    ${state.libraryFilter ? '<button class="lib-summary-btn lib-clear-filter">← All toppings</button>' : ""}`;
+  summary.querySelectorAll(".lib-summary-btn[data-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.libraryFilter = state.libraryFilter === btn.dataset.filter ? null : btn.dataset.filter;
+      renderLibrary();
     });
+  });
+  const cb = summary.querySelector(".lib-clear-filter");
+  if (cb) cb.addEventListener("click", () => { state.libraryFilter = null; renderLibrary(); });
+
+  // ── BUILD ITEM LIST ───────────────────────────────────────
+  // Determine visible items based on filters
+  function isVisible(item) {
+    // Anchored/excluded filter overrides cuisine filter
+    if (state.libraryFilter === "anchored") return state.anchoredItems.has(item.id);
+    if (state.libraryFilter === "excluded")  return state.excludedItems.has(item.id);
+    // Cuisine filter — OR logic
+    if (anyFilter) {
+      // Always show anchored items regardless of cuisine filter
+      if (state.anchoredItems.has(item.id)) return true;
+      return [...filters].some(f => (item.cuisine||[]).includes(f));
+    }
+    return true;
+  }
+
+  // ── RENDER COLLAPSIBLE SECTIONS ───────────────────────────
+  const container = $("library-list");
+  container.innerHTML = "";
+
+  LAYER_ORDER.forEach(layer => {
+    const allItems  = TOPPINGS.filter(t => t.layer === layer);
+    const visible   = allItems.filter(isVisible);
+    if (!visible.length) return; // hide empty sections
+
+    const meta      = LAYER_META[layer];
+    const isOpen    = state.librarySectionState[layer] ?? false;
+    const sec       = document.createElement("div");
+    sec.className   = "lib-collapsible-section";
+
+    const hdr = document.createElement("button");
+    hdr.className = "lib-section-header";
+    hdr.innerHTML = `
+      <span class="lib-section-toggle">${isOpen ? "▼" : "▶"}</span>
+      <span class="lib-section-emoji">${meta.emoji}</span>
+      <span class="lib-section-label">${meta.label}</span>
+      <span class="lib-section-count">${visible.length}</span>`;
+    hdr.addEventListener("click", () => {
+      state.librarySectionState[layer] = !state.librarySectionState[layer];
+      renderLibrary();
+      restoreScroll("library");
+    });
+    sec.appendChild(hdr);
+
+    if (isOpen) {
+      const body = document.createElement("div");
+      body.className = "lib-section-body";
+      visible.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "lib-row";
+        if (state.excludedItems.has(item.id))  row.classList.add("is-excluded");
+        if (state.anchoredItems.has(item.id)) row.classList.add("is-anchored");
+        const cf  = (item.cuisine||[]).map(id=>{const c=CUISINES.find(x=>x.id===id);return c?c.emoji:"";}).join(" ");
+        const st  = (item.stores||[]).map(s=>`<span class="lib-store" data-store="${s}">${STORES[s]?.short||s}</span>`).join("");
+        row.innerHTML = `
+          <div class="lib-row-top">
+            <span class="lib-name">${item.name}</span>
+            <span class="lib-cuisines">${cf}</span>
+            <span class="lib-profile">${item.profile}</span>
+            ${st}
+            ${item.jarred?'<span class="lib-jar">jarred</span>':""}
+            ${item.homemade?'<span class="lib-homemade">📋 recipe</span>':""}
+            ${item.multiLayer?'<span class="lib-multilayer">multi-layer</span>':""}
+          </div>
+          ${item.desc?`<div class="lib-note">${item.desc}</div>`:item.note?`<div class="lib-note">${item.note}</div>`:""}
+          ${item.homemade&&item.recipe?`<button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button><div class="recipe-section">${renderRecipeInner(item.recipe)}</div>`:""}
+          <div class="lib-actions">
+            <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">${state.anchoredItems.has(item.id)?"⚓ Anchored":"Anchor"}</button>
+            <button class="lib-btn${state.excludedItems.has(item.id)?" active ban":""}" data-action="exclude" data-id="${item.id}">${state.excludedItems.has(item.id)?"🚫 Excluded":"Exclude"}</button>
+          </div>`;
+
+        const lt = row.querySelector(".lib-recipe-toggle");
+        if (lt) {
+          const rs = row.querySelector(".recipe-section");
+          lt.addEventListener("click", () => {
+            const o = rs.classList.toggle("open");
+            lt.textContent = o ? "Hide recipe ▲" : "Show recipe ▼";
+          });
+        }
+        row.querySelectorAll(".lib-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const {action, id} = btn.dataset;
+            if (action === "anchor") {
+              if (state.anchoredItems.has(id)) state.anchoredItems.delete(id);
+              else { state.anchoredItems.add(id); state.excludedItems.delete(id); }
+              saveAnchored(); saveExcluded();
+            } else {
+              if (state.excludedItems.has(id)) state.excludedItems.delete(id);
+              else { state.excludedItems.add(id); state.anchoredItems.delete(id); }
+              saveExcluded(); saveAnchored();
+            }
+            renderLibrary();
+          });
+        });
+        body.appendChild(row);
+      });
+      sec.appendChild(body);
+    }
     container.appendChild(sec);
   });
 }
 
-function renderRecipeInner(recipe) {
-  return `<div class="recipe-makes">Makes: ${recipe.makes}</div>
-    <div class="recipe-heading">Ingredients</div>
-    <ul class="recipe-list">${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul>
-    <div class="recipe-heading">Method</div>
-    <ol class="recipe-list recipe-method">${recipe.method.map(m=>`<li>${m}</li>`).join("")}</ol>`;
-}
 
 // ── THE CLASSICS ──────────────────────────────────────────────
-$("btn-classics").addEventListener("click",()=>{renderClassics();showScreen("classics");});
-$("btn-back-classics").addEventListener("click",()=>showScreen("setup"));
+document.addEventListener("DOMContentLoaded", () => {
+  const bca = document.getElementById("btn-classics");
+  if (bca) bca.addEventListener("click",()=>{
+    if (!state.classicsSectionState) state.classicsSectionState={};
+    renderClassics();
+    showScreen("classics");
+    restoreScroll("classics");
+  });
+  const bbc = document.getElementById("btn-back-classics");
+  if (bbc) bbc.addEventListener("click",()=>{
+    saveScroll("classics");
+    showScreen("setup");
+  });
+});
+
+// Also wire immediately (DOMContentLoaded may already have fired)
+setTimeout(()=>{
+  const bca = document.getElementById("btn-classics");
+  if (bca && !bca._wired) {
+    bca._wired = true;
+    bca.addEventListener("click",()=>{
+      if (!state.classicsSectionState) state.classicsSectionState={};
+      renderClassics();
+      showScreen("classics");
+      restoreScroll("classics");
+    });
+  }
+  const bbc = document.getElementById("btn-back-classics");
+  if (bbc && !bbc._wired) {
+    bbc._wired = true;
+    bbc.addEventListener("click",()=>{
+      saveScroll("classics");
+      showScreen("setup");
+    });
+  }
+},0);
 
 function renderClassics() {
-  const container=$("classics-list");
-  container.innerHTML="";
+  if (!state.classicsSectionState) state.classicsSectionState = {};
+  const container = $("classics-list");
+  container.innerHTML = "";
+  const cuisineOrder = ["neapolitan","levantine","turkish","greek","northafrican","mexican","american","indian"];
 
-  // Group by cuisine
-  const cuisineOrder=["neapolitan","levantine","turkish","greek","northafrican","mexican","american","indian"];
-
-  cuisineOrder.forEach(cuisineId=>{
-    const cuisine=CUISINES.find(c=>c.id===cuisineId);
+  cuisineOrder.forEach(cuisineId => {
+    const cuisine = CUISINES.find(c=>c.id===cuisineId);
     if (!cuisine) return;
-    const pizzas=CLASSICS.filter(c=>c.cuisine===cuisineId);
+    const pizzas = CLASSICS.filter(c=>c.cuisine===cuisineId);
     if (!pizzas.length) return;
 
-    // Section header
-    const header=document.createElement("div");
-    header.className="classics-section-header";
-    header.innerHTML=`<span class="classics-cuisine-emoji">${cuisine.emoji}</span><span class="classics-cuisine-name">${cuisine.label}</span>`;
-    container.appendChild(header);
+    const isOpen = state.classicsSectionState[cuisineId] ?? false;
+    const sec    = document.createElement("div");
+    sec.className = "classics-collapsible-section";
 
-    // Pizza cards
-    pizzas.forEach(classic=>{
-      const allToppings=LAYER_ORDER.flatMap(l=>(classic.pizza[l]||[]).filter(Boolean).map(t=>t.name)).join(", ");
-      const card=document.createElement("div");
-      card.className="classic-card";
-      card.innerHTML=`
-        <div class="classic-card-top">
-          <span class="classic-name">${classic.name}</span>
-        </div>
-        <p class="classic-desc">${classic.description}</p>
-        <p class="classic-ingredients">${allToppings}</p>
-        <div class="classic-actions">
-          <button class="btn-ghost classic-add-list">+ List 🛒</button>
-          <button class="btn-primary classic-open">Open in builder →</button>
-        </div>`;
-
-      card.querySelector(".classic-add-list").addEventListener("click",()=>{
-        if (state.session.length>=6){showToast("Session full — max 6 pizzas");return;}
-        const pizza=buildClassicPizza(classic);
-        state.session.push({id:"sess_"+uid(),pizzaName:classic.name,pizza,count:1,checked:{}});
-        saveSession();updateSessionBadge();
-        showToast(`${classic.name} added to list 🛒`);
-      });
-
-      card.querySelector(".classic-open").addEventListener("click",()=>{
-        state.currentPizza=buildClassicPizza(classic);
-        state.pizzaIsClassic=true;
-        state.classicModified=false;
-        renderPizza(state.currentPizza);
-        showScreen("pizza");
-      });
-
-      container.appendChild(card);
+    const hdr = document.createElement("button");
+    hdr.className = "classics-section-header clickable";
+    hdr.innerHTML = `
+      <span class="classics-section-toggle">${isOpen?"▼":"▶"}</span>
+      <span class="classics-cuisine-emoji">${cuisine.emoji}</span>
+      <span class="classics-cuisine-name">${cuisine.label}</span>
+      <span class="classics-section-count">${pizzas.length}</span>`;
+    hdr.addEventListener("click", () => {
+      saveScroll("classics");
+      state.classicsSectionState[cuisineId] = !state.classicsSectionState[cuisineId];
+      renderClassics();
+      restoreScroll("classics");
     });
+    sec.appendChild(hdr);
+
+    if (isOpen) {
+      const body = document.createElement("div");
+      body.className = "classics-section-body";
+      pizzas.forEach(classic => {
+        const allToppings = LAYER_ORDER.flatMap(l=>(classic.pizza[l]||[]).filter(Boolean).map(t=>t.name)).join(", ");
+        const card = document.createElement("div");
+        card.className = "classic-card";
+        card.innerHTML = `
+          <div class="classic-card-top">
+            <span class="classic-name">${classic.name}</span>
+          </div>
+          <p class="classic-desc">${classic.description}</p>
+          <p class="classic-ingredients">${allToppings}</p>
+          <div class="classic-actions">
+            <button class="btn-ghost classic-add-list">+ List 🛒</button>
+            <button class="btn-primary classic-open">Open in builder →</button>
+          </div>`;
+
+        card.querySelector(".classic-add-list").addEventListener("click",()=>{
+          if (state.session.length>=6){showToast("Session full — max 6 pizzas");return;}
+          const pizza = buildClassicPizza(classic);
+          state.session.push({id:"sess_"+uid(),pizzaName:classic.name,pizza,count:1,checked:{}});
+          saveSession(); updateSessionBadge();
+          showToast(`${classic.name} added to list 🛒`);
+        });
+
+        card.querySelector(".classic-open").addEventListener("click",()=>{
+          saveScroll("classics");
+          state.currentPizza = buildClassicPizza(classic);
+          state.pizzaIsClassic = true;
+          state.classicModified = false;
+          renderPizza(state.currentPizza);
+          showScreen("pizza");
+        });
+
+        body.appendChild(card);
+      });
+      sec.appendChild(body);
+    }
+    container.appendChild(sec);
   });
 }
 
@@ -1041,6 +1217,7 @@ function buildClassicPizza(classic) {
   LAYER_ORDER.forEach(l=>{pizza[l]=(classic.pizza[l]||[]).filter(Boolean);});
   return pizza;
 }
+
 
 // ── SHOPPING LIST ─────────────────────────────────────────────
 $("btn-shopping").addEventListener("click",()=>{renderShoppingList();showScreen("shopping");});
