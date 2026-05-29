@@ -1910,8 +1910,9 @@ body::before {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  margin-left: auto;
   padding-left: 8px;
+  min-width: 80px;
+  justify-content: flex-end;
 }
 .sub-nav-home,
 .sub-nav-shopping {
