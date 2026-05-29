@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.5.4
+// OMAR'S PIE — app.js v2.5.5
 // The Classics + clean engine
 // ============================================================
 
@@ -36,7 +36,7 @@ const state = {
 const $ = id => document.getElementById(id);
 function saveAnchored() { localStorage.setItem("op_anchored", JSON.stringify([...state.anchoredItems])); }
 function saveExcluded()  { localStorage.setItem("op_excluded",  JSON.stringify([...state.excludedItems])); }
-function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(0,10))); }
+function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(0,5))); }
 function saveSession()   { localStorage.setItem("op_session",   JSON.stringify(state.session)); }
 function saveSaved()     { localStorage.setItem("op_saved",     JSON.stringify(state.saved)); }
 function uid()           { return Math.random().toString(36).slice(2,9); }
@@ -236,7 +236,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.5.4 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.5.5 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -718,6 +718,7 @@ function saveToHistory(pizza) {
   pizza._historySaved = true;
   const cuisines = pizza._cuisines || state.selectedCuisines || [];
   state.history.unshift({pizza, cuisines:[...cuisines], ts:Date.now()});
+  state.history = state.history.slice(0, 5);  // keep last 5 meaningful only
   saveHistory();
 }
 
@@ -1143,7 +1144,7 @@ function updateSessionBadge() {
 function renderHistory() {
   const container=$("history-list");container.innerHTML="";
   if (!state.history.length){container.innerHTML=`<p class="empty-state">No pies rolled yet.</p>`;return;}
-  state.history.slice(0,10).forEach((entry,i)=>{
+  state.history.slice(0,5).forEach((entry,i)=>{
     const cl=entry.cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
     const summary=LAYER_ORDER.map(layer=>{const items=entry.pizza[layer];if(!items?.length)return null;return`${LAYER_META[layer].emoji} ${items.filter(Boolean).map(t=>t.name).join(", ")}`;}).filter(Boolean).join(" · ");
     const row=document.createElement("div");row.className="history-entry";
