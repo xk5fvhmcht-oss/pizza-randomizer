@@ -28,7 +28,7 @@
   <header class="app-header">
     <div class="header-brand">
       <span class="app-name">Omar's <em>Pie</em></span>
-      <span class="version-label" id="version-label">v2.4.4</span>
+      <span class="version-label" id="version-label">v2.4.7</span>
     </div>
     <button class="btn-icon" id="btn-reset" title="Reset" aria-label="Reset">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -170,6 +170,15 @@
     <button class="btn-icon" id="btn-copy" aria-label="Copy" title="Copy to clipboard">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
+    <div class="sub-header-nav">
+      <button class="btn-icon sub-nav-home" title="Home" aria-label="Home" onclick="showScreen('setup')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </button>
+      <button class="btn-icon btn-icon-badge sub-nav-shopping" title="Shopping List" aria-label="Shopping List" onclick="showScreen('shopping');renderShoppingList()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="btn-badge sub-nav-badge" id="sub-nav-badge-pizza"></span>
+      </button>
+    </div>
   </header>
 
   <!-- Modified from original banner -->
