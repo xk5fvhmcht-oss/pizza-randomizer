@@ -1942,3 +1942,95 @@ body::before {
   background: var(--green-light);
   border-color: var(--green);
 }
+
+/* ══════════════════════════════════════════
+   v2.5.0 — HEADER MENU
+═══════════════════════════════════════════ */
+
+.header-menu-wrap {
+  position: relative;
+}
+
+.btn-menu-trigger {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text2);
+}
+.btn-menu-trigger.active {
+  border-color: var(--terra);
+  color: var(--terra);
+}
+
+.header-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+  animation: menuFadeIn 0.12s ease;
+}
+
+[data-theme="night"] .header-menu {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+@keyframes menuFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+.menu-item:hover {
+  background: var(--char-light);
+}
+[data-theme="night"] .menu-item:hover {
+  background: var(--surface2);
+}
+.menu-item svg {
+  flex-shrink: 0;
+  color: var(--text3);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* ── COVERAGE NOTES ──────────────────────────────────────── */
+.coverage-note {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.coverage-note.coverage-warn {
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  border-left: 3px solid var(--gold);
+  color: var(--text);
+}
+.coverage-note.coverage-info {
+  background: color-mix(in srgb, var(--terra) 8%, transparent);
+  border-left: 3px solid var(--terra);
+  color: var(--text);
+}

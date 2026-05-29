@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.4.5";
+const APP_VERSION = "2.5.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -515,7 +515,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["nosause"],
     stores:[],
     flavorNotes:[], moisture:"dry", weight:"light", presence:"anchor",
-    note:"Relies on base oil and cheese — don't skip the base layer",
+    note:"No sauce = no puff suppression from below. Without a full melt cheese layer, dock the dough firmly before dressing. At Dome temp undocked unweighted dough can balloon dramatically. A melt cheese spread across the surface provides suppression and makes docking optional.",
     qty:{ unit:"n/a", yield_g:0, per_pizza_g:0, per_pizza_oz:0, min_purchase:0 },
   },
 
@@ -1763,7 +1763,7 @@ const ZAATAR_SPREAD_REF = {
   stores:["sara"],
   flavorNotes:["herb","fat","acid"], moisture:"dry", weight:"light", presence:"anchor",
   desc:"Za'atar generously mixed with olive oil and spread directly on raw dough — this IS the pizza. The Levantine flatbread tradition.",
-  note:"Spread generously on raw dough — wall to wall. No additional sauce.",
+  note:"Dock the dough firmly before spreading at Dome temperatures — za'atar paste alone is not sufficient puff suppression at 900°F. Spread wall to wall after docking. Traditional manakish baked at lower temperatures where paste bonds before dramatic puff.",
   qty:{ unit:"za'atar jar + EVOO", yield_g:50, per_pizza_g:40, per_pizza_oz:1.4, per_pizza_tbsp:3, pantry:true, min_purchase:1 },
 };
 
@@ -1807,7 +1807,7 @@ const CLASSICS = [
     cuisine:"neapolitan", emoji:"🍅",
     description:"The 'wrong' Margherita by Franco Pepe. Mozzarella baked, raw tomato added post-bake. More right than most pizzas.",
     history:"Franco Pepe's inversion at Pepe in Grani, Caiazzo. The mozzarella goes in the oven. The tomato — raw, hand-crushed, seasoned — goes on after. Two expressions of the same ingredients, cooked differently.",
-    chefNote:"Bake with fior di latte only — no sauce. While pizza rests, spoon hand-crushed San Marzano over the hot cheese. Add basil immediately. The heat warms the tomato without cooking it.",
+    chefNote:"Bake with fior di latte only — no sauce. While pizza rests, spoon hand-crushed San Marzano over the hot cheese. The cheese acts as puff suppression — no docking needed. Add basil immediately. The heat warms the tomato without cooking it.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -1855,7 +1855,7 @@ const CLASSICS = [
     cuisine:"neapolitan", emoji:"🍅",
     description:"The classic Neapolitan anchovy pizza. San Marzano, fior di latte, anchovies, capers, oregano. Brine amplification at its finest.",
     history:"The original toppings of Naples — anchovies from the Bay of Naples, capers from Pantelleria. This combination is older than the Margherita.",
-    chefNote:"Add anchovies in the last 60 seconds only — they dissolve into the pie and season it from within. Capers rinsed, not drained. Oregano post-bake.",
+    chefNote:"San Marzano crushed by hand. Capers rinsed very well. Anchovies post-bake on the hot pizza — residual heat releases aromatic oils without concentrating salt. Quality anchovies in olive oil only. Oregano rubbed between fingers and scattered post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -1871,7 +1871,7 @@ const CLASSICS = [
     cuisine:"neapolitan", emoji:"🍅",
     description:"Four cheeses, each with a distinct role. No sauce. No protein. The cheese IS the pizza.",
     history:"A staple of Italian pizzerias. Each cheese chosen for a different quality — melt, funk, sharpness, creaminess. The combination is greater than the sum of its parts.",
-    chefNote:"Fior di latte for melt and body. Gorgonzola for funk — use sparingly. Fontina for butteriness. Parmigiano shaved post-bake for umami and crunch. No sauce — EVOO base only.",
+    chefNote:"EVOO base only — dock the dough before dressing, the cheese provides coverage but dock anyway for security. Fior di latte for melt and body. Gorgonzola Dolce preferred over Piccante — melts rather than crumbles. Fontina for butteriness. Parmigiano shaved post-bake for umami. No sauce.",
     ovenMode:"dome",
     pizza:{
       base:    [T("evoo_base")],
@@ -1887,7 +1887,7 @@ const CLASSICS = [
     cuisine:"neapolitan", emoji:"🍅",
     description:"White pizza with wild mushrooms and truffle. Earthly, luxurious, restrained.",
     history:"The bianca tradition — no tomato, let the cheese and toppings speak. Wild mushrooms and truffle oil is the most celebrated white pizza combination in Italian cooking.",
-    chefNote:"Roast wild mushrooms separately at 425°F first — never add raw. Truffle oil post-bake only, a few drops — heat destroys the aroma.",
+    chefNote:"Wild mushrooms MUST be pre-cooked — 90% water. Sauté in batches in a hot dry pan until golden, 7-10 min. Dock the dough — light bianca needs it at Dome temp. Truffle oil post-bake only, 3-4 drops maximum. Heat destroys truffle aroma instantly.",
     ovenMode:"dome",
     pizza:{
       base:    [T("evoo_base")],
@@ -1919,7 +1919,7 @@ const CLASSICS = [
     cuisine:"neapolitan", emoji:"🍅",
     description:"Post-bake bresaola draped over a hot Margherita. Arugula dressed in lemon and EVOO. Parmigiano shaved over everything.",
     history:"A modern Italian classic — the technique of post-bake proteins elevated by the contrast of warm pizza and cold dressed greens. Found in great Roman and Neapolitan restaurants.",
-    chefNote:"Bake the pizza base first. Pull from oven. Immediately drape bresaola, then arugula tossed in lemon juice and EVOO. Shave Parmigiano over everything. Serve at once.",
+    chefNote:"Bake the pizza base first — sauce and cheese only. Pull from oven. Immediately drape bresaola post-bake — direct Dome heat curls and dries it instantly. Arugula dressed in lemon juice and EVOO immediately before adding — never dress in advance. Shave Parmigiano over everything. Serve at once.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -1937,7 +1937,7 @@ const CLASSICS = [
     cuisine:"levantine", emoji:"🫓",
     description:"The Levantine street breakfast. Za'atar and olive oil spread directly on dough — this IS the pizza. Ancient, perfect, unchanged.",
     history:"Manakish (also manaeesh or manaqeesh) has been baked in Lebanon, Syria and Palestine for centuries. The word means 'engraved' — the za'atar mixture is pressed into the dough. Eaten for breakfast across the Levant.",
-    chefNote:"Mix za'atar generously with good EVOO until a thick paste forms. Spread directly on stretched dough — wall to wall, no edge. Keep everything else minimal. The dough edge is the crust.",
+    chefNote:"Dock the dough firmly before spreading at Dome temperatures — za'atar paste alone is not sufficient puff suppression at 900°F. Mix za'atar generously with EVOO until a thick paste forms — spread wall to wall, no edge. Traditional manakish is baked at lower temperatures where the paste bonds before dramatic puff. At the Dome: dock first, then dress.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -1953,7 +1953,7 @@ const CLASSICS = [
     cuisine:"levantine", emoji:"🫓",
     description:"Za'atar manakish with akawi cheese. The most popular manakish after plain za'atar. Mild, salty, slightly stretchy.",
     history:"Bi Jibneh means 'with cheese' in Arabic. Akawi — the white Levantine cheese — melts just enough to hold the za'atar in place. A morning staple from Beirut to Amman.",
-    chefNote:"Akawi first on the dough, then za'atar paste over the top. The cheese melts under the za'atar. Spring onion and sesame post-bake.",
+    chefNote:"Dock the dough first. Akawi first on the dough, then za'atar paste over the top. The cheese melts under the za'atar. Spring onion and sesame post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -1969,7 +1969,7 @@ const CLASSICS = [
     cuisine:"levantine", emoji:"🫓",
     description:"Za'atar and cheese together with fresh tomato and mint. The full manakish experience in one pie.",
     history:"The mixed manakish — half za'atar, half cheese, or fully combined — is the version most eaten in Lebanese homes. Fresh tomato and mint alongside are traditional accompaniments brought to the table.",
-    chefNote:"Combine za'atar paste and crumbled akawi before spreading. Fresh tomato sliced thin post-bake. Mint always post-bake — it wilts beautifully on the hot surface.",
+    chefNote:"Dock the dough first. Combine za'atar paste and akawi before spreading. Fresh tomato sliced thin post-bake. Mint always post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -1985,7 +1985,7 @@ const CLASSICS = [
     cuisine:"levantine", emoji:"🫓",
     description:"Spiced lamb spread baked directly on thin dough. No cheese. Rolled up and eaten with raw onion, parsley and lemon. A Turkish-Levantine street food tradition.",
     history:"Lahmajun (also lahmacun) means 'dough with meat' in Arabic. It is one of the oldest flatbreads in the world, found across Turkey, Lebanon, Syria and Armenia. Thin, crisp, intensely flavored.",
-    chefNote:"Raw spiced lamb mixed with tomato, onion, parsley and Aleppo pepper — spread thin on raw dough. It cooks directly with the pizza. No cheese, no extra protein. Serve with raw red onion, parsley, lemon. Roll and eat.",
+    chefNote:"Dock the dough before spreading. Raw spiced lamb spread paper-thin directly on dough — it cooks completely with the pizza at any oven temperature (the thin layer principle). At Dome: 60-90 seconds is enough for well-done through a 2-3mm layer. Serve with raw red onion, parsley, lemon. Roll and eat.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -2001,7 +2001,7 @@ const CLASSICS = [
     cuisine:"levantine", emoji:"🫓",
     description:"San Marzano, kashkaval, sujuk, egg and dried mint. A classic Levantine combination — spiced cured beef, melting cheese, runny egg.",
     history:"Sujuk and eggs is a classic Levantine breakfast. Transferred to pizza, it becomes something extraordinary — the fat from the sujuk renders into the cheese, and the egg yolk ties everything together.",
-    chefNote:"Sujuk sliced thin — it renders and crisps. Crack egg in the last 20 seconds in the Dome. Dried mint rubbed between fingers post-bake releases the oils. Aleppo pepper is not optional here.",
+    chefNote:"Sujuk sliced thin — renders and crisps at Dome temp. Crack egg white before bake. Drizzle yolk post-bake — the flowing yolk becomes a sauce. Dried mint rubbed between fingers post-bake. Aleppo pepper post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -2017,7 +2017,7 @@ const CLASSICS = [
     cuisine:"levantine", emoji:"🫓",
     description:"Labneh as sauce, shanklish crumbled over, spring onion, sumac, EVOO. Pure Levantine dairy pizza.",
     history:"Labneh — strained yogurt — is the cream cheese of the Levant. Used as a pizza base, it creates a tangy, creamy foundation. Shanklish, the aged spiced cheese, adds pungent contrast.",
-    chefNote:"Spread labneh thick — it is the sauce. Shanklish crumbled sparingly after bake — very strong flavor. Sumac and EVOO post-bake. Spring onion raw for freshness.",
+    chefNote:"Dock the dough — light bianca at Dome temp without melt cheese needs it. Spread labneh thick at room temperature — cold labneh tears the dough. Shanklish post-bake only — its intense flavor concentrates dramatically under heat. Sumac rubbed between fingers. EVOO from your best bottle.",
     ovenMode:"dome",
     pizza:{
       base:    [T("evoo_base")],
@@ -2051,7 +2051,7 @@ const CLASSICS = [
     cuisine:"turkish", emoji:"🫕",
     description:"Biber salçası, kashkaval, spiced lamb, egg, dried mint. Turkish pide flavors on a Neapolitan base.",
     history:"Kıymalı pide is one of Turkey's most beloved flatbreads — spiced ground meat, egg, cheese on a boat-shaped dough. This adapts those flavors to a round Neapolitan base.",
-    chefNote:"Biber salçası mixed with olive oil before spreading. Lamb par-cooked and well-seasoned. Egg cracked in the last 20 seconds. Dried mint rubbed post-bake.",
+    chefNote:"Biber salçası mixed with olive oil before spreading. Lamb spread thin directly on the dressed dough — it cooks completely with the pizza (lahmajun principle). Crack egg white before bake, drizzle yolk post-bake. Dried mint rubbed between fingers post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -2083,7 +2083,7 @@ const CLASSICS = [
     cuisine:"turkish", emoji:"🫕",
     description:"Labneh, halloumi, za'atar, sesame seeds, fresh mint. Clean, restrained, Eastern Mediterranean.",
     history:"The white pizza tradition of Turkey — yogurt-based spreads, grilled cheeses, aromatic herbs. Found in meyhane and home kitchens across Istanbul and the Aegean coast.",
-    chefNote:"Halloumi pre-seared in a dry pan until golden — it holds its shape in the oven. Labneh spread thin. Za'atar and sesame post-bake. Fresh mint last.",
+    chefNote:"Dock the dough before dressing — light build at Dome temp needs it. Beyaz peynir spread as dollops alongside halloumi. Halloumi must be pre-seared in a dry pan until golden before adding — never raw. Za'atar and sesame post-bake. Fresh mint last.",
     ovenMode:"dome",
     pizza:{
       base:    [T("evoo_base")],
@@ -2099,7 +2099,7 @@ const CLASSICS = [
     cuisine:"turkish", emoji:"🫕",
     description:"The most intense Turkish combination. Paper-thin basturma, runny egg, kashkaval, Aleppo pepper.",
     history:"Basturma and eggs is a classic Armenian and Turkish breakfast. The fenugreek spice paste (çemen) on the basturma is one of the most distinctive aromas in Eastern Mediterranean cooking. On a pizza it is extraordinary.",
-    chefNote:"Basturma sliced paper-thin — the çemen paste makes it very aromatic. Add last 90 seconds. Egg cracked in the final 20 seconds in Dome. Aleppo pepper non-negotiable here.",
+    chefNote:"Post-bake preferred — the çemen spice paste scorches and turns bitter under direct Dome heat. Slice paper-thin and drape over the hot pizza after pulling. Crack egg white before bake, drizzle yolk post-bake for the pide technique. Kaşar grated for melt. Extremely assertive flavor — use basturma sparingly.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -2133,7 +2133,7 @@ const CLASSICS = [
     cuisine:"greek", emoji:"🫒",
     description:"San Marzano, feta, kalamata olives, cherry tomatoes, dried oregano, EVOO. The Greek pizza everyone imagines.",
     history:"Greece has its own flatbread tradition — laganopita and peinirli. But the combination of feta, olives, tomato and oregano on a pizza base is a natural translation of the horiatiki salad tradition.",
-    chefNote:"Feta added last 90 seconds or post-bake — it oversalts if overbaked. Kalamata pitted and halved. Dried oregano rubbed between fingers post-bake to release oils.",
+    chefNote:"Feta post-bake — add in the last 30-45 seconds at Dome. Early baking concentrates salt and dries the crumble. Kalamata must be pitted. Dried oregano rubbed between fingers and scattered post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -2149,7 +2149,7 @@ const CLASSICS = [
     cuisine:"greek", emoji:"🫒",
     description:"Spinach, feta, roasted garlic, lemon zest, oregano on an EVOO base. Spanakopita deconstructed on a pizza.",
     history:"Spanakopita — the Greek spinach and feta pie — is one of the great combinations in Mediterranean cooking. On a pizza base, those flavors translate perfectly. The EVOO base replaces the phyllo.",
-    chefNote:"Wilt spinach with garlic before adding — never add raw. Feta post-bake. Lemon zest is essential — it brightens the whole pizza.",
+    chefNote:"Pre-wilt spinach with garlic in a pan until moisture is expelled and spinach is dry — never add raw. Raw spinach releases significant moisture that pools on the base. Feta post-bake — add in the last 30-45 seconds max at Dome, or post-bake. Lemon zest post-bake immediately before serving — aromatic oils are volatile.",
     ovenMode:"dome",
     pizza:{
       base:    [T("evoo_base")],
@@ -2165,7 +2165,7 @@ const CLASSICS = [
     cuisine:"greek", emoji:"🫒",
     description:"Tzatziki as sauce, halloumi, roasted red peppers, kalamata, flat parsley. White and bold.",
     history:"The white pizza tradition adapted through Greek ingredients. Tzatziki as a pizza sauce is a modern Greek-inspired creation — cooling, tangy, herbed — with the bold salty notes of halloumi and olives.",
-    chefNote:"Tzatziki must be thick — drain the cucumber extremely well. Halloumi pre-seared until golden. Peppers patted very dry. Parsley always post-bake.",
+    chefNote:"Tzatziki must be very thick — drain through cheesecloth 2 hours if needed. Cucumber squeezed bone dry before mixing — undrained cucumber soaks the base catastrophically. Halloumi MUST be pre-seared in a dry pan until golden — never raw on pizza. Dock the dough — light bianca at Dome temp. Parsley always post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],
@@ -2231,7 +2231,7 @@ const CLASSICS = [
     cuisine:"northafrican", emoji:"🪔",
     description:"Harissa base, labneh, chicken shawarma, dukkah, EVOO. Spicy and cooling in every bite.",
     history:"Harissa is the soul of North African cooking — a chili paste used as a condiment, marinade and sauce across Tunisia, Morocco and Libya. With labneh's cool tang and chicken it becomes a complete pizza.",
-    chefNote:"Harissa very thin — it is intense. Labneh spread over it cools the heat. Chicken shawarma from Sara's deli fridge — slice and warm before adding. Dukkah post-bake for crunch.",
+    chefNote:"⚠️ Chicken fully pre-cooked — always. Harissa spread very thin — it is intense. Labneh spread over it cools the heat. Chicken sliced and warmed before adding. Add in the last 60-90 seconds — marinade sugars darken quickly. Dukkah post-bake for crunch. EVOO finish.",
     ovenMode:"dome",
     pizza:{
       base:    [T("harissa_base")],
@@ -2247,7 +2247,7 @@ const CLASSICS = [
     cuisine:"northafrican", emoji:"🪔",
     description:"Shakshuka sauce, feta, egg, flat parsley, Aleppo pepper. The pizza version of the beloved North African egg dish.",
     history:"Shakshuka — eggs poached in spiced tomato sauce — is eaten for breakfast and dinner across North Africa and the Levant. On a pizza base, the egg is cracked directly onto the sauce and baked. The feta replaces the white of the egg in flavor.",
-    chefNote:"Crack egg directly onto sauce before bake. In the Dome, 20 seconds is enough for a runny yolk. Feta added with 90 seconds to go. Flat parsley and Aleppo pepper always post-bake.",
+    chefNote:"Shakshuka sauce must be reduced until very thick before applying — watery sauce soaks the dough immediately. Crack egg white directly into the sauce before bake. Drizzle yolk post-bake for a flowing yolk sauce. Feta in the last 30-45 seconds. Flat parsley and Aleppo pepper always post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [],

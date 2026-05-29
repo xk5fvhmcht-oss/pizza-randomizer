@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.4.8
+// OMAR'S PIE — app.js v2.5.0
 // The Classics + clean engine
 // ============================================================
 
@@ -237,7 +237,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.4.8 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.5.0 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -611,6 +611,35 @@ function rollPizza() {
     pizza.finish=pickAnchored(getCands("finish"),"finish");
   }
 
+  // ── COVERAGE CHECK ───────────────────────────────────────────
+  // Nosause + no melt cheese = undercovered dough at Dome temp
+  // Force a melt cheese or the build is a technical risk
+  const isNosause = sauce?.id === "nosause";
+  const hasMeltCheese = (pizza.cheese||[]).some(c => MELT_CHEESES.has(c?.id));
+  const hasProtein = (pizza.protein||[]).length > 0;
+  const hasAnyPreBakeCheese = (pizza.cheese||[]).length > 0;
+
+  if (isNosause && !hasMeltCheese) {
+    // Try to add a melt cheese from available candidates
+    const meltCands = getCands("cheese").filter(t =>
+      MELT_CHEESES.has(t.id) &&
+      !B.picked.has(t.id) &&
+      budgetOk(t, "cheese")
+    );
+    if (meltCands.length) {
+      const chosen = meltCands[Math.floor(Math.random() * meltCands.length)];
+      pizza.cheese = [...(pizza.cheese||[]), chosen];
+      spend(chosen, "cheese");
+    }
+    // Flag for technique note
+    pizza._needsDocking = true;
+  }
+
+  // Sauce-forward detection — no cheese AND no protein on a sauced pizza
+  if (!isNosause && !hasAnyPreBakeCheese && !hasProtein) {
+    pizza._sauceForward = true;
+  }
+
   // ── CONNOISSEUR: ensure C-profile item ────────────────────
   // Scan ALL layers first — don't force a finish swap if C item already exists
   if (isConnoisseur&&CONNOISSEUR_RULES.requireUniqueIngredient) {
@@ -702,6 +731,22 @@ function renderPizza(pizza) {
       chefNoteEl.style.display="block";
     } else {
       chefNoteEl.style.display="none";
+    }
+  }
+
+  // Coverage / docking notes
+  const coverageNote=$("coverage-note");
+  if (coverageNote) {
+    if (pizza._needsDocking) {
+      coverageNote.textContent="🔥 Bianca build — dock the dough firmly before dressing. Without a full melt cheese layer, undocked dough at Dome temperature will puff dramatically.";
+      coverageNote.style.display="block";
+      coverageNote.className="coverage-note coverage-warn";
+    } else if (pizza._sauceForward) {
+      coverageNote.textContent="🍅 Sauce-forward build — apply sauce generously, wall to wall. The sauce is carrying the pizza. You will need more than the standard quantity shown in the shopping list.";
+      coverageNote.style.display="block";
+      coverageNote.className="coverage-note coverage-info";
+    } else {
+      coverageNote.style.display="none";
     }
   }
 
@@ -1060,7 +1105,6 @@ function updateSessionBadge() {
 }
 
 // ── HISTORY ───────────────────────────────────────────────────
-$("btn-history").addEventListener("click",()=>{renderHistory();showScreen("history");});
 function renderHistory() {
   const container=$("history-list");container.innerHTML="";
   if (!state.history.length){container.innerHTML=`<p class="empty-state">No pies rolled yet.</p>`;return;}
@@ -1568,7 +1612,6 @@ $("btn-copy-list").addEventListener("click",()=>{
 });
 
 // ── SAVED PIZZAS ─────────────────────────────────────────────
-$("btn-saved").addEventListener("click",()=>{renderSaved();showScreen("saved");});
 $("btn-back-saved").addEventListener("click",()=>showScreen("setup"));
 function renderSaved() {
   const container=$("saved-list");container.innerHTML="";
@@ -1607,7 +1650,44 @@ function renderSaved() {
 }
 
 // ── THEME ─────────────────────────────────────────────────────
-$("btn-theme").addEventListener("click",()=>applyTheme(currentTheme==="day"?"night":"day"));
+// ── HEADER MENU ───────────────────────────────────────────────
+function initHeaderMenu() {
+  const headerMenu = $("header-menu");
+  if (!headerMenu) return;
+
+  $("btn-menu")?.addEventListener("click", e => {
+    e.stopPropagation();
+    const isOpen = headerMenu.style.display !== "none";
+    headerMenu.style.display = isOpen ? "none" : "block";
+    $("btn-menu").classList.toggle("active", !isOpen);
+  });
+
+  document.addEventListener("click", () => {
+    headerMenu.style.display = "none";
+    $("btn-menu")?.classList.remove("active");
+  });
+
+  $("btn-library-menu")?.addEventListener("click", () => {
+    headerMenu.style.display = "none";
+    state.libraryCuisineFilters = new Set();
+    renderLibrary(); showScreen("library"); restoreScroll("library");
+  });
+  $("btn-history-menu")?.addEventListener("click", () => {
+    headerMenu.style.display = "none";
+    renderHistory(); showScreen("history");
+  });
+  $("btn-saved-menu")?.addEventListener("click", () => {
+    headerMenu.style.display = "none";
+    renderSaved(); showScreen("saved");
+  });
+  $("btn-theme-menu")?.addEventListener("click", e => {
+    e.stopPropagation();
+    const newTheme = currentTheme === "day" ? "night" : "day";
+    applyTheme(newTheme);
+    $("btn-theme-menu").textContent = newTheme === "day" ? "🌙 Night mode" : "☀️ Day mode";
+    headerMenu.style.display = "none";
+  });
+}
 
 // ── TOAST ────────────────────────────────────────────────────
 function showToast(msg) {
@@ -1623,6 +1703,7 @@ function init() {
   initCuisineGrid();
   updateCuisineUI();
   updateSessionBadge();
+  initHeaderMenu();
 }
 
 init();
