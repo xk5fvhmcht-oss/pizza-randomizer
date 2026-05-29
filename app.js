@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.5.5
+// OMAR'S PIE — app.js v2.6.0
 // The Classics + clean engine
 // ============================================================
 
@@ -236,7 +236,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.5.5 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.0 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -389,6 +389,15 @@ function rollPizza() {
 
     // Sauce affinity — reward items compatible with sauce family
     if ((item.sauceFamilies||[]).includes(sauceFamPrim)) score += SW.sauceAffinity;
+
+    // No-cheese fat compensation — when cheese absent on tomato/spicepaste
+    // boost rendering proteins and EVOO finish
+    const RENDERING_PROTEINS = new Set(["beef_pepperoni","sujuk","beef_diavola","nduja_homemade","beef_chorizo","lamb_merguez"]);
+    const noCheeseYet = (pizza.cheese||[]).length === 0;
+    if (noCheeseYet && ["tomato","spicepaste"].includes(sauceFamPrim)) {
+      if (layer === "protein" && RENDERING_PROTEINS.has(item.id)) score += 0.8;
+      if (layer === "finish" && item.id === "finish_evoo") score += 0.6;
+    }
 
     // Presence balance — reward accents when build already has anchor+supporting
     const hasAnchor  = Object.values(B.anchors).some(v=>v>0);
@@ -678,6 +687,47 @@ function rollPizza() {
     }
   }
 
+  // ── CHEF'S TOUCH ────────────────────────────────────────────
+  // Elevated and Connoisseur only — one optional accent suggestion
+  // Picks the finish item that adds the most missing dimension
+  if (!isTraditional) {
+    const allPickedIds = new Set(LAYER_ORDER.flatMap(l=>(pizza[l]||[]).filter(Boolean).map(t=>t.id)));
+    const finishIds    = new Set((pizza.finish||[]).filter(Boolean).map(t=>t.id));
+    const cuisines_    = [...cuisines];
+
+    // Find eligible Chef's Touch candidates
+    const touchCands = TOPPINGS.filter(t=>
+      t.layer === "finish" &&
+      CHEF_TOUCH_ELIGIBLE.has(t.id) &&
+      !allPickedIds.has(t.id) &&
+      !state.excludedItems.has(t.id) &&
+      PROFILE_INCLUDES[state.complexity].includes(t.profile) &&
+      (cuisines_.length === 0 || t.cuisine.some(c=>cuisines_.includes(c)))
+    );
+
+    if (touchCands.length) {
+      // Score by gap-fill — how much does this add that's missing?
+      const scored = touchCands.map(t => {
+        const notes = t.flavorNotes || [];
+        const missing = notes.filter(n => (B.notes[n]||0) === 0);
+        const cuisine_match = cuisines_.length === 0 ||
+          cuisines_.every(c => (t.cuisine||[]).includes(c)) ? 2 :
+          cuisines_.some(c => (t.cuisine||[]).includes(c)) ? 1 : 0;
+        return { t, score: missing.length * 1.5 + cuisine_match };
+      });
+      scored.sort((a,b) => b.score - a.score);
+
+      // Pick top candidate — must add at least one new dimension
+      const best = scored.find(x => x.score > 0);
+      if (best) {
+        pizza._chefTouch = {
+          item:   best.t,
+          reason: CHEF_TOUCH_REASONS[best.t.id] || "Adds a finishing dimension to complete the build",
+        };
+      }
+    }
+  }
+
   pizza._ovenMode   = state.ovenMode;
   pizza._cuisines   = [...cuisines];
   pizza._complexity = state.complexity;
@@ -761,6 +811,35 @@ function renderPizza(pizza) {
       chefNoteEl.style.display="block";
     } else {
       chefNoteEl.style.display="none";
+    }
+  }
+
+  // ── CHEF'S TOUCH DISPLAY ─────────────────────────────────────
+  const chefsTouchEl = $("chefs-touch");
+  if (chefsTouchEl) {
+    if (!isClassic && pizza._chefTouch) {
+      const {item, reason} = pizza._chefTouch;
+      $("chefs-touch-name").textContent   = item.name;
+      $("chefs-touch-reason").textContent = reason;
+      chefsTouchEl.style.display = "block";
+
+      // Dismiss
+      $("chefs-touch-dismiss")?.addEventListener("click", () => {
+        chefsTouchEl.style.display = "none";
+      });
+
+      // Add to shopping list
+      $("chefs-touch-add")?.addEventListener("click", () => {
+        if (!state.currentPizza) return;
+        // Add the Chef's Touch item to the pizza's finish layer
+        state.currentPizza.finish = [...(state.currentPizza.finish||[]), item];
+        state.currentPizza._chefTouchAdded = true;
+        chefsTouchEl.style.display = "none";
+        renderPizza(state.currentPizza);
+        showToast(`${item.name} added ✓`);
+      });
+    } else {
+      chefsTouchEl.style.display = "none";
     }
   }
 
@@ -992,33 +1071,40 @@ function renderRecipe(recipe) {
 // ── SWAP SIMILARITY SCORING ──────────────────────────────────
 function swapSimilarityScore(original, candidate) {
   let score = 0;
-  const origNotes = original.flavorNotes||[];
-  const candNotes = candidate.flavorNotes||[];
+  const origNotes  = original.flavorNotes||[];
+  const candNotes  = candidate.flavorNotes||[];
+  const buildCuisines = state.currentPizza?._cuisines || [];
 
-  // Tier 1: overlapping flavor notes
+  // Tier 1 — flavor note overlap (most important — same taste profile)
   const sharedNotes = origNotes.filter(n=>candNotes.includes(n));
   score += sharedNotes.length * 3;
 
-  // Tier 1: same presence level
+  // Tier 1 — same presence level (anchor→anchor, accent→accent)
   if (original.presence === candidate.presence) score += 2;
 
-  // Tier 2: same cuisine overlap
+  // Tier 2 — cuisine: bonus if candidate shares cuisine with the BUILD
+  // not just with the original item — ensures culturally coherent swap
   const origCuisine = original.cuisine||[];
   const candCuisine = candidate.cuisine||[];
-  const sharedCuisine = origCuisine.filter(c=>candCuisine.includes(c));
-  score += sharedCuisine.length * 1.5;
+  const sharedWithBuild = buildCuisines.filter(c=>candCuisine.includes(c));
+  const sharedWithOrig  = origCuisine.filter(c=>candCuisine.includes(c));
+  score += sharedWithBuild.length * 2;   // build affinity most important
+  score += sharedWithOrig.length  * 1;   // original affinity secondary
 
-  // Tier 2: same sauce family compatibility
+  // Tier 2 — same sauce family compatibility
   const origSauce = original.sauceFamilies||[];
   const candSauce = candidate.sauceFamilies||[];
   const sharedSauce = origSauce.filter(s=>candSauce.includes(s));
   score += sharedSauce.length * 1;
 
-  // Tier 3: same weight
+  // Tier 3 — same weight class
   if (original.weight === candidate.weight) score += 0.5;
 
-  // Tier 3: same profile
-  if (original.profile === candidate.profile) score += 0.5;
+  // Tier 3 — same profile (T with T, E with E)
+  if (original.profile === candidate.profile) score += 0.8;
+
+  // Tier 3 — same moisture class
+  if (original.moisture === candidate.moisture) score += 0.3;
 
   return score;
 }
