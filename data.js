@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.5.4";
+const APP_VERSION = "2.6.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -285,6 +285,50 @@ const MELT_CHEESES = new Set(["fior_di_latte","fresh_mozz","shredded_mozz","kash
 const HIGH_UMAMI = new Set(["mushroom_wild","mushroom_cremini","anchovy","sun_dried_tom",
   "capers","roasted_garlic_cloves","truffle_oil","parmigiano","pecorino","shanklish",
   "preserved_lemon","kalamata","nduja_homemade"]);
+
+
+// ── CHEF'S TOUCH ─────────────────────────────────────────────
+// Engine-suggested optional accent for Elevated + Connoisseur builds
+// One item, finish layer, adds a missing dimension with a clear reason
+
+const CHEF_TOUCH_REASONS = {
+  // Acid/brightness
+  "lemon_zest":        "Lifts the whole pizza — the acid cuts through fat and salt",
+  "sumac_finish":      "Adds Levantine tartness and a jewel-red finish",
+  "balsamic_glaze":    "Sweet acid contrast — ties savoury elements together",
+  "preserved_lemon":   "Fermented citrus depth — a note nothing else provides",
+  "pomegranate_mol":   "Sweet-tart complexity that transforms the whole surface",
+
+  // Aromatic/herb
+  "fresh_basil":       "The Neapolitan finish — releases oils on the hot surface",
+  "fresh_thyme":       "Earthy and slightly floral — essential with mushrooms and potato",
+  "fresh_rosemary":    "Resinous and aromatic — amplifies lamb, potato and bianca builds",
+  "fresh_mint":        "Cooling contrast — balances heat and fat in Levantine builds",
+  "dried_oregano":     "Blooms on the hot surface — the Mediterranean signature",
+  "aleppo_pepper":     "Fruity heat and oil — the Levantine-Turkish finishing spice",
+  "zaatar_finish":     "Herb-acid complexity — the Eastern Mediterranean in one ingredient",
+
+  // Luxury/umami
+  "truffle_oil":       "A few drops transforms a bianca — use only when the build is simple enough to let it speak",
+  "parmigiano":        "Nutty umami — the Italian finishing move on any build",
+  "toasted_pine_nuts": "Crunch and fat — the Sicilian-Levantine accent",
+  "pistachios":        "Crunch, sweetness and colour — the Levantine luxury finish",
+  "toasted_walnuts":   "Bitter crunch that balances sweet and funky elements",
+  "dukkah":            "Egyptian spiced nut crunch — earthy, warm, unexpected",
+
+  // Sweet/contrast
+  "hot_honey":         "Chili-sweet contrast — amplifies salt and fat on American builds",
+  "pomegranate_arils": "Jewel-like acid bursts against creamy or rich toppings",
+  "dried_figs":        "Caramelised sweetness — the Italian and North African accent",
+
+  // Fat/richness
+  "finish_evoo":       "The Neapolitan drizzle — always last, always the best bottle",
+  "tahini_drizzle":    "Sesame richness — ties Levantine builds into one voice",
+};
+
+// Items eligible for Chef's Touch (finish layer, E or C profile)
+// Engine picks from these based on what's missing from the build
+const CHEF_TOUCH_ELIGIBLE = new Set(Object.keys(CHEF_TOUCH_REASONS));
 
 // ── TOPPINGS ─────────────────────────────────────────────────
 const TOPPINGS = [
