@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.5.3
+// OMAR'S PIE — app.js v2.5.4
 // The Classics + clean engine
 // ============================================================
 
@@ -236,7 +236,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.5.3 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.5.4 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -563,6 +563,13 @@ function rollPizza() {
     if (!(B.notes.acid||B.notes.fresh)) gapNotes.push("acid","fresh");
     if (!B.notes.herb) gapNotes.push("herb");
     if (!B.notes.crunch&&!isTraditional) gapNotes.push("crunch");
+    // Sauce-forward builds: push toward aromatics that amplify sauce
+    const isSauceForward = !isNosause &&
+      (pizza.cheese||[]).length === 0 &&
+      (pizza.protein||[]).length === 0;
+    if (isSauceForward) {
+      gapNotes.push("herb","fat");  // oregano, EVOO, fresh herbs
+    }
 
     let cands=getCands("finish");
     if (isConnoisseur) cands=addMultiLayerCandidates(cands,pizza);
@@ -612,11 +619,19 @@ function rollPizza() {
 
   // ── COVERAGE CHECK ───────────────────────────────────────────
   // Nosause + no melt cheese = undercovered dough at Dome temp
-  // Force a melt cheese or the build is a technical risk
   const isNosause = sauce?.id === "nosause";
   const hasMeltCheese = (pizza.cheese||[]).some(c => MELT_CHEESES.has(c?.id));
   const hasProtein = (pizza.protein||[]).length > 0;
   const hasAnyPreBakeCheese = (pizza.cheese||[]).length > 0;
+
+  // Crumble cheeses — don't provide puff suppression
+  const CRUMBLE_CHEESES = new Set([
+    "feta","shanklish","tulum_peynir","goat_cheese",
+    "ricotta_dollop","gorgonzola","gorgonzola_dolce","cotija","parmigiano_primary"
+  ]);
+  const hasCrumbleOnly = hasAnyPreBakeCheese &&
+    !hasMeltCheese &&
+    (pizza.cheese||[]).every(c => CRUMBLE_CHEESES.has(c?.id));
 
   if (isNosause && !hasMeltCheese) {
     // Try to add a melt cheese from available candidates
@@ -631,6 +646,11 @@ function rollPizza() {
       spend(chosen, "cheese");
     }
     // Flag for technique note
+    pizza._needsDocking = true;
+  }
+
+  // Crumble-only on bianca — still needs docking
+  if (isNosause && hasCrumbleOnly) {
     pizza._needsDocking = true;
   }
 

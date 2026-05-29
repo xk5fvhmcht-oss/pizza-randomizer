@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.5.3";
+const APP_VERSION = "2.5.4";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -784,7 +784,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","spicepaste","herb"],
     stores:["sara"], prep:PREP.RAW,
     flavorNotes:["spice","umami","fat"], moisture:"low", weight:"heavy", presence:"anchor",
-    note:"Spread thin directly on dough — cooks with the pizza at any temp. Dome: 60-90s. Steel: 5 min at 550°F. Pre-cook only if using thick pieces. Thin layer = lahmajun principle.",
+    note:"Spread thin directly on dough — cooks completely at any temp (lahmajun principle). Dome: 60-90s. Steel: 5 min at 550°F. When combining with cheese: use kaşar or kashkaval ON TOP of the meat (traditional pide approach) — a melt cheese sealed underneath traps steam and prevents browning. Pre-cook only if using thick crumbles on top of cheese.",
     qty:{ unit:"300g ground lamb", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
   },
   {
@@ -2242,15 +2242,15 @@ const CLASSICS = [
     cuisine:"northafrican", emoji:"🪔",
     description:"Harissa base, labneh, chicken shawarma, dukkah, EVOO. Spicy and cooling in every bite.",
     history:"Harissa is the soul of North African cooking — a chili paste used as a condiment, marinade and sauce across Tunisia, Morocco and Libya. With labneh's cool tang and chicken it becomes a complete pizza.",
-    chefNote:"⚠️ Chicken fully pre-cooked — always. Harissa spread very thin — it is intense. Labneh spread over it cools the heat. Chicken sliced and warmed before adding. Add in the last 60-90 seconds — marinade sugars darken quickly. Dukkah post-bake for crunch. EVOO finish.",
+    chefNote:"⚠️ Chicken fully pre-cooked — always. Harissa is the sauce — spread thin wall to wall. Dollop labneh over the hot pizza post-bake: its cool tang balances the harissa heat. Chicken sliced and warmed, add in the last 60 seconds. Dukkah post-bake for crunch.",
     ovenMode:"dome",
     pizza:{
-      base:    [T("harissa_base")],
-      sauce:   [T("labneh_sauce")],
+      base:    [],
+      sauce:   [T("harissa_base")],
       cheese:  [],
       protein: [T("chicken_shawarma")],
       veg:     [],
-      finish:  [T("dukkah"), T("finish_evoo")],
+      finish:  [T("labneh_balls"), T("dukkah"), T("finish_evoo")],
     },
   },
   {
