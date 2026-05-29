@@ -1,4 +1,4 @@
-const CACHE_NAME = "omars-pie-v2.4.4";
+const CACHE_NAME = "omars-pie-v2.4.5";
 const ASSETS = [
   "./","./index.html","./style.css",
   "./data.js","./app.js","./manifest.json",

@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.4.1";
+const APP_VERSION = "2.4.5";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -286,7 +286,7 @@ const TOPPINGS = [
     compatibleSauceFamilies:["tomato","dairy","herb","spicepaste","nosause"],
     stores:["sara","cm"],
     flavorNotes:["fat"], moisture:"dry", weight:"light", presence:"accent",
-    note:"High-quality — applied before sauce on white pies",
+    note:"Apply thin with fingertips or a brush in an even film across the dough before sauce. Creates a moisture barrier between dough and sauce. Promotes crust browning. For bianca builds this is the foundation — be generous.",
     qty:{ unit:"bottle", yield_g:750, per_pizza_g:15, per_pizza_oz:0.5, per_pizza_tbsp:1, pantry:true, min_purchase:1 },
   },
   {
@@ -374,7 +374,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato"],
     stores:["sara","cm"],
     flavorNotes:["acid","umami","sweet"], moisture:"medium", weight:"light", presence:"anchor",
-    note:"Crushed, uncooked, salt only — the universal anchor",
+    note:"Crush by hand from the can — never blend or cook. Season with sea salt only. Spread thin — 60-80g for a 10-inch pizza. Less is more: too much sauce steams the dough from below. Check for DOP certification on the label. The genius of this sauce is restraint.",
     qty:{ unit:"can (400g)", yield_g:400, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:5, min_purchase:1 },
   },
   {
@@ -384,7 +384,7 @@ const TOPPINGS = [
     stores:["sara"], jarred:true, brand:"Mina or Wild Garden",
     flavorNotes:["acid","spice","umami"], moisture:"medium", weight:"light", presence:"anchor",
     desc:"Spiced North African tomato sauce with peppers and cumin — sold jarred at Sara's.",
-    note:"Reduce in pan 5 min before using — tighten the sauce",
+    note:"Must be reduced until very thick before applying — watery shakshuka soaks the dough immediately. Crack egg directly into the sauce before the bake. Feta in the last 45 seconds. Flat parsley and Aleppo pepper post-bake always.",
     qty:{ unit:"jar (450g)", yield_g:450, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:6, min_purchase:1 },
   },
   {
@@ -394,7 +394,7 @@ const TOPPINGS = [
     multiLayer: true,
     stores:["sara","cm"],
     flavorNotes:["herb","fat","umami"], moisture:"medium", weight:"medium", presence:"anchor",
-    note:"White sauce alternative — spread thin. Also works as post-bake finish drizzle.",
+    note:"Apply thin — it is the sauce. Heat dulls pesto brightness. Compensate post-bake: add fresh basil, lemon zest or extra Parmigiano to restore the brightness the oven removes. Oil-based — use sparingly or the pizza becomes greasy.",
     qty:{ unit:"jar (170g)", yield_g:170, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:4, min_purchase:1 },
   },
   {
@@ -403,7 +403,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["dairy"],
     stores:["cm"],
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
-    note:"White pie — keep thin, season well. Make fresh.",
+    note:"Make fresh and cool completely before spreading — warm béchamel soaks into the dough. Must be thick enough to coat the back of a spoon. Works better at steel oven (550°F) than Dome — at 900°F it can bubble aggressively.",
     qty:{ unit:"make fresh", yield_g:0, per_pizza_g:60, per_pizza_oz:2.1, min_purchase:1 },
   },
   {
@@ -414,7 +414,7 @@ const TOPPINGS = [
     stores:["sara"],
     flavorNotes:["acid","cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Strained yogurt cheese — thick, tangy, creamy. Middle Eastern staple. Replaces tomato entirely.",
-    note:"Tangy, thick — classic bianca base. Also used as post-bake dollop on Connoisseur builds.",
+    note:"Spread thick, wall to wall — it is sauce AND cheese in one. Must be thick enough to hold its shape. Room temperature spreads best. The tang mellows under heat — pair with brine (feta, olives) or heat (Aleppo) to restore contrast.",
     qty:{ unit:"tub (500g)", yield_g:500, per_pizza_g:80, per_pizza_oz:2.8, shared_yield:6, min_purchase:1 },
   },
   {
@@ -424,7 +424,7 @@ const TOPPINGS = [
     stores:["sara","cm"],
     flavorNotes:["acid","cream","herb"], moisture:"medium", weight:"light", presence:"anchor",
     desc:"Greek yogurt with cucumber, garlic and dill — cooling, tangy dairy sauce.",
-    note:"Use thick — drain cucumber well before making or buy ready-made",
+    note:"Must be very thick — drain store-bought through cheesecloth for 2 hours if needed. The cucumber MUST be salted, drained and squeezed bone dry — undrained cucumber on a pizza base is catastrophic. Apply cold just before baking.",
     qty:{ unit:"tub (300g)", yield_g:300, per_pizza_g:70, per_pizza_oz:2.5, shared_yield:4, min_purchase:1 },
   },
   {
@@ -435,7 +435,7 @@ const TOPPINGS = [
     stores:["sara"],
     flavorNotes:["sweet","smoke","spice","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Syrian roasted red pepper and walnut spread — sweet, smoky, slightly spicy. A Levantine gem.",
-    note:"Spread directly on dough — no extra sauce needed. Also works as a post-bake crust swipe.",
+    note:"Apply thin — rich and dense. The walnut is essential to what makes it muhammara. Do not add more pomegranate molasses as a topping — it is already in the sauce. Pairs with lamb kofta, kashkaval and roasted peppers.",
     qty:{ unit:"jar or fresh (200g)", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:3, min_purchase:1 },
   },
   {
@@ -446,7 +446,7 @@ const TOPPINGS = [
     stores:["sara"],
     flavorNotes:["herb","acid","spice"], moisture:"low", weight:"light", presence:"anchor",
     desc:"North African herb marinade — parsley, cilantro, cumin, lemon. Similar to chimichurri but warmer.",
-    note:"Spread thin. Also works as post-bake finish drizzle.",
+    note:"Apply thin like pesto — intensely flavored. The heat dulls fresh herb brightness — add flat parsley post-bake to restore it. Pairs with merguez, roasted peppers, feta and preserved lemon.",
     qty:{ unit:"jar or fresh (200g)", yield_g:200, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:4, min_purchase:1 },
   },
   {
@@ -506,7 +506,7 @@ const TOPPINGS = [
     stores:["sara","cm"],
     flavorNotes:["umami","fat","cream"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Chickpea and tahini puree — earthy, nutty, creamy. Use thin or it overwhelms.",
-    note:"Thin layer only — too heavy if over-applied",
+    note:"Spread thin — hummus is dense and can overwhelm. Already contains tahini and garlic — do not add either as separate toppings. Works best at steel oven temps — at Dome the chickpea base can char at the edges.",
     qty:{ unit:"tub (400g)", yield_g:400, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:6, min_purchase:1 },
   },
   {
@@ -537,7 +537,7 @@ const TOPPINGS = [
     stores:["cm"], postbake:true,
     flavorNotes:["cream","acid","fat"], moisture:"postbake", weight:"medium", presence:"anchor",
     desc:"Water buffalo milk mozzarella — richer, tangier and wetter than fior di latte. Always post-bake.",
-    note:"Post-bake only — too wet for oven, tears beautifully when hot",
+    note:"Professional technique: bake with fior di latte for structure, then tear cold bufala over the hot pizza after pulling. Higher fat than fior di latte means softer matrix — releases more moisture under direct heat. Post-bake preserves its tangy, complex flavor. If baking in: drain very well and add in the last 30 seconds only.",
     qty:{ unit:"ball (125g)", yield_g:125, per_pizza_g:100, per_pizza_oz:3.5, min_purchase:1 },
   },
   {
@@ -547,7 +547,7 @@ const TOPPINGS = [
     stores:["cm"], postbake:true,
     flavorNotes:["cream","fat","sweet"], moisture:"postbake", weight:"medium", presence:"anchor",
     desc:"Fresh mozzarella shell filled with cream and stracciatella — explosively creamy when torn open post-bake.",
-    note:"Post-bake only — tear open on hot pizza, never bake",
+    note:"Never bake burrata — the cream filling splits and pools under heat. Post-bake only: tear open on the hot pizza immediately after pulling, let the cream spill naturally. The residual heat warms it perfectly. Pairs best with simple builds — San Marzano, basil, EVOO — where the burrata IS the statement.",
     qty:{ unit:"ball (125g)", yield_g:125, per_pizza_g:100, per_pizza_oz:3.5, min_purchase:1 },
   },
   {
@@ -605,7 +605,7 @@ const TOPPINGS = [
     stores:["sara","cm"],
     flavorNotes:["brine","acid","fat"], moisture:"low", weight:"light", presence:"supporting",
     desc:"Brined Greek sheep's milk cheese — salty, tangy, crumbly. Doesn't melt, adds bursts of flavor.",
-    note:"Add last 90 seconds or fully post-bake — oversalts if overbaked",
+    note:"Does not melt — crumbles and softens slightly. At Dome: add in the last 30-45 seconds max, or post-bake. Early baking concentrates the salt and dries the crumble to a hard granular texture. At steel oven: add at the 3-4 minute mark. Feta is already very salty — balance with EVOO, lemon zest or fresh herbs.",
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:5, min_purchase:1 },
   },
   {
@@ -615,7 +615,7 @@ const TOPPINGS = [
     stores:["sara","cm"],
     flavorNotes:["brine","fat","umami","crunch"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Cypriot cheese with very high melting point — golden and squeaky when seared. Holds shape in oven.",
-    note:"Pre-sear in dry pan until golden — holds shape perfectly",
+    note:"MUST be pre-seared in a dry pan over high heat until golden on both sides before adding to pizza. Pat very dry first — surface brine moisture prevents browning. Without pre-searing it sits pale and rubbery on the pizza. Halloumi does not melt — it browns and firms. The golden crust is the point.",
     qty:{ unit:"block (225g)", yield_g:225, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:2, min_purchase:1 },
   },
   {
@@ -725,7 +725,7 @@ const TOPPINGS = [
     stores:["cm"],
     flavorNotes:["fat","cream","spice"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Indian fresh cheese — firm, mild, doesn't melt. Marinated and pre-cooked before adding.",
-    note:"Marinate in tikka spices + yogurt min 30 min, then pan-sear",
+    note:"Must be marinated and pre-seared before adding — raw paneer on pizza is bland and inert. Marinate cubes in tikka spice paste and yogurt for at least 30 min. Sear in a hot oiled pan until golden on all sides. ⚠️ The marinating and searing IS what makes paneer work on pizza.",
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:80, per_pizza_oz:2.8, min_purchase:1 },
   },
   {
@@ -753,7 +753,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat","sweet"], moisture:"medium", weight:"light", presence:"supporting",
-    note:"Drop in spoonfuls — creamy pockets mid-bake",
+    note:"Dollop in small spoonfuls — never spread as a layer. Very high moisture: spreading pools and waterloggs the base. Drain in a sieve for 30 min before use. Small dollops create pockets of creamy richness between other toppings.",
     qty:{ unit:"tub (250g)", yield_g:250, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:4, min_purchase:1 },
   },
 
@@ -793,7 +793,7 @@ const TOPPINGS = [
     stores:["sara"], prep:PREP.READY,
     flavorNotes:["spice","umami","fat","smoke"], moisture:"dry", weight:"light", presence:"supporting",
     desc:"Air-dried cured beef coated in fenugreek-spice paste (çemen) — intensely flavored, very aromatic. A true Connoisseur ingredient.",
-    note:"Slice paper-thin — very strong flavor, use sparingly. Pairs beautifully with egg.",
+    note:"Post-bake preferred — the çemen spice paste (fenugreek, garlic, cumin, paprika) scorches and turns bitter under direct high heat. Slice paper-thin and drape over the hot pizza after pulling. Residual heat warms it perfectly. Extremely assertive flavor — use sparingly. Pairs with kaşar or kashkaval which can stand up to it.",
     qty:{ unit:"pack (150g)", yield_g:150, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:3, min_purchase:1 },
   },
   {
@@ -803,7 +803,7 @@ const TOPPINGS = [
     stores:["cm"], prep:PREP.READY,
     flavorNotes:["brine","umami","fat"], moisture:"low", weight:"light", presence:"supporting",
     desc:"Salt-cured fish fillets in olive oil — intensely savory and umami. A Neapolitan staple. Amplifies capers.",
-    note:"Add last 60 seconds — use 3–4 fillets max, they dissolve into the pie",
+    note:"Safe to eat straight from the can — fully cured, no cooking needed for safety. Post-bake on the hot pizza: the residual heat warms them gently and releases the aromatic oils without concentrating the salt. Quality matters completely — cheap anchovies in vegetable oil are why anchovy pizza has a bad reputation. Use oil-packed fillets in olive oil. Rinse briefly under cold water to reduce excess salt.",
     qty:{ unit:"tin (50g)", yield_g:50, per_pizza_g:20, per_pizza_oz:0.7, shared_yield:2, min_purchase:1 },
   },
   {
@@ -870,7 +870,7 @@ const TOPPINGS = [
     stores:["cm"], prep:PREP.READY, postbake:true,
     flavorNotes:["umami","brine","acid"], moisture:"postbake", weight:"light", presence:"supporting",
     desc:"Italian air-dried salted beef — lean, delicate, deep red. Always post-bake. Classic with arugula and Parmigiano.",
-    note:"Post-bake only — drape over hot pizza. Pairs with arugula, lemon, Parmigiano",
+    note:"Post-bake only — drape over the hot pizza immediately after pulling. At Dome temp direct heat curls and dries it instantly, destroying its silky texture. Residual heat warms it gently and releases the flavor. The Italian standard: bresaola, arugula and Parmigiano are all added strictly after the bake.",
     qty:{ unit:"pack (100g)", yield_g:100, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:1, min_purchase:1 },
   },
   {
@@ -936,7 +936,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     stores:["sara"], prep:PREP.RAW,
     flavorNotes:["fat","cream","umami","fresh"], moisture:"medium", weight:"light", presence:"supporting",
-    note:"Dome: crack in last 20s — runny yolk. Steel: add at 3-min mark, yolk sets more.",
+    note:"Dome technique: separate white and yolk. Add white before bake — it sets in 60-90 seconds. Drizzle yolk post-bake on the hot pizza — residual heat warms it without setting it. The flowing yolk becomes a sauce (Turkish pide technique). Alternative: launch with full egg, move pizza to mouth of oven for last 15 seconds to finish the white without overcooking the yolk.",
     qty:{ unit:"eggs", yield_g:60, per_pizza_g:60, per_pizza_oz:2.1, per_pizza_unit:1, min_purchase:6 },
   },
   {
@@ -1015,7 +1015,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["brine","fat","acid"], moisture:"low", weight:"light", presence:"accent",
-    note:"Pit and halve — strong brine flavor",
+    note:"Must be pitted. Drain well and pat dry — brine is intensely salty. Halve before adding.",
     qty:{ unit:"jar (350g)", yield_g:200, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:6, min_purchase:1 },
   },
   {
@@ -1044,7 +1044,7 @@ const TOPPINGS = [
     stores:["sara","cm"],
     flavorNotes:["brine","acid"], moisture:"low", weight:"light", presence:"accent",
     desc:"Pickled flower buds — briny, pungent, intensely savory. A Neapolitan staple. Amplifies anchovy.",
-    note:"Rinse before using — salt-packed are best. Classic with anchovy (brine amplification)",
+    note:"Rinse very well before use — brine is intensely salty. Salt-packed capers: soak in cold water 20 min, then rinse. Classic combination with anchovy and olives on Alla Napoletana.",
     qty:{ unit:"jar (100g)", yield_g:100, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:6, pantry:true, min_purchase:1 },
   },
   {
@@ -1127,7 +1127,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"],
     flavorNotes:["umami","fat","sweet"], moisture:"high", weight:"medium", presence:"supporting",
-    note:"Sauté first until golden — raw mushrooms steam and waterlog the base",
+    note:"Fresh cremini: must be pre-cooked — 90% water, will waterlog the base. Sauté in batches in a hot dry pan until golden, 7-10 min. Do not crowd. Season with salt at the end. Canned cremini: drain and pat dry, can go straight on pizza without pre-cooking.",
     qty:{ unit:"punnet (250g)", yield_g:250, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:4, min_purchase:1 },
   },
   {
@@ -1136,8 +1136,8 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["nosause","dairy","tomato"],
     stores:["cm"],
     flavorNotes:["umami","fat","smoke"], moisture:"medium", weight:"medium", presence:"anchor",
-    desc:"Maitake, oyster or chanterelle — earthy, complex, nothing like cremini.",
-    note:"Roast at 425°F with EVOO and thyme first — never add raw",
+    desc:"Wild mushrooms — chanterelles, porcini, oyster. Earthy, intensely flavored. Must be pre-cooked before adding to pizza (fresh). See note.",
+    note:"Fresh mushrooms are 90% water — must be pre-cooked or they waterlog the base. Sauté in batches in a very hot dry pan — DO NOT crowd or they steam instead of brown. Cook until they release moisture and reabsorb it, developing golden color (7-10 min). Season with salt at the END of cooking — salt early draws moisture and prevents browning. Canned mushrooms: drain and pat dry, can go straight on.",
     qty:{ unit:"punnet (150g)", yield_g:150, per_pizza_g:60, per_pizza_oz:2.1, min_purchase:1 },
   },
   {
@@ -1146,7 +1146,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","herb","spicepaste"],
     stores:["sara","cm"],
     flavorNotes:["umami","smoke","fat","sweet"], moisture:"low", weight:"medium", presence:"supporting",
-    note:"Salt, drain 20 min, roast — never add raw eggplant",
+    note:"Must be pre-roasted before adding — raw eggplant is 92% water and waterloggs the base before it cooks through. Slice 1cm thick, salt both sides, let sit 30 min, pat very dry. Roast at 425°F in a SINGLE layer — crowding causes steaming not roasting. Roast until deeply golden and most moisture expelled, 20-25 min.",
     qty:{ unit:"eggplant", yield_g:300, per_pizza_g:70, per_pizza_oz:2.5, per_pizza_unit:0.5, min_purchase:1 },
   },
   {
@@ -1165,7 +1165,7 @@ const TOPPINGS = [
     stores:["sara"],
     flavorNotes:["acid","brine","umami"], moisture:"low", weight:"light", presence:"accent",
     desc:"Salt-cured whole lemon — intensely lemony, salty, fermented. Use rind only, rinse well.",
-    note:"Rinse thoroughly, use rind only — tiny amounts, very salty",
+    note:"Use the rind only — discard the pulp. Rinse the rind well to remove excess salt. Intensely concentrated and fermented — not like fresh lemon. A small amount goes very far.",
     qty:{ unit:"jar (200g)", yield_g:200, per_pizza_g:15, per_pizza_oz:0.5, shared_yield:13, pantry:true, min_purchase:1 },
   },
   {
@@ -1174,7 +1174,7 @@ const TOPPINGS = [
     profile:"C", sauceFamilies:["nosause","dairy"],
     stores:["sara"],
     flavorNotes:["starch","fat","sweet"], moisture:"low", weight:"medium", presence:"anchor",
-    note:"Classic Neapolitan bianca — slice paper thin or blanch first. Pairs with rosemary.",
+    note:"Mandoline essential — must be paper-thin (1-2mm). Slice raw, rinse in cold water, pat completely dry. Add to EVOO-dressed dough. At Dome temp 1-2mm potato cooks through in 60-90 seconds. Thicker than 2mm = raw center.",
     qty:{ unit:"medium potatoes", yield_g:300, per_pizza_g:100, per_pizza_oz:3.5, per_pizza_unit:1, min_purchase:2 },
   },
   {
@@ -1249,7 +1249,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb","spicepaste"],
     stores:["sara","cm"],
     flavorNotes:["sweet","umami","fat"], moisture:"low", weight:"light", presence:"accent",
-    note:"Roast whole head at 400°F for 40 min — cloves squeeze out sweet and jammy",
+    note:"Pre-roast whole heads: cut top off, drizzle EVOO, wrap in foil, 400°F for 40-45 min. Squeeze out the soft caramelized cloves. Raw garlic at high heat burns bitter — never add raw.",
     qty:{ unit:"head of garlic", yield_g:50, per_pizza_g:15, per_pizza_oz:0.5, per_pizza_unit:0.25, min_purchase:1 },
   },
   {
@@ -1369,7 +1369,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["herb","fresh","sweet"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Post-bake always — wilts and blackens in oven",
+    note:"Post-bake always. Basil's aromatic oils degrade above 250°F — at Dome temp destroyed in seconds. Tear by hand, never cut — cutting bruises and oxidizes the leaves. Add immediately after pulling. Drizzle EVOO over the torn leaves to enhance oil release.",
     qty:{ unit:"bunch", yield_g:30, per_pizza_g:5, per_pizza_oz:0.2, shared_yield:6, min_purchase:1 },
   },
   {
@@ -1388,8 +1388,8 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","nosause","dairy","herb"],
     stores:["sara","cm"], postbake:false,
     flavorNotes:["herb","bitter","fat"], moisture:"dry", weight:"light", presence:"accent",
-    desc:"Fundamental Mediterranean herb — earthy, slightly floral, pairs with mushrooms, potato, lamb and any bianca pie. Goes in before bake, handles heat well like rosemary.",
-    note:"Add before bake — handles Dome heat. Strip leaves from stem. Essential with wild mushrooms.",
+    desc:"Fundamental Mediterranean herb — earthy, slightly floral, pairs with mushrooms, potato, lamb and any bianca pie.",
+    note:"Strip leaves from woody stems before adding. More heat-stable than basil — can go before or after bake. Before bake: leaves slightly crisp and intensify. Post-bake: brighter, more delicate. Essential with wild mushrooms, potato and bianca builds.",
     qty:{ unit:"bunch", yield_g:15, per_pizza_g:3, per_pizza_oz:0.1, shared_yield:5, min_purchase:1 },
   },
   {
@@ -1398,7 +1398,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["herb","bitter"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Post-bake or last 30s — essential on marinara and Greek pies",
+    note:"Rub between fingers before scattering — breaks open dried cells and releases essential oils. Post-bake: residual heat and olive oil on the surface bloom the oils perfectly.",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.5, shared_yield:40, pantry:true, min_purchase:1 },
   },
   {
@@ -1445,7 +1445,7 @@ const TOPPINGS = [
     stores:["sara"], postbake:true,
     flavorNotes:["acid","fresh","crunch"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Ground dried sumac berry — intensely lemony and tart. Essential Levantine spice.",
-    note:"Post-bake — lemony, essential on Levantine, Turkish and lahmajun pies",
+    note:"Rub between fingers before scattering to release more flavor. Add post-bake. Adds tartness, deep red color and subtle crunch. The Levantine finishing spice.",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:1, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
@@ -1484,7 +1484,7 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["acid","fresh","herb"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Post-bake — brightens everything, criminally underused",
+    note:"Use a microplane — zest only the yellow outer layer, never the white pith. Add post-bake immediately before serving — aromatic oils are volatile. A small amount is enough — lemon zest is a perfume, not a flavor.",
     qty:{ unit:"lemon", yield_g:0, per_pizza_g:0, per_pizza_unit:0.3, min_purchase:1 },
   },
   {
@@ -1493,7 +1493,7 @@ const TOPPINGS = [
     profile:"E", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["cm"], postbake:true,
     flavorNotes:["sweet","heat","fat"], moisture:"postbake", weight:"light", presence:"accent",
-    note:"Calabrian style — post-bake drizzle. Essential with gorgonzola. Works with figs.",
+    note:"Post-bake drizzle only — sugar burns at pizza temperatures. The chili-honey contrast is specifically American gastropub. Pairs with gorgonzola, walnuts, figs.",
     qty:{ unit:"bottle", yield_g:0, per_pizza_g:0, per_pizza_tbsp:0.5, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
@@ -1503,7 +1503,7 @@ const TOPPINGS = [
     stores:["cm"], postbake:true,
     flavorNotes:["sweet","acid","umami"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Reduced balsamic from Modena — thick, sweet-sour syrup. Not regular balsamic vinegar.",
-    note:"Post-bake drizzle — classic with burrata, bresaola, arugula. Works on tomato sauce too.",
+    note:"Post-bake only — sugar burns immediately at pizza temperatures. Drizzle sparingly — it is sweet and very concentrated. Pairs with bresaola, arugula, Parmigiano.",
     qty:{ unit:"bottle", yield_g:0, per_pizza_g:0, per_pizza_tbsp:0.5, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
@@ -1513,7 +1513,7 @@ const TOPPINGS = [
     stores:["sara"], postbake:true,
     flavorNotes:["sweet","acid","umami"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Reduced pomegranate juice — thick, intensely sweet-sour. Used across Levantine and Turkish cooking.",
-    note:"Post-bake — use sparingly, very concentrated",
+    note:"Post-bake only — burns immediately at pizza temperatures. Extremely concentrated: thin with a few drops of warm water before drizzling. A very small amount goes very far.",
     qty:{ unit:"bottle", yield_g:0, per_pizza_g:0, per_pizza_tsp:1, shared_yield:30, pantry:true, min_purchase:1 },
   },
   {
@@ -1524,7 +1524,7 @@ const TOPPINGS = [
     stores:["sara"], postbake:true,
     flavorNotes:["fat","umami","acid"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Sesame paste thinned with lemon juice — nutty, rich, pairs with almost any Levantine pie.",
-    note:"Thin with lemon juice before drizzling — post-bake",
+    note:"Thin with lemon juice and a few drops of water before drizzling — straight from the jar it pastes rather than flows. Post-bake only. Do not combine with hummus sauce — hummus already contains tahini.",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tbsp:1, shared_yield:20, pantry:true, min_purchase:1 },
   },
   {
@@ -1553,7 +1553,7 @@ const TOPPINGS = [
     stores:["sara"], postbake:true,
     flavorNotes:["heat","acid","fat"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Syrian dried chili — fruity, moderately hot, oily. Completely different from regular chili flakes. Standard finish on lahmajun.",
-    note:"Post-bake — the Levantine chili finish. Essential on lahmajun.",
+    note:"Fruity, moderately hot, slightly oily — half the heat of generic chili flakes. Post-bake: scatter and the oil in the flakes blooms on the hot surface. The defining finishing spice for Turkish and Levantine builds.",
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tsp:0.5, shared_yield:40, pantry:true, min_purchase:1 },
   },
   {
@@ -1573,7 +1573,7 @@ const TOPPINGS = [
     stores:["sara"], postbake:true,
     flavorNotes:["crunch","herb","umami","fat"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Egyptian blend of roasted nuts, sesame, coriander and cumin — crunchy, aromatic, textural.",
-    note:"Post-bake — pairs with labneh or goat cheese pies",
+    note:"Post-bake only — scatter over hot pizza for crunch and warm spice. Store airtight — nuts go rancid quickly. Pairs with labneh, hummus, roasted vegetables and EVOO.",
     qty:{ unit:"bag", yield_g:0, per_pizza_g:0, per_pizza_tbsp:1, shared_yield:15, pantry:true, min_purchase:1 },
   },
   {
@@ -1716,7 +1716,7 @@ const TOPPINGS = [
     stores:["cm"], postbake:true,
     flavorNotes:["umami","fat","sweet"], moisture:"postbake", weight:"light", presence:"anchor",
     desc:"Truffle-infused olive oil — earthy, aromatic, luxurious. Classic on bianca with mushrooms or potato.",
-    note:"Post-bake only — a few drops, heat kills the aroma",
+    note:"Post-bake only — non-negotiable. Heat destroys truffle aroma instantly. 3-4 drops maximum — aggressive flavor. Best on white pizza where the clean backdrop lets it speak. Store in a cool dark place — light and heat degrade the aroma even in the bottle.",
     qty:{ unit:"bottle", yield_g:0, per_pizza_g:0, per_pizza_tsp:1, shared_yield:20, pantry:true, min_purchase:1 },
   },
   {
