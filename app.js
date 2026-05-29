@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.0
+// OMAR'S PIE — app.js v2.6.2
 // The Classics + clean engine
 // ============================================================
 
@@ -230,13 +230,19 @@ $("btn-roll").addEventListener("click", () => {
     renderPizza(state.currentPizza);
     showScreen("pizza");
   } catch(e) {
-    console.error("Roll error:",e);
-    showToast("Something went wrong — try again");
+    console.error("Roll error:", e.message);
+    console.error("Stack:", e.stack);
+    console.error("Pizza state:", JSON.stringify({
+      sauce: state.selectedSauce?.id,
+      cuisines: state.selectedCuisines,
+      complexity: state.complexity,
+    }));
+    showToast("Error: " + (e.message||"unknown").slice(0,80));
   }
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.0 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.2 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -689,43 +695,44 @@ function rollPizza() {
 
   // ── CHEF'S TOUCH ────────────────────────────────────────────
   // Elevated and Connoisseur only — one optional accent suggestion
+  // Wrapped in try/catch to prevent Chef's Touch bugs from breaking roll
   // Picks the finish item that adds the most missing dimension
-  if (!isTraditional) {
-    const allPickedIds = new Set(LAYER_ORDER.flatMap(l=>(pizza[l]||[]).filter(Boolean).map(t=>t.id)));
-    const finishIds    = new Set((pizza.finish||[]).filter(Boolean).map(t=>t.id));
-    const cuisines_    = [...cuisines];
+  try {
+    if (!isTraditional) {
+      const allPickedIds = new Set(LAYER_ORDER.flatMap(l=>(pizza[l]||[]).filter(Boolean).map(t=>t.id)));
+      const cuisines_    = [...cuisines];
 
-    // Find eligible Chef's Touch candidates
-    const touchCands = TOPPINGS.filter(t=>
-      t.layer === "finish" &&
-      CHEF_TOUCH_ELIGIBLE.has(t.id) &&
-      !allPickedIds.has(t.id) &&
-      !state.excludedItems.has(t.id) &&
-      PROFILE_INCLUDES[state.complexity].includes(t.profile) &&
-      (cuisines_.length === 0 || t.cuisine.some(c=>cuisines_.includes(c)))
-    );
+      const touchCands = TOPPINGS.filter(t=>
+        t.layer === "finish" &&
+        CHEF_TOUCH_ELIGIBLE.has(t.id) &&
+        !allPickedIds.has(t.id) &&
+        !state.excludedItems.has(t.id) &&
+        PROFILE_INCLUDES[state.complexity].includes(t.profile) &&
+        (cuisines_.length === 0 || t.cuisine.some(c=>cuisines_.includes(c)))
+      );
 
-    if (touchCands.length) {
-      // Score by gap-fill — how much does this add that's missing?
-      const scored = touchCands.map(t => {
-        const notes = t.flavorNotes || [];
-        const missing = notes.filter(n => (B.notes[n]||0) === 0);
-        const cuisine_match = cuisines_.length === 0 ||
-          cuisines_.every(c => (t.cuisine||[]).includes(c)) ? 2 :
-          cuisines_.some(c => (t.cuisine||[]).includes(c)) ? 1 : 0;
-        return { t, score: missing.length * 1.5 + cuisine_match };
-      });
-      scored.sort((a,b) => b.score - a.score);
-
-      // Pick top candidate — must add at least one new dimension
-      const best = scored.find(x => x.score > 0);
-      if (best) {
-        pizza._chefTouch = {
-          item:   best.t,
-          reason: CHEF_TOUCH_REASONS[best.t.id] || "Adds a finishing dimension to complete the build",
-        };
+      if (touchCands.length) {
+        const scored = touchCands.map(t => {
+          const notes = t.flavorNotes || [];
+          const missing = notes.filter(n => (B.notes[n]||0) === 0);
+          const cuisine_match = cuisines_.length === 0 ? 1 :
+            cuisines_.every(c => (t.cuisine||[]).includes(c)) ? 2 :
+            cuisines_.some(c => (t.cuisine||[]).includes(c)) ? 1 : 0;
+          return { t, score: missing.length * 1.5 + cuisine_match };
+        });
+        scored.sort((a,b) => b.score - a.score);
+        const best = scored.find(x => x.score > 0);
+        if (best) {
+          pizza._chefTouch = {
+            item:   best.t,
+            reason: CHEF_TOUCH_REASONS[best.t.id] || "Adds a finishing dimension to complete the build",
+          };
+        }
       }
     }
+  } catch(chefErr) {
+    console.warn("Chef's Touch error (non-fatal):", chefErr.message);
+    // Chef's Touch failure should never break the roll
   }
 
   pizza._ovenMode   = state.ovenMode;
