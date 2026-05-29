@@ -1937,3 +1937,8 @@ body::before {
   white-space: nowrap;
   flex-shrink: 0;
 }
+.swap-counter.is-orig {
+  color: var(--green);
+  background: var(--green-light);
+  border-color: var(--green);
+}

@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.4.4
+// OMAR'S PIE — app.js v2.4.8
 // The Classics + clean engine
 // ============================================================
 
@@ -237,7 +237,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.4.4 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.4.8 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -744,7 +744,7 @@ function renderPizza(pizza) {
         <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </button>
-        ${item._swapPosition?`<span class="swap-counter">${item._swapPosition}/${item._swapTotal}</span>`:""}
+        ${item._swapPosition?`<span class="swap-counter${item._swapIsOrig?" is-orig":""}">${item._swapIsOrig?"orig":item._swapPosition+"/"+item._swapTotal}</span>`:""}
         <button class="act-btn remove-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Remove">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -753,7 +753,7 @@ function renderPizza(pizza) {
         <button class="act-btn swap-btn" data-id="${item.id}" data-layer="${layer}" aria-label="Swap">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </button>
-        ${item._swapPosition?`<span class="swap-counter">${item._swapPosition}/${item._swapTotal}</span>`:""}
+        ${item._swapPosition?`<span class="swap-counter${item._swapIsOrig?" is-orig":""}">${item._swapIsOrig?"orig":item._swapPosition+"/"+item._swapTotal}</span>`:""}
         <button class="act-btn exclude-btn" data-id="${item.id}" aria-label="Exclude">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         </button>
@@ -963,7 +963,7 @@ function buildSwapSequence(oldId, layer) {
     (cuisines.length===0||t.cuisine.some(c=>cuisines.includes(c)))
   );
 
-  if (!cands.length) return [];
+  if (!cands.length) return [original]; // only option is original
 
   // Score all candidates by similarity to original
   const scored = cands.map(t=>({t, score:swapSimilarityScore(original,t)}));
@@ -971,7 +971,8 @@ function buildSwapSequence(oldId, layer) {
   // Sort by score descending — similar first
   scored.sort((a,b)=>b.score-a.score);
 
-  return scored.map(x=>x.t);
+  // Prepend original as position 0 — baker can always return to engine's first pick
+  return [original, ...scored.map(x=>x.t)];
 }
 
 function swapItem(oldId, layer) {
@@ -984,19 +985,21 @@ function swapItem(oldId, layer) {
     state.swapSequences[seqKey] = { sequence: seq, index: 0, total: seq.length };
   }
 
-  const swapState  = state.swapSequences[seqKey];
-  const total      = swapState.total;
-  const idx        = swapState.index;
+  const swapState   = state.swapSequences[seqKey];
+  const total       = swapState.total;
+  const idx         = swapState.index;
   const replacement = swapState.sequence[idx];
-  const position   = idx + 1;
+  const position    = idx + 1;
+  const isOriginal  = idx === 0;
 
   // Advance index — wrap around for repeat cycle
   swapState.index = (idx + 1) % total;
 
   // Store counter info on the replacement for the card to display
+  // Position 1 = original engine recommendation
   replacement._swapPosition = position;
   replacement._swapTotal    = total;
-  replacement._swapOrigId   = oldId;  // so next tap knows where to continue
+  replacement._swapIsOrig   = isOriginal;
 
   // Transfer sequence to new key (replacement id) so next tap continues
   state.swapSequences[`${replacement.id}:${layer}`] = {
@@ -1049,7 +1052,7 @@ function updateSessionBadge() {
   // Main badge
   const badge = $("session-badge");
   if (badge) { badge.textContent=count>0?count:""; badge.style.display=count>0?"flex":"none"; }
-  // Sub-nav badges on all sub-screens
+  // All sub-nav badges across all screens
   document.querySelectorAll(".sub-nav-badge").forEach(b => {
     b.textContent = count>0?count:"";
     b.style.display = count>0?"flex":"none";
