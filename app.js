@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.2
+// OMAR'S PIE — app.js v2.6.3
 // The Classics + clean engine
 // ============================================================
 
@@ -242,7 +242,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.2 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.3 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -258,6 +258,7 @@ function rollPizza() {
   const sauce         = state.selectedSauce;
   const sauceFamPrim  = sauce?.sauceFamilies?.[0] || "tomato";
   const buildProf     = SAUCE_BUILD_PROFILES[sauceFamPrim] || SAUCE_BUILD_PROFILES.tomato;
+  const isNosause     = sauce?.id === "nosause";
   const isConnoisseur = state.complexity === "connoisseur";
   const isTraditional = state.complexity === "traditional";
   const isElevated    = state.complexity === "elevated";
@@ -634,7 +635,7 @@ function rollPizza() {
 
   // ── COVERAGE CHECK ───────────────────────────────────────────
   // Nosause + no melt cheese = undercovered dough at Dome temp
-  const isNosause = sauce?.id === "nosause";
+  // isNosause declared at top of rollPizza
   const hasMeltCheese = (pizza.cheese||[]).some(c => MELT_CHEESES.has(c?.id));
   const hasProtein = (pizza.protein||[]).length > 0;
   const hasAnyPreBakeCheese = (pizza.cheese||[]).length > 0;
