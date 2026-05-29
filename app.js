@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.5.0
+// OMAR'S PIE — app.js v2.5.2
 // The Classics + clean engine
 // ============================================================
 
@@ -237,7 +237,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.5.0 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.5.2 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -1134,13 +1134,7 @@ function restoreScroll(screen) {
   if (el) requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.scrollTop = scrollMemory[screen]||0; }));
 }
 
-$("btn-library").addEventListener("click",()=>{
-  state.libraryFilter=null;
-  state.libraryCuisineFilters=new Set();
-  renderLibrary();
-  showScreen("library");
-  restoreScroll("library");
-});
+// btn-library moved to header menu — see initHeaderMenu()
 
 
 // ── LIBRARY STATE ─────────────────────────────────────────
