@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.6.0";
+const APP_VERSION = "2.6.1";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -138,31 +138,24 @@ const SAUCE_BUILD_PROFILES = {
   },
   herb: {
     base:    { prob:0.55, count:[1,1] },
-    cheese:  { prob:0.85, count:[1,1] },
+    cheese:  { prob:0.70, count:[1,1] },
     protein: { prob:0.30, count:[1,1] },
     veg:     { prob:0.85, count:[1,2] },
     finish:  { prob:0.95, count:[1,2] },
   },
   spicepaste: {
-    base:    { prob:0.30, count:[1,1] },
-    cheese:  { prob:0.75, count:[1,1] },
-    protein: { prob:0.85, count:[1,1] },
-    veg:     { prob:0.60, count:[1,1] },
-    finish:  { prob:0.80, count:[1,2] },
-  },
-  nosause: {
-    base:    { prob:0.98, count:[1,1] },  // base almost always on bianca
-    cheese:  { prob:1.00, count:[1,2] },  // cheese mandatory on bianca
-    protein: { prob:0.35, count:[1,1] },  // protein less common on bianca
-    veg:     { prob:0.65, count:[1,2] },
-    finish:  { prob:0.98, count:[1,3] },  // finish is crucial on bianca
-  },
-  spicepaste: {
     base:    { prob:0.20, count:[1,1] },
     cheese:  { prob:0.80, count:[1,1] },
-    protein: { prob:0.88, count:[1,1] },  // spicepaste almost always has protein
+    protein: { prob:0.88, count:[1,1] },
     veg:     { prob:0.55, count:[1,1] },
     finish:  { prob:0.82, count:[1,2] },
+  },
+  nosause: {
+    base:    { prob:0.98, count:[1,1] },
+    cheese:  { prob:1.00, count:[1,2] },
+    protein: { prob:0.35, count:[1,1] },
+    veg:     { prob:0.65, count:[1,2] },
+    finish:  { prob:0.98, count:[1,3] },
   },
 };
 
