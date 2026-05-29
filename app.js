@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.5.2
+// OMAR'S PIE — app.js v2.5.3
 // The Classics + clean engine
 // ============================================================
 
@@ -36,7 +36,7 @@ const state = {
 const $ = id => document.getElementById(id);
 function saveAnchored() { localStorage.setItem("op_anchored", JSON.stringify([...state.anchoredItems])); }
 function saveExcluded()  { localStorage.setItem("op_excluded",  JSON.stringify([...state.excludedItems])); }
-function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(-20))); }
+function saveHistory()   { localStorage.setItem("op_history",   JSON.stringify(state.history.slice(0,10))); }
 function saveSession()   { localStorage.setItem("op_session",   JSON.stringify(state.session)); }
 function saveSaved()     { localStorage.setItem("op_saved",     JSON.stringify(state.saved)); }
 function uid()           { return Math.random().toString(36).slice(2,9); }
@@ -226,9 +226,8 @@ $("btn-roll").addEventListener("click", () => {
     state.classicModified = false;
     state.swapSequences = {};  // clear swap state on new roll
     state.currentPizza = rollPizza();
+    state.currentPizza._interacted = false;  // track meaningful interaction
     renderPizza(state.currentPizza);
-    state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
-    saveHistory();
     showScreen("pizza");
   } catch(e) {
     console.error("Roll error:",e);
@@ -237,7 +236,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.5.2 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.5.3 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -692,6 +691,16 @@ function getCandidates(layer) {
   );
 }
 
+// ── HISTORY: save only on meaningful interaction ─────────────
+function saveToHistory(pizza) {
+  if (!pizza) return;
+  if (pizza._historySaved) return;  // prevent duplicates
+  pizza._historySaved = true;
+  const cuisines = pizza._cuisines || state.selectedCuisines || [];
+  state.history.unshift({pizza, cuisines:[...cuisines], ts:Date.now()});
+  saveHistory();
+}
+
 // ── RENDER PIZZA ─────────────────────────────────────────────
 function renderPizza(pizza) {
   const container=$("pizza-layers");
@@ -914,8 +923,7 @@ function renderPizza(pizza) {
           state.currentPizza=rollPizza();
           renderPizza(state.currentPizza);
           state.swapSequences = {};
-          state.history.unshift({pizza:state.currentPizza,cuisines:[...state.selectedCuisines],ts:Date.now()});
-          saveHistory();
+          state.currentPizza._interacted = false;
         } catch(e) { showToast("Re-top failed — try again"); }
       });
     }
@@ -927,6 +935,7 @@ function renderPizza(pizza) {
 function wirePizzaActions() {
   $("btn-save-pie")?.addEventListener("click",()=>{
     if (!state.currentPizza) return;
+    saveToHistory(state.currentPizza);  // meaningful interaction
     const def = state.currentPizza._classicName ||
       state.currentPizza._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" + ") || "My Pie";
     const name=prompt("Name this pie:",def);
@@ -938,6 +947,7 @@ function wirePizzaActions() {
   $("btn-add-to-list")?.addEventListener("click",()=>{
     if (!state.currentPizza) return;
     if (state.session.length>=6){showToast("Session full — max 6 pizzas");return;}
+    saveToHistory(state.currentPizza);  // meaningful interaction
     const name=state.currentPizza._classicName||
       state.currentPizza._cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" + ")||"My Pie";
     state.session.push({id:"sess_"+uid(),pizzaName:name,pizza:state.currentPizza,count:1,checked:{}});
@@ -1056,6 +1066,11 @@ function swapItem(oldId, layer) {
   // Apply replacement
   state.currentPizza[layer] = state.currentPizza[layer].map(t=>t?.id===oldId?replacement:t);
 
+  // Swap = meaningful interaction — save to history
+  if (!state.currentPizza._historySaved) {
+    saveToHistory(state.currentPizza);
+  }
+
   renderPizza(state.currentPizza);
 }
 
@@ -1108,7 +1123,7 @@ function updateSessionBadge() {
 function renderHistory() {
   const container=$("history-list");container.innerHTML="";
   if (!state.history.length){container.innerHTML=`<p class="empty-state">No pies rolled yet.</p>`;return;}
-  state.history.slice(0,15).forEach((entry,i)=>{
+  state.history.slice(0,10).forEach((entry,i)=>{
     const cl=entry.cuisines.map(id=>{const c=CUISINES.find(x=>x.id===id);return c?`${c.emoji} ${c.label}`:id;}).join(" × ")||"Freestyle";
     const summary=LAYER_ORDER.map(layer=>{const items=entry.pizza[layer];if(!items?.length)return null;return`${LAYER_META[layer].emoji} ${items.filter(Boolean).map(t=>t.name).join(", ")}`;}).filter(Boolean).join(" · ");
     const row=document.createElement("div");row.className="history-entry";

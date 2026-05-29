@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.5.1";
+const APP_VERSION = "2.5.3";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -151,11 +151,18 @@ const SAUCE_BUILD_PROFILES = {
     finish:  { prob:0.80, count:[1,2] },
   },
   nosause: {
-    base:    { prob:0.95, count:[1,1] },
-    cheese:  { prob:1.00, count:[1,2] },
-    protein: { prob:0.50, count:[1,1] },
+    base:    { prob:0.98, count:[1,1] },  // base almost always on bianca
+    cheese:  { prob:1.00, count:[1,2] },  // cheese mandatory on bianca
+    protein: { prob:0.35, count:[1,1] },  // protein less common on bianca
     veg:     { prob:0.65, count:[1,2] },
-    finish:  { prob:0.90, count:[1,2] },
+    finish:  { prob:0.98, count:[1,3] },  // finish is crucial on bianca
+  },
+  spicepaste: {
+    base:    { prob:0.20, count:[1,1] },
+    cheese:  { prob:0.80, count:[1,1] },
+    protein: { prob:0.88, count:[1,1] },  // spicepaste almost always has protein
+    veg:     { prob:0.55, count:[1,1] },
+    finish:  { prob:0.82, count:[1,2] },
   },
 };
 
@@ -180,6 +187,10 @@ const HARD_CONFLICTS = [
   // Topping → topping conflicts (presence-based)
   { sauce:"pesto",        topping:"fresh_basil",    reason:"basil on basil — pesto IS basil" },
   { sauce:"hummus_sauce", topping:"tahini_drizzle", reason:"hummus already contains tahini" },
+  { topping1:"bufala",        topping2:"fresh_mozz",     reason:"same fresh mozzarella family" },
+  { topping1:"nduja_homemade",topping2:"sujuk",          reason:"two rendering cured meats — too much fat" },
+  { topping1:"gorgonzola",    topping2:"gorgonzola_dolce",reason:"same cheese two forms" },
+  { topping1:"chermoula",     topping2:"fresh_cilantro",  reason:"cilantro on cilantro" },
   { topping1:"fior_di_latte", topping2:"fresh_mozz",    reason:"same ingredient different form" },
   { topping1:"fior_di_latte", topping2:"shredded_mozz", reason:"same ingredient different form" },
   { topping1:"fresh_mozz",    topping2:"shredded_mozz", reason:"same ingredient different form" },
@@ -325,7 +336,7 @@ const TOPPINGS = [
   },
   {
     id:"chipotle_base", name:"Chipotle adobo smear",
-    layer:"base", cuisine:["mexican"],
+    layer:"base", cuisine:["mexican","american"],
     profile:"E", sauceFamilies:["spicepaste"],
     compatibleSauceFamilies:["spicepaste","tomato"],
     stores:["cm"],
@@ -700,7 +711,7 @@ const TOPPINGS = [
   },
   {
     id:"parmigiano_primary", name:"Parmigiano-Reggiano (grated, primary)",
-    layer:"cheese", cuisine:["neapolitan"],
+    layer:"cheese", cuisine:["neapolitan","merican"],
     profile:"E", sauceFamilies:["nosause","herb","dairy"],
     stores:["cm"],
     flavorNotes:["umami","acid","crunch","fat"], moisture:"dry", weight:"light", presence:"anchor",
@@ -790,7 +801,7 @@ const TOPPINGS = [
     id:"basturma", name:"Basturma (beef)",
     layer:"protein", cuisine:["turkish","levantine","greek","northafrican"],
     profile:"C", sauceFamilies:["tomato","spicepaste","nosause"],
-    stores:["sara"], prep:PREP.READY,
+    stores:["sara"], postbake:true, prep:PREP.READY,
     flavorNotes:["spice","umami","fat","smoke"], moisture:"dry", weight:"light", presence:"supporting",
     desc:"Air-dried cured beef coated in fenugreek-spice paste (çemen) — intensely flavored, very aromatic. A true Connoisseur ingredient.",
     note:"Post-bake preferred — the çemen spice paste (fenugreek, garlic, cumin, paprika) scorches and turns bitter under direct high heat. Slice paper-thin and drape over the hot pizza after pulling. Residual heat warms it perfectly. Extremely assertive flavor — use sparingly. Pairs with kaşar or kashkaval which can stand up to it.",
@@ -800,7 +811,7 @@ const TOPPINGS = [
     id:"anchovy", name:"Anchovy (oil-packed)",
     layer:"protein", cuisine:["neapolitan","greek","levantine"],
     profile:"T", sauceFamilies:["tomato","herb","nosause"],
-    stores:["cm"], prep:PREP.READY,
+    stores:["cm"], prep:PREP.READY, postbake:true,
     flavorNotes:["brine","umami","fat"], moisture:"low", weight:"light", presence:"supporting",
     desc:"Salt-cured fish fillets in olive oil — intensely savory and umami. A Neapolitan staple. Amplifies capers.",
     note:"Safe to eat straight from the can — fully cured, no cooking needed for safety. Post-bake on the hot pizza: the residual heat warms them gently and releases the aromatic oils without concentrating the salt. Quality matters completely — cheap anchovies in vegetable oil are why anchovy pizza has a bad reputation. Use oil-packed fillets in olive oil. Rinse briefly under cold water to reduce excess salt.",
@@ -951,7 +962,7 @@ const TOPPINGS = [
   },
   {
     id:"nduja_homemade", name:"Homemade Beef Nduja",
-    layer:"protein", cuisine:["neapolitan"],
+    layer:"protein", cuisine:["neapolitan","merican"],
     profile:"E", sauceFamilies:["tomato","spicepaste","nosause"],
     stores:["sara"], prep:PREP.PRE, homemade:true,
     make_ahead:true, make_ahead_timing:"day before",
@@ -1058,7 +1069,7 @@ const TOPPINGS = [
   },
   {
     id:"spring_onion", name:"Spring onion (scallion)",
-    layer:"veg", cuisine:["levantine","turkish","greek","mexican","american","northafrican"],
+    layer:"veg", cuisine:["levantine","turkish","greek","mexican","american","northafrican","ndian"],
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fresh","acid","herb"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1216,7 +1227,7 @@ const TOPPINGS = [
   },
   {
     id:"broccoli_rabe", name:"Broccoli rabe (rapini)",
-    layer:"veg", cuisine:["neapolitan"],
+    layer:"veg", cuisine:["neapolitan","merican"],
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"],
     flavorNotes:["herb","bitter","umami"], moisture:"medium", weight:"medium", presence:"supporting",
@@ -1450,7 +1461,7 @@ const TOPPINGS = [
   },
   {
     id:"zaatar_finish", name:"Za'atar (sprinkled)",
-    layer:"finish", cuisine:["levantine","turkish","northafrican"],
+    layer:"finish", cuisine:["levantine","turkish","northafrican","reek"],
     profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["herb","acid","crunch"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1615,7 +1626,7 @@ const TOPPINGS = [
   },
   {
     id:"lime_crema", name:"Lime crema",
-    layer:"finish", cuisine:["mexican"],
+    layer:"finish", cuisine:["mexican","american"],
     profile:"T", sauceFamilies:["tomato","spicepaste"],
     stores:["cm"], postbake:true,
     flavorNotes:["acid","cream","fat"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1757,7 +1768,7 @@ const LAHMAJUN_SPREAD_REF = {
 };
 
 const ZAATAR_SPREAD_REF = {
-  id:"zaatar_oil", name:"Za'atar oil spread",
+  id:"zaatar_oil_ref", name:"Za'atar oil spread",
   layer:"base", cuisine:["levantine","turkish"],
   profile:"E", sauceFamilies:["nosause","herb","dairy"],
   stores:["sara"],
@@ -1876,7 +1887,7 @@ const CLASSICS = [
     pizza:{
       base:    [T("evoo_base")],
       sauce:   [T("nosause")],
-      cheese:  [T("fior_di_latte"), T("gorgonzola"), T("fontina")],
+      cheese:  [T("fior_di_latte"), T("gorgonzola_dolce"), T("fontina")],
       protein: [],
       veg:     [],
       finish:  [T("parmigiano"), T("finish_evoo")],
@@ -1895,7 +1906,7 @@ const CLASSICS = [
       cheese:  [T("fior_di_latte")],
       protein: [],
       veg:     [T("mushroom_wild")],
-      finish:  [T("truffle_oil"), T("rosemary"), T("parmigiano")],
+      finish:  [T("truffle_oil"), T("rosemary"), T("parmigiano"), T("fresh_thyme")],
     },
   },
   {
@@ -1903,7 +1914,7 @@ const CLASSICS = [
     cuisine:"neapolitan", emoji:"🍅",
     description:"Potato and rosemary bianca. The humble genius of Neapolitan white pizza.",
     history:"From the cucina povera tradition — peasant ingredients transformed by technique. Paper-thin potato slices, fresh rosemary, fior di latte. Nothing else needed.",
-    chefNote:"Slice potato paper-thin — a mandoline if you have one. Layer directly on EVOO base. The potato cooks in the Dome heat. Rosemary before bake, Parmigiano and EVOO after.",
+    chefNote:"Dock the dough before dressing — light bianca needs it at Dome temp. Mandoline for paper-thin potato (1-2mm). Rinse slices in cold water, pat dry. Layer directly on EVOO base. Rosemary pressed into oil before bake. Parmigiano and EVOO post-bake.",
     ovenMode:"dome",
     pizza:{
       base:    [T("evoo_base")],
@@ -2400,7 +2411,7 @@ const CLASSICS = [
     pizza:{
       base:    [T("evoo_base")],
       sauce:   [T("nosause")],
-      cheese:  [T("gorgonzola")],
+      cheese:  [T("gorgonzola_dolce")],
       protein: [],
       veg:     [T("figs_dried")],
       finish:  [T("toasted_walnuts"), T("hot_honey"), T("rosemary")],
@@ -2435,7 +2446,7 @@ const CLASSICS = [
       cheese:  [T("fontina")],
       protein: [],
       veg:     [T("mushroom_wild"), T("rosemary")],
-      finish:  [T("truffle_oil"), T("parmigiano"), T("maldon_salt")],
+      finish:  [T("truffle_oil"), T("parmigiano"), T("maldon_salt"), T("fresh_thyme")],
     },
   },
 
