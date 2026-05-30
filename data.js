@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.3";
+const APP_VERSION = "2.7.4";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -701,6 +701,31 @@ const TOPPINGS = [
     flavorNotes:["acid","spice","umami"], moisture:"medium", weight:"light", presence:"anchor",
     desc:"Spiced North African tomato sauce with peppers and cumin — sold jarred at Sara's.",
     note:"Must be reduced until very thick before applying — watery shakshuka soaks the dough immediately. Crack egg directly into the sauce before the bake. Feta in the last 45 seconds. Flat parsley and Aleppo pepper post-bake always.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "1 can (800g) crushed tomatoes, or 6 fresh ripe tomatoes, diced",
+        "1 red bell pepper, finely diced",
+        "1 medium onion, finely diced",
+        "4 cloves garlic, minced",
+        "2 tbsp EVOO",
+        "1 tsp cumin",
+        "1 tsp smoked paprika",
+        "½ tsp cayenne or Aleppo pepper",
+        "1 tbsp tomato paste",
+        "Salt to taste",
+      ],
+      method:[
+        "Heat EVOO in a wide pan over medium heat. Add onion and pepper, cook 8-10 minutes until soft.",
+        "Add garlic, cumin, paprika and cayenne. Cook 1 minute until fragrant — the spices must bloom in the oil.",
+        "Stir in tomato paste and cook 1 minute more.",
+        "Add crushed tomatoes and stir well. Bring to a simmer.",
+        "Simmer uncovered on medium-low, stirring frequently, for 20-25 minutes.",
+        "The sauce MUST be very thick — much thicker than a pasta sauce. Watery shakshuka sauce soaks the dough before it bakes. Reduce until it holds its shape on a spoon.",
+        "Cool completely before using on pizza. Keeps 5 days refrigerated.",
+      ]
+    },
+    
     qty:{ unit:"jar (450g)", yield_g:450, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:6, min_purchase:1 },
   },
   {
@@ -712,6 +737,28 @@ const TOPPINGS = [
     flavorNotes:["herb","fat","umami"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Basil, Parmigiano, pine nuts, garlic, EVOO — applied thin directly on the dough as the sauce. Heat dulls pesto's brightness, so compensate post-bake with fresh basil or lemon zest to restore what the oven took away. Oil-based — spread sparingly or the pizza becomes greasy.",
     note:"Apply thin — it is the sauce. Heat dulls pesto brightness. Compensate post-bake: add fresh basil, lemon zest or extra Parmigiano to restore the brightness the oven removes. Oil-based — use sparingly or the pizza becomes greasy.",
+    recipe:{
+      makes:"covers 4-6 pizzas — keeps 5 days refrigerated",
+      ingredients:[
+        "70g fresh basil leaves, packed (or fresh za'atar from the garden)",
+        "30g pine nuts",
+        "2 cloves garlic",
+        "40g Parmigiano Reggiano, finely grated",
+        "20g Pecorino Romano, finely grated (optional — adds sharpness)",
+        "120ml light EVOO",
+        "½ tsp salt",
+      ],
+      method:[
+        "Chill the food processor bowl in the freezer for 10 minutes before blending — cold blades prevent the basil oxidizing and turning black.",
+        "Toast pine nuts in a dry pan 3-4 minutes until golden. Cool completely before using — warm nuts will cook the basil in the processor.",
+        "Add basil, toasted pine nuts, garlic and salt to the cold food processor. Pulse 5-6 times until a rough paste forms.",
+        "With the motor running, drizzle EVOO in gradually until smooth. Avoid over-blending — stop before it becomes a purée.",
+        "Transfer to a bowl and fold in the grated cheeses by hand — this preserves texture.",
+        "On pizza: spread thin and wall to wall. Heat dulls pesto — finish with fresh basil post-bake and shaved Parmigiano to restore brightness.",
+        "Store with a thin layer of EVOO on top. Pesto browns quickly when exposed to air.",
+      ]
+    },
+    
     qty:{ unit:"jar (170g)", yield_g:170, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:4, min_purchase:1 },
   },
   {
@@ -722,6 +769,28 @@ const TOPPINGS = [
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Classic French béchamel — butter, flour, milk, nutmeg. Must be made fresh and cooled completely before spreading, otherwise it soaks straight into the dough. Works better at steel oven temperatures than the Dome — at 900°F it can bubble aggressively.",
     note:"Make fresh and cool completely before spreading — warm béchamel soaks into the dough. Must be thick enough to coat the back of a spoon. Works better at steel oven (550°F) than Dome — at 900°F it can bubble aggressively.",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "450ml whole milk",
+        "50g unsalted butter",
+        "50g plain flour",
+        "½ tsp ground nutmeg",
+        "1 bay leaf",
+        "½ onion (for infusing)",
+        "Salt and white pepper",
+      ],
+      method:[
+        "Infuse the milk: place milk, bay leaf, onion half and nutmeg in a saucepan. Bring gently to near-boil. Turn off heat and steep 15 minutes. Strain and discard solids.",
+        "Make the roux: melt butter in a separate heavy saucepan over medium heat. Add flour and stir constantly for 2 minutes — the roux must cook to remove the raw flour taste but must not brown.",
+        "Remove from heat. Add a splash of warm infused milk and whisk vigorously until smooth. Return to medium-low heat.",
+        "Add remaining milk gradually in a thin stream, whisking constantly to prevent lumps.",
+        "Cook over gentle heat, stirring continuously, for 8-10 minutes until the sauce thickly coats the back of a spoon.",
+        "Season with salt and white pepper. Cool before spreading on pizza.",
+        "Must be cool and thick before applying — hot béchamel soaks into the dough. If too thick when cold, add a splash of milk and whisk smooth.",
+      ]
+    },
+    
     qty:{ unit:"make fresh", yield_g:0, per_pizza_g:60, per_pizza_oz:2.1, min_purchase:1 },
   },
   {
@@ -792,6 +861,31 @@ const TOPPINGS = [
     flavorNotes:["sweet","smoke","spice","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Syrian roasted red pepper and walnut spread — sweet, smoky, slightly spicy. A Levantine gem.",
     note:"Apply thin — rich and dense. The walnut is essential to what makes it muhammara. Do not add more pomegranate molasses as a topping — it is already in the sauce. Pairs with lamb kofta, kashkaval and roasted peppers.",
+    recipe:{
+      makes:"covers 6-8 pizzas — keeps 1 week refrigerated",
+      ingredients:[
+        "3 large red bell peppers",
+        "1 cup walnuts",
+        "3 tbsp breadcrumbs",
+        "2 tbsp pomegranate molasses (Sara's or CM)",
+        "2 cloves garlic",
+        "1 tbsp EVOO",
+        "1 tbsp lemon juice",
+        "1 tsp Aleppo pepper",
+        "½ tsp cumin",
+        "½ tsp salt",
+      ],
+      method:[
+        "Char the peppers: place whole under a high broiler, turning every 5 minutes until blackened all over, about 20 minutes. Place in a covered bowl to steam for 15 minutes.",
+        "Peel, seed and roughly chop the peppers — the charred skin slips off easily. Pat dry. Some char remaining is fine and adds flavor.",
+        "Toast walnuts in a dry pan over medium heat 3-4 minutes until fragrant. Do not skip — raw walnuts taste bitter in this sauce.",
+        "Add walnuts, breadcrumbs and garlic to a food processor. Pulse until finely ground.",
+        "Add peppers, pomegranate molasses, EVOO, lemon juice, Aleppo pepper, cumin and salt. Pulse until mostly smooth but still slightly textured.",
+        "Taste and adjust — more pomegranate molasses for sweetness, more lemon for brightness, more Aleppo for heat.",
+        "On pizza: spread like a tomato sauce. Muhammara is the sauce AND the flavor statement — keep toppings restrained.",
+      ]
+    },
+    
     qty:{ unit:"jar or fresh (200g)", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:3, min_purchase:1 },
   },
   {
@@ -803,6 +897,31 @@ const TOPPINGS = [
     flavorNotes:["herb","acid","spice"], moisture:"low", weight:"light", presence:"anchor",
     desc:"North African herb marinade — parsley, cilantro, cumin, lemon. Similar to chimichurri but warmer.",
     note:"Apply thin like pesto — intensely flavored. The heat dulls fresh herb brightness — add flat parsley post-bake to restore it. Pairs with merguez, roasted peppers, feta and preserved lemon.",
+    recipe:{
+      makes:"covers 6-8 pizzas — keeps 5 days refrigerated",
+      ingredients:[
+        "1 cup fresh cilantro, packed",
+        "1 cup fresh flat parsley, packed",
+        "4 cloves garlic",
+        "1 tsp ground cumin",
+        "1 tsp smoked paprika",
+        "½ tsp ground coriander",
+        "½ tsp Aleppo pepper or red chili flakes",
+        "Juice of 1 lemon",
+        "½ tsp salt",
+        "½ cup EVOO",
+      ],
+      method:[
+        "Rough chop cilantro and parsley — stems included for flavor.",
+        "Add herbs, garlic, all spices, lemon juice and salt to a food processor.",
+        "Pulse 4-5 times until a rough paste forms — avoid over-blending to sludge.",
+        "With the motor running, drizzle in EVOO gradually until smooth but still textured.",
+        "Rest 15-20 minutes before using — the flavors meld significantly in this time.",
+        "On pizza: spread thin wall to wall. Chermoula is assertive — a little covers a lot.",
+        "Store with a thin layer of EVOO on top to prevent oxidation. Keeps 5 days refrigerated.",
+      ]
+    },
+    
     qty:{ unit:"jar or fresh (200g)", yield_g:200, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:4, min_purchase:1 },
   },
   {
@@ -823,6 +942,34 @@ const TOPPINGS = [
     flavorNotes:["spice","cream","umami","acid"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Creamy tomato-based Indian sauce — garam masala, ginger, garlic. Bold and aromatic.",
     note:"Reduce until thick before applying — never watery",
+    recipe:{
+      makes:"covers 6-8 pizzas — freezes well",
+      ingredients:[
+        "2 medium onions, finely diced",
+        "4 cloves garlic, minced",
+        "1 inch fresh ginger, grated",
+        "2 tbsp butter or ghee",
+        "1 tsp cumin",
+        "1 tsp coriander",
+        "1 tsp garam masala",
+        "1 tsp smoked paprika",
+        "½ tsp turmeric",
+        "1 tbsp tomato paste",
+        "1 can (400g) crushed tomatoes",
+        "½ cup heavy cream or coconut milk",
+        "Salt to taste",
+      ],
+      method:[
+        "Melt butter in a pan over medium heat. Add onions and cook 7-8 minutes until lightly browned.",
+        "Add garlic and ginger. Cook 1 minute until fragrant.",
+        "Add all dry spices and toast in the oil for 30 seconds — this is essential, spices must bloom.",
+        "Stir in tomato paste and cook 1 minute more.",
+        "Add crushed tomatoes. Simmer 15 minutes, stirring occasionally.",
+        "Blend smooth. Return to pan and stir in cream. Simmer 5 more minutes.",
+        "For pizza: the sauce must be thick enough to spread without pooling. Reduce further if needed. Cool before using.",
+      ]
+    },
+    
     qty:{ unit:"jar (350g)", yield_g:350, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:4, min_purchase:1 },
   },
   {
@@ -833,6 +980,32 @@ const TOPPINGS = [
     flavorNotes:["cream","spice","fat","umami"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Richer, creamier Indian sauce than tikka — butter-forward with gentle spice.",
     note:"Reduce before use — pairs beautifully with paneer",
+    recipe:{
+      makes:"covers 6-8 pizzas — freezes well in portions",
+      ingredients:[
+        "500g ripe tomatoes, roughly chopped (or 1 can crushed tomatoes)",
+        "1 medium onion, roughly chopped",
+        "4 cloves garlic",
+        "1 inch fresh ginger",
+        "2 tbsp butter",
+        "1 tsp Kashmiri chili powder (for color and mild heat)",
+        "1 tsp garam masala",
+        "1 tsp kasuri methi (dried fenugreek leaves — essential)",
+        "½ cup heavy cream",
+        "1 tbsp cashews (optional — adds silky richness)",
+        "Salt and sugar to taste",
+      ],
+      method:[
+        "Melt butter in a heavy pan. Add garlic, ginger and cashews if using. Sauté 3-4 minutes until garlic is lightly golden.",
+        "Add onion and cook until lightly browned, about 5-6 minutes.",
+        "Add Kashmiri chili powder and stir for 30 seconds. Add tomatoes and mix well.",
+        "Simmer covered on medium-low for 15-20 minutes until tomatoes are very soft.",
+        "Cool slightly then blend completely smooth. Strain through a fine sieve for a velvety texture.",
+        "Return to pan. Stir in cream and kasuri methi. Simmer 5 minutes — the dried fenugreek is non-negotiable for authentic flavor.",
+        "Season with salt and a pinch of sugar. The sauce should be thick, creamy and deeply red-orange. Reduce further if too loose for pizza.",
+      ]
+    },
+    
     qty:{ unit:"jar (350g)", yield_g:350, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:4, min_purchase:1 },
   },
   {
@@ -843,6 +1016,28 @@ const TOPPINGS = [
     flavorNotes:["acid","fresh","spice"], moisture:"medium", weight:"light", presence:"anchor",
     desc:"Charred green tomatillo sauce — tangy, bright, distinctly Mexican.",
     note:"Mexican hard lock — char and reduce before using",
+    recipe:{
+      makes:"covers 4-6 pizzas — keeps 1 week refrigerated",
+      ingredients:[
+        "500g tomatillos, husked and rinsed",
+        "1 medium white onion, quartered",
+        "2-3 serrano or jalapeño chiles",
+        "3 cloves garlic, unpeeled",
+        "Small handful fresh cilantro",
+        "Juice of 1 lime",
+        "1 tsp salt",
+      ],
+      method:[
+        "Remove husks from tomatillos and rinse to remove the sticky coating. Pat dry.",
+        "Place tomatillos, onion, chiles and garlic on a foil-lined baking sheet.",
+        "Broil on high, 6 inches from element, for 15-17 minutes turning occasionally until charred on all sides. You want actual char spots — not just warmed vegetables. The char is the whole point.",
+        "Squeeze garlic from skins. Transfer all charred vegetables and any juices to a blender.",
+        "Add cilantro, lime juice and salt. Blend until combined but slightly textured — not completely smooth.",
+        "Taste and adjust salt and heat. For a milder salsa, remove seeds from chiles before broiling.",
+        "Must be reduced thick before using on pizza — watery tomatillo salsa soaks the dough immediately. Simmer in a pan if needed until thick.",
+      ]
+    },
+    
     qty:{ unit:"jar (450g)", yield_g:450, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:6, min_purchase:1 },
   },
   {
@@ -853,6 +1048,28 @@ const TOPPINGS = [
     flavorNotes:["smoke","acid","spice","umami"], moisture:"medium", weight:"light", presence:"anchor",
     desc:"Ancho chili and charred tomato sauce — smoky, deep, distinctly Mexican.",
     note:"Mexican hard lock — smoky depth, reduce well",
+    recipe:{
+      makes:"covers 4-6 pizzas — keeps 4 days refrigerated",
+      ingredients:[
+        "500g ripe Roma tomatoes, halved",
+        "1 medium white onion, quartered",
+        "2-3 jalapeño or serrano chiles",
+        "3 cloves garlic, unpeeled",
+        "Small handful fresh cilantro",
+        "Juice of ½ lime",
+        "1 tsp salt",
+      ],
+      method:[
+        "Place tomatoes cut-side up, onion, chiles and garlic on a dry baking sheet. No oil.",
+        "Broil on high for 7 minutes, rotate with tongs, then broil another 7 minutes. Add unpeeled garlic in the second round — it burns faster.",
+        "Everything should be charred on the surface — blackened spots are flavor, not failure.",
+        "Cool slightly. Squeeze garlic from skins. Transfer everything including juices and skins to a blender.",
+        "Add cilantro, lime juice and salt. Pulse to a coarse texture — chunky restaurant-style.",
+        "For pizza: the sauce must be thick. If too loose, flash-fry in a hot pan with a tbsp of oil for 3 minutes — this deepens flavor and reduces moisture.",
+        "Keeps 4 days refrigerated. Freezes well.",
+      ]
+    },
+    
     qty:{ unit:"jar (450g)", yield_g:450, per_pizza_g:75, per_pizza_oz:2.6, shared_yield:6, min_purchase:1 },
   },
   {
@@ -863,6 +1080,29 @@ const TOPPINGS = [
     flavorNotes:["umami","fat","cream"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Chickpea and tahini puree — earthy, nutty, creamy. Use thin or it overwhelms.",
     note:"Spread thin — hummus is dense and can overwhelm. Already contains tahini and garlic — do not add either as separate toppings. Works best at steel oven temps — at Dome the chickpea base can char at the edges.",
+    recipe:{
+      makes:"covers 6-8 pizzas — keeps 5 days refrigerated",
+      ingredients:[
+        "1 can (400g) chickpeas, drained and rinsed",
+        "½ cup good tahini (Soom or Cedar's from CM)",
+        "Juice of 1½ lemons",
+        "2 small cloves garlic",
+        "3-4 tbsp ice cold water",
+        "3 tbsp EVOO",
+        "½ tsp cumin",
+        "1 tsp salt",
+      ],
+      method:[
+        "Key technique: blend tahini and lemon juice FIRST for 1 minute before adding anything else. This creams the tahini and is the secret to ultra-smooth hummus.",
+        "Add garlic, cumin and salt. Blend 30 seconds.",
+        "Add drained chickpeas. Blend 2-3 minutes, adding ice cold water tablespoon by tablespoon until smooth and light.",
+        "With motor running, drizzle in EVOO. Blend until silky.",
+        "For extra smoothness: peel skins off chickpeas before blending — tedious but results in noticeably creamier hummus.",
+        "On pizza: hummus must be thick — if too loose, drain through a sieve for 30 minutes. Spread wall to wall. Pairs with roasted garlic cloves, za'atar, pine nuts and EVOO as finish.",
+        "Available ready-made at Sara's — check thickness before using directly on pizza.",
+      ]
+    },
+    
     qty:{ unit:"tub (400g)", yield_g:400, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:6, min_purchase:1 },
   },
   {
