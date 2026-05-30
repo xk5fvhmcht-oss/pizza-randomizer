@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.3
+// OMAR'S PIE — app.js v2.6.4
 // The Classics + clean engine
 // ============================================================
 
@@ -11,7 +11,7 @@ function applyTheme(t) {
   currentTheme = t;
   document.documentElement.setAttribute("data-theme", t);
   localStorage.setItem(THEME_KEY, t);
-  const btn = $("btn-theme");
+  const btn = $("btn-theme-menu");
   if (btn) btn.textContent = t === "day" ? "🌙" : "☀️";
 }
 
@@ -29,8 +29,10 @@ const state = {
   history:        JSON.parse(localStorage.getItem("op_history")  || "[]"),
   session:        JSON.parse(localStorage.getItem("op_session")  || "[]"),
   saved:          JSON.parse(localStorage.getItem("op_saved")    || "[]"),
-  libraryFilter:  null,
-  swapSequences:  {},   // itemId → { sequence:[], index:0 }
+  libraryFilter:       null,
+  swapSequences:       {},    // itemId → { sequence:[], index:0 }
+  savedPies:           [],    // persisted saved builds
+  libraryCuisineFilters: new Set(), // active cuisine filters in library
 };
 
 const $ = id => document.getElementById(id);
@@ -242,7 +244,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.3 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.4 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -1310,7 +1312,7 @@ function renderLibrary() {
     }).join(" · ");
     banner.innerHTML = `Showing: ${names} <button class="chip-clear-all" id="lib-clear-all">Clear all ×</button>`;
     banner.style.display = "flex";
-    $("lib-clear-all").addEventListener("click", () => {
+    $("lib-clear-all")?.addEventListener("click", () => {
       state.libraryCuisineFilters = new Set();
       renderLibrary();
     });

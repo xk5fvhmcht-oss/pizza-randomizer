@@ -2107,3 +2107,8 @@ body::before {
   flex: 1;
   font-size: 0.82rem;
 }
+
+/* ── PIZZA LAYERS CONTAINER ─────────────────────────────── */
+.pizza-layers {
+  padding-bottom: 80px;
+}

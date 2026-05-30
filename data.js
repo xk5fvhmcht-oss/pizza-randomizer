@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.6.1";
+const APP_VERSION = "2.6.4";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -168,7 +168,6 @@ const HARD_CONFLICTS = [
   { sauce:"chermoula",      topping:"fresh_cilantro", reason:"cilantro on cilantro" },
   { sauce:"chermoula",      topping:"flat_parsley",   reason:"parsley on parsley" },
   { sauce:"shakshuka_sauce",topping:"cherry_tom",     reason:"tomato on tomato" },
-  { sauce:"sun_dried_tom",  topping:"san_marzano",    reason:"concentrated tomato on tomato" },
   // Sauce family → topping conflicts
   { sauceFamily:"dairy",    topping:"ricotta_dollop", reason:"cream on cream" },
   { sauceFamily:"dairy",    topping:"bufala",         reason:"cream on cream" },
@@ -289,13 +288,11 @@ const CHEF_TOUCH_REASONS = {
   "lemon_zest":        "Lifts the whole pizza — the acid cuts through fat and salt",
   "sumac_finish":      "Adds Levantine tartness and a jewel-red finish",
   "balsamic_glaze":    "Sweet acid contrast — ties savoury elements together",
-  "preserved_lemon":   "Fermented citrus depth — a note nothing else provides",
   "pomegranate_mol":   "Sweet-tart complexity that transforms the whole surface",
 
   // Aromatic/herb
   "fresh_basil":       "The Neapolitan finish — releases oils on the hot surface",
   "fresh_thyme":       "Earthy and slightly floral — essential with mushrooms and potato",
-  "fresh_rosemary":    "Resinous and aromatic — amplifies lamb, potato and bianca builds",
   "fresh_mint":        "Cooling contrast — balances heat and fat in Levantine builds",
   "dried_oregano":     "Blooms on the hot surface — the Mediterranean signature",
   "aleppo_pepper":     "Fruity heat and oil — the Levantine-Turkish finishing spice",
@@ -311,8 +308,6 @@ const CHEF_TOUCH_REASONS = {
 
   // Sweet/contrast
   "hot_honey":         "Chili-sweet contrast — amplifies salt and fat on American builds",
-  "pomegranate_arils": "Jewel-like acid bursts against creamy or rich toppings",
-  "dried_figs":        "Caramelised sweetness — the Italian and North African accent",
 
   // Fat/richness
   "finish_evoo":       "The Neapolitan drizzle — always last, always the best bottle",
@@ -610,7 +605,7 @@ const TOPPINGS = [
   {
     id:"shredded_mozz", name:"Shredded low-moisture mozz",
     layer:"cheese", cuisine:["american"],
-    profile:"T", sauceFamilies:["tomato"],
+    profile:"T", sauceFamilies:["tomato","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
     note:"Better melt and coverage for American style builds",
@@ -748,7 +743,7 @@ const TOPPINGS = [
   },
   {
     id:"parmigiano_primary", name:"Parmigiano-Reggiano (grated, primary)",
-    layer:"cheese", cuisine:["neapolitan","merican"],
+    layer:"cheese", cuisine:["neapolitan","american"],
     profile:"E", sauceFamilies:["nosause","herb","dairy"],
     stores:["cm"],
     flavorNotes:["umami","acid","crunch","fat"], moisture:"dry", weight:"light", presence:"anchor",
@@ -769,7 +764,7 @@ const TOPPINGS = [
   {
     id:"paneer", name:"Paneer (cubed, spiced)",
     layer:"cheese", cuisine:["indian"],
-    profile:"T", sauceFamilies:["spicepaste","dairy"],
+    profile:"T", sauceFamilies:["spicepaste","dairy","nosause"],
     stores:["cm"],
     flavorNotes:["fat","cream","spice"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Indian fresh cheese — firm, mild, doesn't melt. Marinated and pre-cooked before adding.",
@@ -999,7 +994,7 @@ const TOPPINGS = [
   },
   {
     id:"nduja_homemade", name:"Homemade Beef Nduja",
-    layer:"protein", cuisine:["neapolitan","merican"],
+    layer:"protein", cuisine:["neapolitan","american"],
     profile:"E", sauceFamilies:["tomato","spicepaste","nosause"],
     stores:["sara"], prep:PREP.PRE, homemade:true,
     make_ahead:true, make_ahead_timing:"day before",
@@ -1106,7 +1101,7 @@ const TOPPINGS = [
   },
   {
     id:"spring_onion", name:"Spring onion (scallion)",
-    layer:"veg", cuisine:["levantine","turkish","greek","mexican","american","northafrican","ndian"],
+    layer:"veg", cuisine:["levantine","turkish","greek","mexican","american","northafrican","indian"],
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause","spicepaste"],
     stores:["sara","cm"], postbake:true,
     flavorNotes:["fresh","acid","herb"], moisture:"postbake", weight:"light", presence:"accent",
@@ -1264,7 +1259,7 @@ const TOPPINGS = [
   },
   {
     id:"broccoli_rabe", name:"Broccoli rabe (rapini)",
-    layer:"veg", cuisine:["neapolitan","merican"],
+    layer:"veg", cuisine:["neapolitan","american"],
     profile:"E", sauceFamilies:["tomato","dairy","nosause","herb"],
     stores:["cm"],
     flavorNotes:["herb","bitter","umami"], moisture:"medium", weight:"medium", presence:"supporting",
@@ -1498,7 +1493,7 @@ const TOPPINGS = [
   },
   {
     id:"zaatar_finish", name:"Za'atar (sprinkled)",
-    layer:"finish", cuisine:["levantine","turkish","northafrican","reek"],
+    layer:"finish", cuisine:["levantine","turkish","northafrican","greek"],
     profile:"E", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara"], postbake:true,
     flavorNotes:["herb","acid","crunch"], moisture:"postbake", weight:"light", presence:"accent",
