@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.1";
+const APP_VERSION = "2.7.3";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -337,7 +337,7 @@ const CHEF_TOUCH_RULES = [
     id: "mushroom_thyme",
     requires: { veg: ["mushroom_wild","mushroom_cremini"], notAlready: ["truffle_oil","fresh_thyme"] },
     suggest: "fresh_thyme",
-    reason: "Thyme and mushrooms are inseparable in professional kitchens. The herb's resinous character amplifies the earthiness of the mushroom and stays beautifully aromatic at any oven temperature. Strip leaves from the stem before adding.",
+    reason: "Thyme and mushrooms are inseparable in professional kitchens. The herb's resinous character amplifies the earthiness of the mushroom. Fresh za'atar works beautifully here too — same family, more Levantine intensity. Strip leaves from the stem.",
   },
 
   // ── POTATO BIANCA BUILDS ─────────────────────────────────
@@ -1543,7 +1543,7 @@ const TOPPINGS = [
         "3 large yellow onions, halved and thinly sliced",
         "2 tbsp butter or EVOO",
         "½ tsp salt",
-        "1 tsp fresh thyme leaves (optional)",
+        "1 tsp fresh thyme or fresh za'atar leaves (optional — za'atar gives a Levantine character)",
       ],
       method:[
         "Melt butter in a wide, heavy-bottomed pan over medium-low heat.",
@@ -1551,7 +1551,7 @@ const TOPPINGS = [
         "Cook over low heat, stirring every 5-8 minutes. Do not rush with high heat — the sugars need time to develop. Low and slow is the only way.",
         "After 20 minutes the onions will be soft and translucent. After 40 minutes they will be golden. After 50 minutes they will be deep amber and jammy.",
         "The target is deep amber, sweet and silky — not blonde, not burnt. If the pan gets dry, add a splash of water and scrape up the fond.",
-        "Add thyme in the last 5 minutes if using. Cool before using on pizza. Keeps refrigerated for 5 days.",
+        "Add thyme or za'atar in the last 5 minutes if using — za'atar gives the onions a Levantine character. Cool before using on pizza. Keeps refrigerated for 5 days.",
       ]
     },
     
@@ -1725,7 +1725,7 @@ const TOPPINGS = [
         "Place each beet on a square of foil. Drizzle with EVOO and a pinch of salt. Wrap tightly.",
         "Place foil packets on a baking sheet. Roast 45-60 minutes depending on size — pierce with a skewer to check. It should pass through easily with no resistance.",
         "Open packets and cool until handleable. Rub skins off with paper towels while still slightly warm — they slip off easily. Beet juice stains everything: use paper towels, not a cloth.",
-        "Slice thin for pizza. Pairs with goat cheese, walnuts, balsamic and fresh thyme.",
+        "Slice thin for pizza. Pairs with goat cheese, walnuts, balsamic and fresh thyme or fresh za'atar.",
       ]
     },
     
@@ -1976,8 +1976,8 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","nosause","dairy","herb"],
     stores:["sara","cm"], postbake:false,
     flavorNotes:["herb","bitter","fat"], moisture:"dry", weight:"light", presence:"accent",
-    desc:"Fundamental Mediterranean herb — earthy, slightly floral, pairs with mushrooms, potato, lamb and any bianca pie.",
-    note:"Strip leaves from woody stems before adding. More heat-stable than basil — can go before or after bake. Before bake: leaves slightly crisp and intensify. Post-bake: brighter, more delicate. Essential with wild mushrooms, potato and bianca builds.",
+    desc:"Fundamental Mediterranean herb — earthy, slightly floral, pairs with mushrooms, potato, lamb and any bianca pie. Fresh za'atar (Origanum syriacum) is a perfect Levantine substitute — more intense and deeply aromatic.",
+    note:"Strip leaves from woody stems before adding. More heat-stable than basil — can go before or after bake. Fresh za'atar (Origanum syriacum) is a perfect Levantine substitute — use it anywhere thyme is called for in Levantine builds.",
     qty:{ unit:"bunch", yield_g:15, per_pizza_g:3, per_pizza_oz:0.1, shared_yield:5, min_purchase:1 },
   },
   {
