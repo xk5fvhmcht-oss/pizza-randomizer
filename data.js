@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.6.8";
+const APP_VERSION = "2.6.9";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -181,6 +181,7 @@ const HARD_CONFLICTS = [
   { sauce:"hummus_sauce", topping:"tahini_drizzle", reason:"hummus already contains tahini" },
   { topping1:"bufala",        topping2:"fresh_mozz",     reason:"same fresh mozzarella family" },
   { topping1:"nduja_homemade",topping2:"sujuk",          reason:"two rendering cured meats — too much fat" },
+  { topping1:"nduja_homemade",topping2:"calabrian_chili_oil", reason:"same Calabrian chili character — heat stacking, not contrast" },
   { topping1:"gorgonzola",    topping2:"gorgonzola_dolce",reason:"same cheese two forms" },
   { topping1:"chermoula",     topping2:"fresh_cilantro",  reason:"cilantro on cilantro" },
   { topping1:"fior_di_latte", topping2:"fresh_mozz",    reason:"same ingredient different form" },
@@ -534,9 +535,13 @@ const CHEF_TOUCH_RULES = [
   // ── SPICY BUILDS (NDUJA / DIAVOLA) ──────────────────────
   {
     id: "nduja_honey",
-    requires: { protein: ["nduja_homemade","beef_diavola"], cuisine: ["neapolitan","american"] },
+    requires: {
+      protein: ["nduja_homemade","beef_diavola"],
+      cuisine: ["neapolitan","american"],
+      notAlready: ["calabrian_chili_oil","red_chili_flakes","aleppo_pepper","urfa_biber","kashmiri_chili"],
+    },
     suggest: "hot_honey",
-    reason: "Hot honey over spicy salami is the sweet-heat principle applied to its most natural home. The honey tames the rendered chili fat of nduja or diavola while adding a caramelized sweetness. Drizzle post-bake — the sugar burns and turns bitter in the oven.",
+    reason: "Hot honey over spicy salami is the sweet-heat principle applied to its most natural home. The honey tames the rendered chili fat of nduja or diavola while adding a caramelized sweetness. Only works when the build isn't already maxed on heat. Drizzle post-bake only.",
   },
 
   // ── PANEER BUILDS ────────────────────────────────────────
