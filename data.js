@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.0";
+const APP_VERSION = "2.7.1";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -733,6 +733,23 @@ const TOPPINGS = [
     flavorNotes:["acid","cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Strained yogurt cheese — thick, tangy, creamy. Middle Eastern staple. Replaces tomato entirely.",
     note:"Spread thick, wall to wall — it is sauce AND cheese in one. Must be thick enough to hold its shape. Room temperature spreads best. The tang mellows under heat — pair with brine (feta, olives) or heat (Aleppo) to restore contrast.",
+    recipe:{
+      makes:"covers 6-8 pizzas",
+      ingredients:[
+        "500g full-fat plain yogurt (not Greek)",
+        "½ tsp salt",
+        "Cheesecloth or a clean linen towel",
+      ],
+      method:[
+        "Mix yogurt and salt together in a bowl.",
+        "Line a sieve or colander with a double layer of cheesecloth. Set over a deep bowl.",
+        "Pour in the salted yogurt. Bring edges of the cloth together and tie, or fold over.",
+        "Refrigerate overnight — at least 8 hours, up to 24 hours. The longer it strains, the thicker the result.",
+        "After straining, transfer to a jar. The labneh is ready to use as a pizza base — thick, tangy, spreadable.",
+        "If short on time: good store-bought labneh from Sara's is ready to use. Check thickness — it should hold its shape, not pour.",
+      ]
+    },
+    
     qty:{ unit:"tub (500g)", yield_g:500, per_pizza_g:80, per_pizza_oz:2.8, shared_yield:6, min_purchase:1 },
   },
   {
@@ -743,6 +760,27 @@ const TOPPINGS = [
     flavorNotes:["acid","cream","herb"], moisture:"medium", weight:"light", presence:"anchor",
     desc:"Greek yogurt with cucumber, garlic and dill — cooling, tangy dairy sauce.",
     note:"Must be very thick — drain store-bought through cheesecloth for 2 hours if needed. The cucumber MUST be salted, drained and squeezed bone dry — undrained cucumber on a pizza base is catastrophic. Apply cold just before baking.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "1 cup full-fat Greek yogurt",
+        "1 medium English cucumber",
+        "1 clove garlic, grated on a microplane",
+        "1 tbsp EVOO",
+        "1 tsp lemon juice",
+        "1 tbsp fresh dill, finely chopped",
+        "½ tsp salt",
+      ],
+      method:[
+        "Grate cucumber coarsely on a box grater.",
+        "Toss with ¼ tsp salt and place in a cheesecloth or clean kitchen towel. Squeeze firmly until as dry as possible — there will be a lot of liquid. This step is non-negotiable. Watery cucumber makes watery tzatziki.",
+        "In a bowl, combine yogurt, garlic, EVOO and lemon juice. Mix well.",
+        "Fold in the squeezed cucumber and dill. Season with remaining salt.",
+        "Rest in the fridge for at least 30 minutes before using — the garlic mellows and flavors meld.",
+        "On pizza: must be very thick to function as a sauce. If too loose, drain through cheesecloth for 1-2 hours first.",
+      ]
+    },
+    
     qty:{ unit:"tub (300g)", yield_g:300, per_pizza_g:70, per_pizza_oz:2.5, shared_yield:4, min_purchase:1 },
   },
   {
@@ -937,6 +975,22 @@ const TOPPINGS = [
     flavorNotes:["brine","fat","umami","crunch"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Cypriot cheese with very high melting point — golden and squeaky when seared. Holds shape in oven.",
     note:"MUST be pre-seared in a dry pan over high heat until golden on both sides before adding to pizza. Pat very dry first — surface brine moisture prevents browning. Without pre-searing it sits pale and rubbery on the pizza. Halloumi does not melt — it browns and firms. The golden crust is the point.",
+    recipe:{
+      makes:"covers 2-3 pizzas",
+      ingredients:[
+        "1 block halloumi (225g), sliced 1cm thick",
+        "Small amount of EVOO or dry pan",
+      ],
+      method:[
+        "Slice halloumi 1cm thick — too thin and it becomes brittle, too thick and the center stays cold.",
+        "Pat each slice dry with paper towels. Surface moisture prevents browning.",
+        "Heat a non-stick or cast iron pan over medium-high heat. Add a very small amount of EVOO or use dry.",
+        "Place slices in a single layer. Do not move them for 2 minutes — let the crust form undisturbed.",
+        "Flip once when golden. Cook other side 1-2 minutes until golden.",
+        "Use immediately on pizza. Halloumi goes rubbery if it sits too long after searing.",
+      ]
+    },
+    
     qty:{ unit:"block (225g)", yield_g:225, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:2, min_purchase:1 },
   },
   {
@@ -1047,6 +1101,28 @@ const TOPPINGS = [
     flavorNotes:["fat","cream","spice"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Indian fresh cheese — firm, mild, doesn't melt. Marinated and pre-cooked before adding.",
     note:"Must be marinated and pre-seared before adding — raw paneer on pizza is bland and inert. Marinate cubes in tikka spice paste and yogurt for at least 30 min. Sear in a hot oiled pan until golden on all sides. ⚠️ The marinating and searing IS what makes paneer work on pizza.",
+    recipe:{
+      makes:"covers 2-3 pizzas",
+      ingredients:[
+        "200g paneer, cut into 2cm cubes",
+        "3 tbsp full-fat yogurt",
+        "1 tsp tikka or tandoori spice paste",
+        "½ tsp turmeric",
+        "½ tsp cumin",
+        "½ tsp Kashmiri chili powder",
+        "½ tsp salt",
+        "1 tbsp EVOO for searing",
+      ],
+      method:[
+        "Mix yogurt, spice paste and all dry spices together in a bowl.",
+        "Add paneer cubes and toss to coat evenly. Marinate for at least 30 minutes — overnight is better.",
+        "Heat EVOO in a pan over high heat until shimmering.",
+        "Add paneer in a single layer — do not crowd. Let sit undisturbed for 2 minutes until golden on one side.",
+        "Turn and sear the other sides. The marinade should char slightly — this is the tandoor effect.",
+        "Cool slightly before adding to pizza. Without this step paneer is bland and texturally inert.",
+      ]
+    },
+    
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:80, per_pizza_oz:2.8, min_purchase:1 },
   },
   {
@@ -1089,6 +1165,28 @@ const TOPPINGS = [
     flavorNotes:["spice","umami","fat"], moisture:"low", weight:"heavy", presence:"anchor",
     desc:"Middle Eastern spiced ground beef — when spread thin directly on dough it cooks completely with the pizza at any temperature, the same principle as lahmajun. Pre-cook only if using in thick crumbles on top of cheese, where the heat may not penetrate.",
     note:"Spread thin directly on dough — cooks with the pizza at any temp. Dome: 60-90s. Steel: 5 min at 550°F. Pre-cook only if using thick pieces or chunks.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "500g ground beef (80/20 fat ratio)",
+        "1 small onion, grated",
+        "3 tbsp flat parsley, finely chopped",
+        "1 tsp cumin",
+        "1 tsp coriander",
+        "½ tsp cinnamon",
+        "½ tsp allspice",
+        "½ tsp Aleppo pepper",
+        "1 tsp salt",
+      ],
+      method:[
+        "Grate the onion on a box grater. Squeeze out excess moisture — wet onion makes the mix slippery.",
+        "Combine all ingredients in a bowl. Mix thoroughly with your hands until evenly incorporated.",
+        "For pizza: spread the raw spiced mix thin directly on dressed dough — the lahmajun principle. It cooks completely in the bake.",
+        "Alternatively: shape into thin patties and sear in a hot pan, crumble and use as a topping over cheese.",
+        "Keeps refrigerated for 2 days or freeze uncooked for up to 1 month.",
+      ]
+    },
+    
     qty:{ unit:"300g ground beef", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
   },
   {
@@ -1099,6 +1197,28 @@ const TOPPINGS = [
     flavorNotes:["spice","umami","fat"], moisture:"low", weight:"heavy", presence:"anchor",
     desc:"Spiced ground lamb — spread thin directly on dough and it cooks through completely at Dome or steel oven temperatures. The lahmajun and isfeeha tradition. When combining with cheese, place kaşar or kashkaval on top of the meat, not underneath — a sealed cheese layer below traps steam.",
     note:"Spread thin directly on dough — cooks completely at any temp (lahmajun principle). Dome: 60-90s. Steel: 5 min at 550°F. When combining with cheese: use kaşar or kashkaval ON TOP of the meat (traditional pide approach) — a melt cheese sealed underneath traps steam and prevents browning. Pre-cook only if using thick crumbles on top of cheese.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "500g ground lamb",
+        "1 small onion, grated",
+        "2 tbsp flat parsley, finely chopped",
+        "1 tsp cumin",
+        "1 tsp Aleppo pepper",
+        "½ tsp cinnamon",
+        "½ tsp allspice",
+        "½ tsp salt",
+        "2 tbsp fresh tomato, grated (optional — adds moisture for lahmajun style)",
+      ],
+      method:[
+        "Grate the onion and squeeze out moisture. Combine with lamb, parsley, spices and salt.",
+        "Mix thoroughly with your hands — the mixture should be evenly combined and slightly sticky.",
+        "For lahmajun style: spread paper-thin directly on raw dough. The thin layer cooks completely in 60-90 seconds at Dome temp.",
+        "When using with cheese: spread the lamb on the dough, place kaşar or kashkaval on top — not underneath. This is the traditional pide approach.",
+        "Keeps refrigerated for 2 days. Season and taste a small piece fried in a dry pan before spreading.",
+      ]
+    },
+    
     qty:{ unit:"300g ground lamb", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
   },
   {
@@ -1139,6 +1259,29 @@ const TOPPINGS = [
     flavorNotes:["spice","umami","smoke"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Pre-cooked always — poultry must be fully cooked before it goes on any pizza. Tikka marinade of yogurt and spice has been charred under the grill. Add in the last 60 seconds at Dome temp — the marinade sugars darken quickly at high heat.",
     note:"⚠️ Poultry — fully cooked before pizza. Marinate overnight in yogurt and spices.",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "400g boneless chicken thighs (thighs preferred over breast — stay moist)",
+        "¾ cup full-fat yogurt",
+        "1 tbsp ginger-garlic paste",
+        "1 tbsp tikka or tandoori spice mix",
+        "1 tsp Kashmiri chili powder (for color)",
+        "½ tsp cumin",
+        "½ tsp garam masala",
+        "½ tsp salt",
+        "Juice of half a lemon",
+      ],
+      method:[
+        "Combine all marinade ingredients in a bowl. Mix well.",
+        "Score the chicken pieces with a knife so the marinade penetrates. Add to marinade and coat well.",
+        "Marinate refrigerated for a minimum of 2 hours. Overnight gives significantly better flavor.",
+        "Grill under a high broiler or on a hot grill pan for 6-8 minutes per side until charred at the edges and cooked through to 165°F.",
+        "The char is essential — it gives tikka its smoky depth. Do not skip the browning.",
+        "Cool, then slice thin. Add to pizza in the last 60 seconds of bake — the marinade sugars darken quickly at high heat.",
+      ]
+    },
+    
     qty:{ unit:"300g chicken breast", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
   },
   {
@@ -1394,6 +1537,24 @@ const TOPPINGS = [
     flavorNotes:["sweet","umami","fat"], moisture:"medium", weight:"light", presence:"supporting",
     desc:"True caramelization takes 40-50 minutes over low heat — shortcuts produce steamed sweet onion, a different and lesser thing. The sugars need time to break down. Start them before you make the dough. Low heat, patience, occasional stirring.",
     note:"Cook fully before adding — minimum 30 minutes low heat",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "3 large yellow onions, halved and thinly sliced",
+        "2 tbsp butter or EVOO",
+        "½ tsp salt",
+        "1 tsp fresh thyme leaves (optional)",
+      ],
+      method:[
+        "Melt butter in a wide, heavy-bottomed pan over medium-low heat.",
+        "Add onions and salt. Stir to coat. The pan should be full — they cook down dramatically.",
+        "Cook over low heat, stirring every 5-8 minutes. Do not rush with high heat — the sugars need time to develop. Low and slow is the only way.",
+        "After 20 minutes the onions will be soft and translucent. After 40 minutes they will be golden. After 50 minutes they will be deep amber and jammy.",
+        "The target is deep amber, sweet and silky — not blonde, not burnt. If the pan gets dry, add a splash of water and scrape up the fond.",
+        "Add thyme in the last 5 minutes if using. Cool before using on pizza. Keeps refrigerated for 5 days.",
+      ]
+    },
+    
     qty:{ unit:"onions", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, per_pizza_unit:0.5, min_purchase:2 },
   },
   {
@@ -1494,6 +1655,23 @@ const TOPPINGS = [
     flavorNotes:["umami","smoke","fat","sweet"], moisture:"low", weight:"medium", presence:"supporting",
     desc:"Must be pre-roasted — raw eggplant is 92% water and waterloggs the base before it cooks through. Salt slices, rest 30 minutes, pat dry. Roast at 425°F in a single layer — crowding causes steaming. Roast until deeply golden, 20-25 minutes.",
     note:"Must be pre-roasted before adding — raw eggplant is 92% water and waterloggs the base before it cooks through. Slice 1cm thick, salt both sides, let sit 30 min, pat very dry. Roast at 425°F in a SINGLE layer — crowding causes steaming not roasting. Roast until deeply golden and most moisture expelled, 20-25 min.",
+    recipe:{
+      makes:"covers 2-3 pizzas",
+      ingredients:[
+        "1 large eggplant",
+        "1 tsp kosher salt",
+        "2-3 tbsp EVOO",
+      ],
+      method:[
+        "Slice eggplant into 1cm rounds. Salt both sides generously and lay in a colander over the sink.",
+        "Let sit 30 minutes — you will see moisture bead on the surface. This step removes bitterness and excess water.",
+        "Pat completely dry with paper towels. Toss with EVOO.",
+        "Arrange in a single layer on a baking sheet — do not crowd or they steam instead of roast.",
+        "Roast at 425°F for 20-25 minutes until deeply golden on both sides, flipping once halfway.",
+        "The eggplant should be dry, golden and slightly collapsed — not pale and soft. Only then is it ready for pizza.",
+      ]
+    },
+    
     qty:{ unit:"eggplant", yield_g:300, per_pizza_g:70, per_pizza_oz:2.5, per_pizza_unit:0.5, min_purchase:1 },
   },
   {
@@ -1534,6 +1712,23 @@ const TOPPINGS = [
     flavorNotes:["sweet","acid","umami"], moisture:"medium", weight:"medium", presence:"supporting",
     desc:"Roast whole in foil at 400°F until tender, then peel and slice thin. Pre-roasting concentrates the sweetness and removes excess moisture. Pairs beautifully with goat cheese, walnuts and balsamic — a classic American and Greek combination.",
     note:"Pre-roast and slice thin — pairs with feta or goat cheese",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "3-4 medium beets, similar in size",
+        "1 tsp EVOO per beet",
+        "Salt",
+      ],
+      method:[
+        "Preheat oven to 400°F.",
+        "Trim the beet tops, leaving 1 inch of stem — this prevents bleeding during roasting. Scrub clean.",
+        "Place each beet on a square of foil. Drizzle with EVOO and a pinch of salt. Wrap tightly.",
+        "Place foil packets on a baking sheet. Roast 45-60 minutes depending on size — pierce with a skewer to check. It should pass through easily with no resistance.",
+        "Open packets and cool until handleable. Rub skins off with paper towels while still slightly warm — they slip off easily. Beet juice stains everything: use paper towels, not a cloth.",
+        "Slice thin for pizza. Pairs with goat cheese, walnuts, balsamic and fresh thyme.",
+      ]
+    },
+    
     qty:{ unit:"medium beets", yield_g:300, per_pizza_g:70, per_pizza_oz:2.5, per_pizza_unit:1, min_purchase:3 },
   },
   {
@@ -1564,6 +1759,25 @@ const TOPPINGS = [
     flavorNotes:["herb","sweet","umami"], moisture:"medium", weight:"light", presence:"supporting",
     desc:"Onion roasted with za'atar spice blend — the herbs and sesame toast against the onion's sweetness as it caramelizes. A Levantine technique that adds complexity to manakish-adjacent builds. Roast at 400°F until golden and fragrant.",
     note:"Roast at 400°F with za'atar + olive oil first",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "3 medium yellow onions, halved and sliced",
+        "3 tbsp EVOO",
+        "2 tbsp za'atar spice blend",
+        "½ tsp sumac",
+        "½ tsp salt",
+      ],
+      method:[
+        "Preheat oven to 400°F.",
+        "Toss onion slices with EVOO, za'atar, sumac and salt in a bowl.",
+        "Spread in a single layer on a baking sheet — do not crowd.",
+        "Roast 25-30 minutes until golden and fragrant, stirring once halfway through.",
+        "The onions should be soft, slightly caramelized and coated in toasted za'atar. The sesame seeds in the za'atar will toast and deepen in flavor.",
+        "Cool before using. The za'atar infuses the onion oil — use all of it on the pizza.",
+      ]
+    },
+    
     qty:{ unit:"medium onions", yield_g:250, per_pizza_g:60, per_pizza_oz:2.1, per_pizza_unit:0.5, min_purchase:2 },
   },
   {
@@ -1604,6 +1818,23 @@ const TOPPINGS = [
     flavorNotes:["sweet","umami","fat"], moisture:"low", weight:"light", presence:"accent",
     desc:"Roast whole heads: cut the top off, drizzle EVOO, wrap in foil, 400°F for 40-45 minutes. The cloves become sweet, soft and mild — completely different from raw garlic, which burns bitter at Dome temperatures. Squeeze out and use whole or spread.",
     note:"Pre-roast whole heads: cut top off, drizzle EVOO, wrap in foil, 400°F for 40-45 min. Squeeze out the soft caramelized cloves. Raw garlic at high heat burns bitter — never add raw.",
+    recipe:{
+      makes:"covers 4-6 pizzas",
+      ingredients:[
+        "2-3 whole garlic heads",
+        "1-2 tsp EVOO per head",
+        "Pinch of salt",
+      ],
+      method:[
+        "Preheat oven to 400°F.",
+        "Peel away loose outer papery layers but keep heads intact. Slice ¼ inch off the top to expose the cloves.",
+        "Place each head cut-side up on a square of foil. Drizzle EVOO over exposed cloves and season with a pinch of salt.",
+        "Wrap tightly in the foil and place on a baking sheet.",
+        "Roast for 40-50 minutes until cloves are soft, golden and spreadable. Check at 35 minutes — press the head gently, it should give easily.",
+        "Cool until handleable, then squeeze cloves out of their skins. Use whole, roughly mash, or store covered in EVOO in the fridge for up to 2 weeks.",
+      ]
+    },
+    
     qty:{ unit:"head of garlic", yield_g:50, per_pizza_g:15, per_pizza_oz:0.5, per_pizza_unit:0.25, min_purchase:1 },
   },
   {
@@ -1959,6 +2190,25 @@ const TOPPINGS = [
     flavorNotes:["acid","brine","fresh","crunch"], moisture:"postbake", weight:"light", presence:"accent",
     desc:"Quick-pickle: thin sliced red onion, red wine vinegar, pinch of salt and sugar, 20 minutes minimum. The acidity is as important as the color — it cuts through fat and richness. A post-bake garnish that adds brightness to any build.",
     note:"Post-bake contrast — make or buy jarred",
+    recipe:{
+      makes:"covers 8-10 pizzas — keeps for weeks",
+      ingredients:[
+        "2 medium red onions, halved and very thinly sliced",
+        "½ cup red wine vinegar",
+        "½ cup warm water",
+        "1 tsp sugar",
+        "1 tsp salt",
+      ],
+      method:[
+        "Slice onions paper thin — a mandoline gives the best result.",
+        "Pack into a clean jar.",
+        "Whisk together vinegar, warm water, sugar and salt until dissolved.",
+        "Pour over the onions. They should be fully submerged.",
+        "Let sit at room temperature for at least 20 minutes. They will turn bright pink.",
+        "Ready to use after 20 minutes. Better after an hour. Best after a day. Keeps refrigerated for 3 weeks.",
+      ]
+    },
+    
     qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tbsp:2, shared_yield:8, pantry:true, min_purchase:1 },
   },
   {
