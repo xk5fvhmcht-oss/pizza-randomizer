@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.8
+// OMAR'S PIE — app.js v2.7.2
 // The Classics + clean engine
 // ============================================================
 
@@ -244,7 +244,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.8 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.7.2 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -954,7 +954,7 @@ function renderPizza(pizza) {
       const roleBadge=(!isClassic&&pizza._complexity==="connoisseur"&&item.presence)
         ?`<span class="role-badge ${roleColors[item.presence]||""}">${item.presence}</span>`:"";
       const postbakeFlag=item.postbake?`<span class="postbake-tag">Post-bake</span>`:"";
-      const homemadeFlag=item.homemade?`<span class="homemade-tag">📋 Recipe</span>`:"";
+      const homemadeFlag=item.recipe?`<span class="homemade-tag">📋 Recipe</span>`:"";
       const makeAheadFlag=item.make_ahead?`<span class="make-ahead-tag">⏱️ ${item.make_ahead_timing||"Make ahead"}</span>`:"";
       const domeFlag=item.domeOnly?`<span class="dome-tag">🔥 Dome technique</span>`:"";
 
@@ -986,7 +986,7 @@ function renderPizza(pizza) {
         <div class="topping-meta">${roleBadge}${prepBadge}${postbakeFlag}${homemadeFlag}${makeAheadFlag}${domeFlag}</div>
         ${item.desc?`<div class="topping-desc">${item.desc}</div>`:""}
         ${item.note?`<div class="topping-note">${item.note}</div>`:""}
-        ${item.homemade&&item.recipe?renderRecipe(item.recipe):""}
+        ${item.recipe?renderRecipe(item.recipe):""}
       `;
 
       // Anchor (builder only)
@@ -1039,7 +1039,7 @@ function renderPizza(pizza) {
       }
 
       // Recipe toggle
-      if (item.homemade&&item.recipe) {
+      if (item.recipe) {
         const toggle=card.querySelector(".recipe-toggle");
         const sec=card.querySelector(".recipe-section");
         if (toggle&&sec) {
@@ -1470,11 +1470,11 @@ function renderLibrary() {
             <span class="lib-profile">${item.profile}</span>
             ${st}
             ${item.jarred?'<span class="lib-jar">jarred</span>':""}
-            ${item.homemade?'<span class="lib-homemade">📋 recipe</span>':""}
+            ${item.recipe?'<span class="lib-homemade">📋 recipe</span>':""}
             ${item.multiLayer?'<span class="lib-multilayer">multi-layer</span>':""}
           </div>
           ${safeDesc?`<div class="lib-note">${safeDesc}</div>`:""}
-          ${item.homemade&&item.recipe?`<button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button><div class="recipe-section">${renderRecipeInner(item.recipe)}</div>`:""}
+          ${item.recipe?`<button class="recipe-toggle lib-recipe-toggle">Show recipe ▼</button><div class="recipe-section">${renderRecipeInner(item.recipe)}</div>`:""}
           <div class="lib-actions">
             <button class="lib-btn${state.anchoredItems.has(item.id)?" active":""}" data-action="anchor" data-id="${item.id}">${state.anchoredItems.has(item.id)?"⚓ Anchored":"Anchor"}</button>
             <button class="lib-btn${state.excludedItems.has(item.id)?" active ban":""}" data-action="exclude" data-id="${item.id}">${state.excludedItems.has(item.id)?"🚫 Excluded":"Exclude"}</button>
