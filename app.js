@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.5
+// OMAR'S PIE — app.js v2.6.7
 // The Classics + clean engine
 // ============================================================
 
@@ -244,7 +244,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.5 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.7 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -879,17 +879,25 @@ function renderPizza(pizza) {
       $("chefs-touch-reason").textContent = reason;
       chefsTouchEl.style.display = "block";
 
-      // Dismiss — clear so re-render doesn't re-show
-      $("chefs-touch-dismiss")?.addEventListener("click", () => {
+      // Clone buttons to strip ALL previous event listeners before rewiring
+      // This prevents stale listeners from previous rolls firing
+      const oldDismiss = $("chefs-touch-dismiss");
+      const oldAdd     = $("chefs-touch-add");
+      const newDismiss = oldDismiss.cloneNode(true);
+      const newAdd     = oldAdd.cloneNode(true);
+      oldDismiss.replaceWith(newDismiss);
+      oldAdd.replaceWith(newAdd);
+
+      // Wire fresh listeners to the cloned buttons
+      newDismiss.addEventListener("click", () => {
         chefsTouchEl.style.display = "none";
         if (state.currentPizza) state.currentPizza._chefTouch = null;
       });
 
-      // Add to shopping list — clear after adding to prevent duplicates
-      $("chefs-touch-add")?.addEventListener("click", () => {
+      newAdd.addEventListener("click", () => {
         if (!state.currentPizza) return;
         state.currentPizza.finish = [...(state.currentPizza.finish||[]), item];
-        state.currentPizza._chefTouch = null;  // clear so re-render won't re-add
+        state.currentPizza._chefTouch = null;
         chefsTouchEl.style.display = "none";
         saveToHistory(state.currentPizza);
         renderPizza(state.currentPizza);
