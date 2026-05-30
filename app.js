@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.7
+// OMAR'S PIE — app.js v2.6.8
 // The Classics + clean engine
 // ============================================================
 
@@ -244,7 +244,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.7 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.8 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -1330,7 +1330,21 @@ if (!state.librarySectionState)   state.librarySectionState   = {};
 
 function renderRecipeInner(recipe) {
   if (!recipe) return "";
-  return `<div class="recipe-makes">Makes: ${recipe.makes||""}</div>
+
+  // Build yield badge if we have yield data
+  let yieldBadge = "";
+  if (recipe.yields) {
+    const y = recipe.yields;
+    yieldBadge = `
+      <div class="recipe-yield-row">
+        <span class="recipe-yield-badge">Full batch: ${y.full_g}g · ~${y.pizzas_full} pizzas</span>
+        <span class="recipe-yield-badge recipe-yield-half">Half batch: ${y.half_g}g · ~${y.pizzas_half} pizzas</span>
+        <span class="recipe-yield-badge recipe-yield-per">30g per pizza</span>
+      </div>`;
+  }
+
+  return `<div class="recipe-makes">${recipe.makes||""}</div>
+    ${yieldBadge}
     <div class="recipe-heading">Ingredients</div>
     <ul class="recipe-list">${(recipe.ingredients||[]).map(i=>`<li>${i}</li>`).join("")}</ul>
     <div class="recipe-heading">Method</div>

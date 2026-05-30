@@ -2112,3 +2112,31 @@ body::before {
 .pizza-layers {
   padding-bottom: 80px;
 }
+
+/* ── RECIPE YIELD BADGES ─────────────────────────────────── */
+.recipe-yield-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.recipe-yield-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  background: var(--terra-light);
+  color: var(--terra);
+  border: 1px solid var(--terra);
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.recipe-yield-half {
+  background: var(--gold-light);
+  color: var(--gold);
+  border-color: var(--gold);
+}
+.recipe-yield-per {
+  background: var(--surface2);
+  color: var(--text2);
+  border-color: var(--border2);
+}

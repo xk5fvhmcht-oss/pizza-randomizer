@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.6.6";
+const APP_VERSION = "2.6.8";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -1264,24 +1264,27 @@ const TOPPINGS = [
     make_ahead:true, make_ahead_timing:"day before",
     flavorNotes:["heat","fat","spice","smoke","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Beef version of Calabrian spreadable chili sausage — made from sujuk rendered with EVOO and Aleppo. Spreadable, fiery, deeply savory.",
-    note:"Halal Nduja — recipe by Yusuf (@Slicedltd): remove casing from 450g sujuk, cut into rough pieces. Toast 1 tsp fennel seeds + 1 tsp cumin seeds in a dry pan 60 seconds until fragrant — do not skip this step. Add sujuk, toasted seeds, 1 clove garlic, 1 tbsp honey, 1 tsp chili flakes to food processor. Blend gradually adding 150ml EVOO (start with 100ml, add remaining while blending) until smooth silky paste. Total yield ≈ 620g / half batch 310g. Use 30g per pizza — full batch covers ~20 pizzas, half batch ~10. Spread thin on dough before bake. At Dome temp the spiced fat renders into glistening pools in 60-90 seconds. Refrigerate in jar up to 10 days.",
+    note:"Halal Nduja by Yusuf (@Slicedltd) — sujuk rendered with EVOO, honey, toasted fennel and cumin. Full recipe below. 30g per pizza / full batch ~20 pizzas / half batch ~10.",
     recipe:{
-      makes:"enough for 3–4 pizzas",
+      makes:"~620g (full) / ~310g (half) — recipe by Yusuf @Slicedltd",
+      yields:{ full_g:620, half_g:310, per_pizza_g:30, pizzas_full:20, pizzas_half:10 },
       ingredients:[
-        "2–3 sujuk links, casing removed (Sara's or Altin)",
-        "4 tbsp high-quality EVOO",
-        "1 tsp Aleppo pepper (or Isot biber for smokier result)",
-        "½ tsp smoked paprika",
-        "1 small roasted red pepper (optional — adds body)",
+        "450g sujuk — full / 225g — half (Sara's or Altin, casing removed)",
+        "1 clove garlic — full / ½ clove — half",
+        "1 tbsp honey — full / ½ tbsp — half",
+        "1 tsp fennel seeds — full / ½ tsp — half",
+        "1 tsp cumin seeds — full / ½ tsp — half",
+        "1 tsp red chili flakes — full / ½ tsp — half",
+        "150ml EVOO — full / 75ml — half (start with ⅔, add rest while blending)",
       ],
       method:[
-        "Remove casing from sujuk and break meat into a cold dry pan.",
-        "Render on medium heat until fat releases and meat is fully cooked, about 8 minutes.",
-        "Transfer to a small food processor or mortar. Add EVOO, Aleppo pepper and smoked paprika.",
-        "Blend or pound until a spreadable paste forms — rough texture is fine.",
-        "Stir in roasted red pepper if using. Taste and adjust heat.",
-        "Store in a jar covered with EVOO. Refrigerates for up to 1 week.",
-        "Use: spread thin on raw dough before sauce, or dot post-bake with residual heat.",
+        "Cut sujuk into rough pieces after removing casing.",
+        "Toast fennel seeds and cumin seeds in a dry pan over medium heat for 60 seconds until fragrant and popping. Do not skip — this is what makes the difference.",
+        "Add sujuk, toasted seeds, garlic, honey and chili flakes to a food processor.",
+        "Begin blending. Gradually add EVOO — start with ⅔ of the amount, add the rest while blending to ensure a smooth, consistent paste.",
+        "Blend until silky. Taste and adjust heat with extra chili flakes if needed.",
+        "Transfer to a jar. Use 30g per pizza — spread thin on dough before bake.",
+        "Refrigerate up to 10 days. At Dome temp the spiced fat renders into glistening pools in 60-90 seconds.",
       ]
     },
     qty:{ unit:"2–3 sujuk links from Sara's or Altin", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, min_purchase:1 },
