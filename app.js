@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.6.4
+// OMAR'S PIE — app.js v2.6.5
 // The Classics + clean engine
 // ============================================================
 
@@ -244,7 +244,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.6.4 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.6.5 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -700,42 +700,87 @@ function rollPizza() {
   // Elevated and Connoisseur only — one optional accent suggestion
   // Wrapped in try/catch to prevent Chef's Touch bugs from breaking roll
   // Picks the finish item that adds the most missing dimension
+  // ── CHEF'S TOUCH v2 — RULE-BASED ENGINE ─────────────────
+  // Evaluates 37 curated rules against the build in priority order
+  // First matching rule wins. No match = no suggestion shown.
   try {
     if (!isTraditional) {
       const allPickedIds = new Set(LAYER_ORDER.flatMap(l=>(pizza[l]||[]).filter(Boolean).map(t=>t.id)));
-      const cuisines_    = [...cuisines];
+      const allPickedList = [...allPickedIds];
 
-      const touchCands = TOPPINGS.filter(t=>
-        t.layer === "finish" &&
-        CHEF_TOUCH_ELIGIBLE.has(t.id) &&
-        !allPickedIds.has(t.id) &&
-        !state.excludedItems.has(t.id) &&
-        PROFILE_INCLUDES[state.complexity].includes(t.profile) &&
-        (cuisines_.length === 0 || t.cuisine.some(c=>cuisines_.includes(c)))
-      );
+      // Helper: does the build have any of these ids in this layer?
+      const hasAny = (layer, ids) =>
+        (pizza[layer]||[]).some(t => t && ids.includes(t.id));
 
-      if (touchCands.length) {
-        const scored = touchCands.map(t => {
-          const notes = t.flavorNotes || [];
-          const missing = notes.filter(n => (B.notes[n]||0) === 0);
-          const cuisine_match = cuisines_.length === 0 ? 1 :
-            cuisines_.every(c => (t.cuisine||[]).includes(c)) ? 2 :
-            cuisines_.some(c => (t.cuisine||[]).includes(c)) ? 1 : 0;
-          return { t, score: missing.length * 1.5 + cuisine_match };
-        });
-        scored.sort((a,b) => b.score - a.score);
-        const best = scored.find(x => x.score > 0);
-        if (best) {
-          pizza._chefTouch = {
-            item:   best.t,
-            reason: CHEF_TOUCH_REASONS[best.t.id] || "Adds a finishing dimension to complete the build",
-          };
+      // Helper: does the build contain this id anywhere?
+      const hasPicked = (id) => allPickedIds.has(id);
+
+      // Helper: does the pizza have ANY protein?
+      const hasProtein = (pizza.protein||[]).filter(Boolean).length > 0;
+
+      // Helper: does the pizza have ANY pre-bake cheese?
+      const hasCheese = (pizza.cheese||[]).filter(Boolean).length > 0;
+
+      // Evaluate rules in order
+      let touch = null;
+      for (const rule of CHEF_TOUCH_RULES) {
+        // Skip if suggestion already in build
+        if (hasPicked(rule.suggest)) continue;
+
+        // Skip if suggestion is excluded by baker
+        if (state.excludedItems.has(rule.suggest)) continue;
+
+        // Skip if suggestion not in TOPPINGS
+        const suggestItem = TOPPINGS.find(t => t.id === rule.suggest);
+        if (!suggestItem) continue;
+
+        // Evaluate requires conditions
+        const req = rule.requires || {};
+        let matches = true;
+
+        // Protein match — build must have one of these proteins
+        if (req.protein && !hasAny("protein", req.protein)) { matches = false; }
+
+        // Cheese match — build must have one of these cheeses
+        if (matches && req.cheese && !hasAny("cheese", req.cheese)) { matches = false; }
+
+        // Sauce match — build sauce must be one of these
+        if (matches && req.sauce) {
+          const sauceMatch = req.sauce.includes(sauce?.id);
+          if (!sauceMatch) matches = false;
         }
+
+        // Veg match — build must have one of these veg items
+        if (matches && req.veg && !hasAny("veg", req.veg)) { matches = false; }
+
+        // Cuisine match — build must include one of these cuisines
+        if (matches && req.cuisine) {
+          if (!cuisines.some(c => req.cuisine.includes(c))) matches = false;
+        }
+
+        // notAlready — none of these should be in the build
+        if (matches && req.notAlready) {
+          if (req.notAlready.some(id => hasPicked(id))) matches = false;
+        }
+
+        // noProtein — build must have NO protein
+        if (matches && rule.requires.noProtein === true && hasProtein) { matches = false; }
+
+        // noCheese — build must have NO cheese
+        if (matches && rule.requires.noCheese === true && hasCheese) { matches = false; }
+
+        if (matches) {
+          touch = { item: suggestItem, reason: rule.reason };
+          break; // first match wins
+        }
+      }
+
+      if (touch) {
+        pizza._chefTouch = touch;
       }
     }
   } catch(chefErr) {
     console.warn("Chef's Touch error (non-fatal):", chefErr.message);
-    // Chef's Touch failure should never break the roll
   }
 
   pizza._ovenMode   = state.ovenMode;
@@ -827,24 +872,26 @@ function renderPizza(pizza) {
   // ── CHEF'S TOUCH DISPLAY ─────────────────────────────────────
   const chefsTouchEl = $("chefs-touch");
   if (chefsTouchEl) {
-    if (!isClassic && pizza._chefTouch) {
+    // Only show if chefTouch exists and hasn't been acted on
+    if (!isClassic && pizza._chefTouch && pizza._chefTouch.item) {
       const {item, reason} = pizza._chefTouch;
       $("chefs-touch-name").textContent   = item.name;
       $("chefs-touch-reason").textContent = reason;
       chefsTouchEl.style.display = "block";
 
-      // Dismiss
+      // Dismiss — clear so re-render doesn't re-show
       $("chefs-touch-dismiss")?.addEventListener("click", () => {
         chefsTouchEl.style.display = "none";
+        if (state.currentPizza) state.currentPizza._chefTouch = null;
       });
 
-      // Add to shopping list
+      // Add to shopping list — clear after adding to prevent duplicates
       $("chefs-touch-add")?.addEventListener("click", () => {
         if (!state.currentPizza) return;
-        // Add the Chef's Touch item to the pizza's finish layer
         state.currentPizza.finish = [...(state.currentPizza.finish||[]), item];
-        state.currentPizza._chefTouchAdded = true;
+        state.currentPizza._chefTouch = null;  // clear so re-render won't re-add
         chefsTouchEl.style.display = "none";
+        saveToHistory(state.currentPizza);
         renderPizza(state.currentPizza);
         showToast(`${item.name} added ✓`);
       });

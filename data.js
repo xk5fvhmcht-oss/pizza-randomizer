@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.6.4";
+const APP_VERSION = "2.6.5";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -279,44 +279,308 @@ const HIGH_UMAMI = new Set(["mushroom_wild","mushroom_cremini","anchovy","sun_dr
   "preserved_lemon","kalamata","nduja_homemade"]);
 
 
-// ── CHEF'S TOUCH ─────────────────────────────────────────────
-// Engine-suggested optional accent for Elevated + Connoisseur builds
-// One item, finish layer, adds a missing dimension with a clear reason
+// ── CHEF'S TOUCH v2 ──────────────────────────────────────────
+// Rule-based curated pairings — not gap-fill.
+// Each rule fires on a specific build condition and suggests
+// one surprising, culinarily justified finish accent.
+// Rules are evaluated in order. First match wins.
+// Priority: protein+sauce combos first, then cheese builds,
+// then sauce-forward, then cuisine signatures.
 
-const CHEF_TOUCH_REASONS = {
-  // Acid/brightness
-  "lemon_zest":        "Lifts the whole pizza — the acid cuts through fat and salt",
-  "sumac_finish":      "Adds Levantine tartness and a jewel-red finish",
-  "balsamic_glaze":    "Sweet acid contrast — ties savoury elements together",
-  "pomegranate_mol":   "Sweet-tart complexity that transforms the whole surface",
+const CHEF_TOUCH_RULES = [
 
-  // Aromatic/herb
-  "fresh_basil":       "The Neapolitan finish — releases oils on the hot surface",
-  "fresh_thyme":       "Earthy and slightly floral — essential with mushrooms and potato",
-  "fresh_mint":        "Cooling contrast — balances heat and fat in Levantine builds",
-  "dried_oregano":     "Blooms on the hot surface — the Mediterranean signature",
-  "aleppo_pepper":     "Fruity heat and oil — the Levantine-Turkish finishing spice",
-  "zaatar_finish":     "Herb-acid complexity — the Eastern Mediterranean in one ingredient",
+  // ── LEVANTINE LAMB BUILDS ────────────────────────────────
+  {
+    id: "lev_lamb_pomol",
+    requires: { protein: ["lamb_mince","beef_kofta"], cuisine: ["levantine"] },
+    suggest: "pomegranate_mol",
+    reason: "The Levantine answer to lamb — pomegranate molasses cuts the fat with sweet-acid complexity that nothing else provides. Sam & Sam Clark's Casa Moro made this combination canonical. A few drops post-bake transforms the whole pizza.",
+  },
+  {
+    id: "lev_lamb_pine",
+    requires: { protein: ["lamb_mince","beef_kofta"], cuisine: ["levantine"], notAlready: ["pomegranate_mol"] },
+    suggest: "toasted_pine_nuts",
+    reason: "Lamb and pine nuts is a Levantine tradition older than pizza. The fat of the nut mirrors the fat of the lamb; the crunch cuts through. Scatter post-bake while the pizza is still hot.",
+  },
 
-  // Luxury/umami
-  "truffle_oil":       "A few drops transforms a bianca — use only when the build is simple enough to let it speak",
-  "parmigiano":        "Nutty umami — the Italian finishing move on any build",
-  "toasted_pine_nuts": "Crunch and fat — the Sicilian-Levantine accent",
-  "pistachios":        "Crunch, sweetness and colour — the Levantine luxury finish",
-  "toasted_walnuts":   "Bitter crunch that balances sweet and funky elements",
-  "dukkah":            "Egyptian spiced nut crunch — earthy, warm, unexpected",
+  // ── ANCHOVY BUILDS ───────────────────────────────────────
+  {
+    id: "anchovy_lemon",
+    requires: { protein: ["anchovy"] },
+    suggest: "lemon_zest",
+    reason: "Lemon zest is the single best thing you can do for an anchovy pizza. A Neapolitan baker places three anchovy fillets and finishes with lemon zest — customers report it transforms the anchovy from overpowering to bright. The acid lifts everything.",
+  },
 
-  // Sweet/contrast
-  "hot_honey":         "Chili-sweet contrast — amplifies salt and fat on American builds",
+  // ── GORGONZOLA / BLUE CHEESE BUILDS ─────────────────────
+  {
+    id: "gorg_honey",
+    requires: { cheese: ["gorgonzola","gorgonzola_dolce"], cuisine: ["american","neapolitan"] },
+    suggest: "hot_honey",
+    reason: "Chili-honey against blue cheese is one of the great American pizza discoveries. The sweet-heat balances the funk and salt in a way that seems wrong until you taste it. Marco Canora at Terroir made this pairing famous. Drizzle post-bake.",
+  },
+  {
+    id: "gorg_walnut",
+    requires: { cheese: ["gorgonzola","gorgonzola_dolce"], notAlready: ["toasted_walnuts","hot_honey"] },
+    suggest: "toasted_walnuts",
+    reason: "The Italian tradition — bitter walnut crunch against creamy blue cheese. Every bite of gorgonzola pizza in Italy comes with this instinct. The tannin in walnut cuts through the fat. Scatter post-bake so they stay crunchy.",
+  },
 
-  // Fat/richness
-  "finish_evoo":       "The Neapolitan drizzle — always last, always the best bottle",
-  "tahini_drizzle":    "Sesame richness — ties Levantine builds into one voice",
-};
+  // ── MUSHROOM BIANCA BUILDS ───────────────────────────────
+  {
+    id: "mushroom_truffle",
+    requires: { veg: ["mushroom_wild","mushroom_cremini"], sauce: ["nosause"] },
+    suggest: "truffle_oil",
+    reason: "Mushroom + truffle oil on a bianca is the Italian countryside in a pizza. The truffle amplifies the earthiness already in the mushroom — it doesn't compete, it extends. White truffle oil specifically for bianca; the clean backdrop lets it speak. 3-4 drops post-bake only.",
+  },
+  {
+    id: "mushroom_thyme",
+    requires: { veg: ["mushroom_wild","mushroom_cremini"], notAlready: ["truffle_oil","fresh_thyme"] },
+    suggest: "fresh_thyme",
+    reason: "Thyme and mushrooms are inseparable in professional kitchens. The herb's resinous character amplifies the earthiness of the mushroom and stays beautifully aromatic at any oven temperature. Strip leaves from the stem before adding.",
+  },
 
-// Items eligible for Chef's Touch (finish layer, E or C profile)
-// Engine picks from these based on what's missing from the build
-const CHEF_TOUCH_ELIGIBLE = new Set(Object.keys(CHEF_TOUCH_REASONS));
+  // ── POTATO BIANCA BUILDS ─────────────────────────────────
+  {
+    id: "potato_rosemary",
+    requires: { veg: ["potato_thin"], notAlready: ["fresh_rosemary"] },
+    suggest: "fresh_rosemary",
+    reason: "Patate e rosmarino is one of the oldest Neapolitan bianca combinations — potato and rosemary have an affinity that goes beyond pizza. The resinous herb blooms against the starchy sweetness of the potato. Press into the oiled dough before bake.",
+  },
+
+  // ── LABNEH / DAIRY SAUCE BUILDS ─────────────────────────
+  {
+    id: "labneh_dukkah",
+    requires: { sauce: ["labneh_sauce"], notAlready: ["dukkah"] },
+    suggest: "dukkah",
+    reason: "Dukkah over labneh is a mezze staple throughout Egypt and the Levant. The crunchy nut-spice mix against the cool tang of labneh is one of the most satisfying textural contrasts in Middle Eastern cooking. Yotam Ottolenghi made this combination internationally known. Scatter generously post-bake.",
+  },
+  {
+    id: "labneh_sumac",
+    requires: { sauce: ["labneh_sauce"], notAlready: ["sumac_finish","dukkah"] },
+    suggest: "sumac_finish",
+    reason: "Sumac is the acid partner to labneh across Levantine cooking. Its dried-fruit tartness brightens the cool tang of the labneh without adding moisture. Rub between fingers before scattering — the friction releases more flavor.",
+  },
+
+  // ── SUJUK / CURED MEAT BUILDS ───────────────────────────
+  {
+    id: "sujuk_egg_mint",
+    requires: { protein: ["sujuk","basturma"], cuisine: ["turkish","levantine"] },
+    suggest: "dried_mint",
+    reason: "Dried mint is the Turkish finishing touch for cured meat and egg combinations. Kuru nane (dried mint) rubbed between the fingers and scattered over hot pide is a tradition in every Turkish household. The menthol cuts through the rendered fat of the sujuk.",
+  },
+
+  // ── HARISSA / SPICEPASTE BUILDS ─────────────────────────
+  {
+    id: "harissa_pomegranate",
+    requires: { sauce: ["harissa_base"], notAlready: ["pomegranate_mol"] },
+    suggest: "pomegranate_mol",
+    reason: "Pomegranate molasses drizzled over a harissa-based pizza is a North African technique — the sweet-acid cuts through the heat of the harissa and adds a layer of complexity. It is the same principle as honey with chili, but deeper and more savory.",
+  },
+
+  // ── SHAKSHUKA BUILDS ─────────────────────────────────────
+  {
+    id: "shakshuka_parsley",
+    requires: { sauce: ["shakshuka_sauce"] },
+    suggest: "flat_parsley",
+    reason: "Flat parsley scattered over hot shakshuka is non-negotiable in North African and Levantine cooking. The fresh green bitterness cuts through the richness of the egg and spiced tomato. Add immediately post-bake — the heat wilts it perfectly.",
+  },
+
+  // ── FETA BUILDS ──────────────────────────────────────────
+  {
+    id: "feta_lemon",
+    requires: { cheese: ["feta"], cuisine: ["greek"] },
+    suggest: "lemon_zest",
+    reason: "Lemon and feta is as Greek as it gets. The acid brightens the brine of the feta and lifts the whole pizza. Use a microplane — zest only the yellow outer layer. Add immediately before serving as the volatile oils dissipate within minutes.",
+  },
+  {
+    id: "feta_oregano",
+    requires: { cheese: ["feta"], notAlready: ["dried_oregano","lemon_zest"] },
+    suggest: "dried_oregano",
+    reason: "Dried oregano is the Greek pizza finish — oregano blooms against the hot brine of feta cheese. Rub between fingers before scattering to release the essential oils. The combination of feta, olive oil and oregano is the oldest Mediterranean flavoring there is.",
+  },
+
+  // ── BRESAOLA / POST-BAKE COLD CUT BUILDS ────────────────
+  {
+    id: "bresaola_parmigiano",
+    requires: { protein: ["bresaola"] },
+    suggest: "parmigiano",
+    reason: "Bresaola with shaved Parmigiano is the Italian north's answer to the Neapolitan south. The nutty umami of aged Parmigiano against the delicate air-dried beef is a combination found on every good Italian restaurant menu. Shave post-bake directly over the bresaola.",
+  },
+  {
+    id: "bresaola_arugula",
+    requires: { protein: ["bresaola"], notAlready: ["arugula","parmigiano"] },
+    suggest: "arugula",
+    reason: "Bresaola, arugula and Parmigiano is the triumvirate of Northern Italian pizza finishing. The peppery bitterness of the arugula is the essential contrast to the sweet richness of the air-dried beef. Dress lightly in lemon and EVOO immediately before adding.",
+  },
+
+  // ── TIKKA / MAKHANI BUILDS ───────────────────────────────
+  {
+    id: "tikka_chaat",
+    requires: { sauce: ["tikka_sauce","makhani_sauce"], cuisine: ["indian"] },
+    suggest: "chaat_masala",
+    reason: "Chaat masala post-bake is how Indian street food finishes its richest dishes — the dried mango powder (amchur) and black salt in chaat masala cuts through tikka and makhani with a sharp fruity-sour note that no other spice blend provides. It is unexpected and completely correct.",
+  },
+  {
+    id: "tikka_cilantro",
+    requires: { sauce: ["tikka_sauce","makhani_sauce"], notAlready: ["chaat_masala","fresh_cilantro"] },
+    suggest: "fresh_cilantro",
+    reason: "Fresh cilantro is the Indian pizza finish — its cooling green character against the warm spice of tikka or makhani is the same instinct behind butter chicken being served with cilantro. Tear by hand, add post-bake immediately before serving.",
+  },
+
+  // ── MUHAMMARA BUILDS ─────────────────────────────────────
+  {
+    id: "muhammara_mint",
+    requires: { sauce: ["muhammara"] },
+    suggest: "fresh_mint",
+    reason: "Fresh mint over muhammara-based pizza is a Syrian instinct — the cooling menthol cuts through the richness of the walnut and the heat of the Aleppo pepper. This is how muhammara is served at the table in Aleppo: with fresh herbs to balance.",
+  },
+
+  // ── PESTO BUILDS ─────────────────────────────────────────
+  {
+    id: "pesto_parmigiano",
+    requires: { sauce: ["pesto"] },
+    suggest: "parmigiano",
+    reason: "Pesto is made with Parmigiano — but the heat of the oven dulls the cheese that was already in the sauce. Shaving fresh Parmigiano post-bake restores that nutty brightness that the bake took away. This is not redundant — it is restoration.",
+  },
+
+  // ── NORTH AFRICAN MERGUEZ BUILDS ─────────────────────────
+  {
+    id: "merguez_harissa_pomol",
+    requires: { protein: ["lamb_merguez"], notAlready: ["pomegranate_mol"] },
+    suggest: "pomegranate_mol",
+    reason: "Merguez with pomegranate molasses is a North African combination found across Moroccan and Tunisian grilling culture. The sweet-acid cuts the fat of the lamb sausage and amplifies the warm spice. Thin with a drop of warm water before drizzling.",
+  },
+
+  // ── BURRATA BUILDS ───────────────────────────────────────
+  {
+    id: "burrata_balsamic",
+    requires: { cheese: ["burrata"] },
+    suggest: "balsamic_glaze",
+    reason: "Burrata and balsamic is an Italian combination that predates pizza — the sweet acid of aged balsamic against the cool cream of burrata is one of the great Italian flavor contrasts. A thin drizzle post-bake is all it needs. The sugar in balsamic would burn in the oven.",
+  },
+
+  // ── BIANCA WITH RICOTTA ──────────────────────────────────
+  {
+    id: "ricotta_honey",
+    requires: { cheese: ["ricotta_dollop"], sauce: ["nosause"] },
+    suggest: "hot_honey",
+    reason: "Ricotta on a bianca with hot honey is an American white pizza discovery — the cool creamy cheese against the sweet heat of the honey creates a contrast that makes you eat the whole pizza without stopping. Vincenzo Marianella at Copa D'Oro elevated this pairing.",
+  },
+
+  // ── CHICKEN SHAWARMA BUILDS ──────────────────────────────
+  {
+    id: "shawarma_sumac",
+    requires: { protein: ["chicken_shawarma","beef_shawarma"], notAlready: ["sumac_finish"] },
+    suggest: "sumac_finish",
+    reason: "Sumac over shawarma is the finishing move from every shawarma stand in the Levant. Its tartness brightens the spiced meat and cuts through the fat of the marinade. Rub between fingers before scattering. The combination of shawarma + sumac + pickled onion is the archetype.",
+  },
+
+  // ── EGG BUILDS ───────────────────────────────────────────
+  {
+    id: "egg_aleppo",
+    requires: { protein: ["egg"], cuisine: ["turkish","levantine","northafrican"] },
+    suggest: "aleppo_pepper",
+    reason: "Aleppo pepper scattered over a runny egg yolk is the Eastern Mediterranean breakfast in one move. The fruity heat of the Aleppo blooms in the warm yolk fat. This is how eggs are finished from Istanbul to Beirut to Tunis. Post-bake, on the hot yolk.",
+  },
+
+  // ── HUMMUS SAUCE BUILDS ──────────────────────────────────
+  {
+    id: "hummus_pine",
+    requires: { sauce: ["hummus_sauce"] },
+    suggest: "toasted_pine_nuts",
+    reason: "Pine nuts scattered over hummus is the restaurant finishing touch — every mezze-forward kitchen in the Levant does this. The crunch and fat of the nut against the smooth chickpea is textural perfection. Toast until golden, scatter post-bake.",
+  },
+
+  // ── MARINARA / SAUCE-FORWARD BUILDS ─────────────────────
+  {
+    id: "marinara_oregano",
+    requires: { sauce: ["san_marzano"], noProtein: true, noCheese: true },
+    suggest: "dried_oregano",
+    reason: "The Marinara finish — AVPN mandates oregano on every Pizza Marinara. Rub dried oregano between your fingers before scattering — this releases the essential oils that make it bloom on the hot tomato surface. The simplest pizza. The most important finish.",
+  },
+
+  // ── KASHKAVAL / KAŞAR BUILDS ─────────────────────────────
+  {
+    id: "kashar_urfa",
+    requires: { cheese: ["kasar_peyniri","kashkaval"], cuisine: ["turkish"] },
+    suggest: "urfa_biber",
+    reason: "Urfa biber over melted kaşar or kashkaval is a Turkish flavoring instinct. The dark, smoky, raisin-like heat of urfa biber from Şanlıurfa complements the mild butteriness of Turkish cheeses in a way that Aleppo pepper cannot. Available at Sara's and Altin.",
+  },
+
+  // ── PRESERVED LEMON IN BUILD ─────────────────────────────
+  {
+    id: "preserved_lemon_parsley",
+    requires: { veg: ["preserved_lemon"], notAlready: ["flat_parsley"] },
+    suggest: "flat_parsley",
+    reason: "Preserved lemon without fresh herb is like harissa without cool contrast — the intensity needs softening. Flat parsley's fresh bitterness cuts through the concentrated fermented citrus and creates the balance that North African cooks instinctively seek.",
+  },
+
+  // ── SHANKLISH BUILDS ─────────────────────────────────────
+  {
+    id: "shanklish_mint",
+    requires: { cheese: ["shanklish"] },
+    suggest: "fresh_mint",
+    reason: "Shanklish — Syria's aged spiced cheese — is always served with fresh herbs in its home culture. The cooling quality of fresh mint cuts through the intensity of the fermented cheese. This is how shanklish appears on every Lebanese and Syrian mezze table.",
+  },
+
+  // ── CARAMELIZED ONION BUILDS ─────────────────────────────
+  {
+    id: "caramonion_balsamic",
+    requires: { veg: ["caramelized_onion"], notAlready: ["balsamic_glaze"] },
+    suggest: "balsamic_glaze",
+    reason: "Caramelized onion and balsamic is a French-Italian combination that belongs on pizza. The sweet acid of balsamic amplifies the sweetness already in the onion while cutting its richness. A thin drizzle post-bake — the sugar would burn in the oven.",
+  },
+
+  // ── SPICY BUILDS (NDUJA / DIAVOLA) ──────────────────────
+  {
+    id: "nduja_honey",
+    requires: { protein: ["nduja_homemade","beef_diavola"], cuisine: ["neapolitan","american"] },
+    suggest: "hot_honey",
+    reason: "Hot honey over spicy salami is the sweet-heat principle applied to its most natural home. The honey tames the rendered chili fat of nduja or diavola while adding a caramelized sweetness. Drizzle post-bake — the sugar burns and turns bitter in the oven.",
+  },
+
+  // ── PANEER BUILDS ────────────────────────────────────────
+  {
+    id: "paneer_chutney",
+    requires: { cheese: ["paneer"] },
+    suggest: "mango_chutney",
+    reason: "Mango chutney as a finish on a paneer pizza is the subcontinent's answer to hot honey — sweet, fruity, slightly sour contrast against the mild richness of the seared paneer. This is how paneer tikka is finished at the table in India.",
+  },
+
+  // ── BIANCA WITH MELT CHEESE, NO SAUCE ───────────────────
+  {
+    id: "bianca_parmigiano",
+    requires: { sauce: ["nosause"], cheese: ["fior_di_latte","fresh_mozz","fontina"], notAlready: ["parmigiano","truffle_oil"] },
+    suggest: "parmigiano",
+    reason: "Shaved Parmigiano over a bianca is the Italian instinct — the nutty umami of aged hard cheese against the mild melt of fior di latte or fontina adds a savory depth the pizza is missing. This is what separates a great bianca from a simple one.",
+  },
+
+  // ── ROASTED GARLIC IN BUILD ──────────────────────────────
+  {
+    id: "roasted_garlic_rosemary",
+    requires: { veg: ["roasted_garlic_cloves"], notAlready: ["fresh_rosemary","fresh_thyme"] },
+    suggest: "fresh_rosemary",
+    reason: "Roasted garlic and rosemary together is a Provençal and Italian combination that makes the kitchen smell extraordinary. The resinous herb amplifies the sweet nuttiness of roasted garlic. Press rosemary into oiled dough before bake so it stays in place.",
+  },
+
+  // ── PISTACHIO POTENTIAL ──────────────────────────────────
+  {
+    id: "levantine_pistachio",
+    requires: { cuisine: ["levantine"], cheese: ["akawi","shanklish","labneh_balls"], notAlready: ["pistachios"] },
+    suggest: "pistachios",
+    reason: "Pistachio from Gaziantep is the luxury finish of Levantine cooking — it appears on everything from baklava to mezze platters to grilled meats. Crushed and scattered over a Levantine white pizza it adds color, crunch and a sweet nuttiness that no other nut delivers.",
+  },
+
+];
+
+// Items eligible for Chef's Touch — all items referenced in rules
+const CHEF_TOUCH_ELIGIBLE = new Set(CHEF_TOUCH_RULES.map(r => r.suggest));
+
+// Human-readable reasons map (for backwards compatibility)
+const CHEF_TOUCH_REASONS = Object.fromEntries(
+  CHEF_TOUCH_RULES.map(r => [r.suggest, r.reason])
+);
+
 
 // ── TOPPINGS ─────────────────────────────────────────────────
 const TOPPINGS = [
