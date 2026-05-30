@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.6.5";
+const APP_VERSION = "2.6.6";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -1264,7 +1264,7 @@ const TOPPINGS = [
     make_ahead:true, make_ahead_timing:"day before",
     flavorNotes:["heat","fat","spice","smoke","umami"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"Beef version of Calabrian spreadable chili sausage — made from sujuk rendered with EVOO and Aleppo. Spreadable, fiery, deeply savory.",
-    note:"Make ahead — spread thin on dough before or after sauce.",
+    note:"Halal Nduja — recipe by Yusuf (@Slicedltd): remove casing from 450g sujuk, cut into rough pieces. Toast 1 tsp fennel seeds + 1 tsp cumin seeds in a dry pan 60 seconds until fragrant — do not skip this step. Add sujuk, toasted seeds, 1 clove garlic, 1 tbsp honey, 1 tsp chili flakes to food processor. Blend gradually adding 150ml EVOO (start with 100ml, add remaining while blending) until smooth silky paste. Total yield ≈ 620g / half batch 310g. Use 30g per pizza — full batch covers ~20 pizzas, half batch ~10. Spread thin on dough before bake. At Dome temp the spiced fat renders into glistening pools in 60-90 seconds. Refrigerate in jar up to 10 days.",
     recipe:{
       makes:"enough for 3–4 pizzas",
       ingredients:[
