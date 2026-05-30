@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.4";
+const APP_VERSION = "2.7.5";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -271,7 +271,7 @@ const SAUCE_CHEESE_PREFERENCES = {
 // Feta doesn't melt — on tomato sauce it needs a melt cheese companion (Traditional only)
 // Elevated/Connoisseur: feta can stand alone as post-bake accent
 const FETA_NEEDS_COMPANION_SAUCES = new Set(["tomato"]);
-const MELT_CHEESES = new Set(["fior_di_latte","fresh_mozz","shredded_mozz","kashkaval","fontina","halloumi","akawi","paneer"]);
+const MELT_CHEESES = new Set(["fior_di_latte","fresh_mozz","shredded_mozz","kashkaval","fontina","halloumi","akawi","paneer","oaxaca"]);
 
 // ── PROTEIN NECESSITY ────────────────────────────────────────
 // Umami-rich items — if enough present, protein less necessary
@@ -343,8 +343,8 @@ const CHEF_TOUCH_RULES = [
   // ── POTATO BIANCA BUILDS ─────────────────────────────────
   {
     id: "potato_rosemary",
-    requires: { veg: ["potato_thin"], notAlready: ["fresh_rosemary"] },
-    suggest: "fresh_rosemary",
+    requires: { veg: ["potato_thin"], notAlready: ["rosemary"] },
+    suggest: "rosemary",
     reason: "Patate e rosmarino is one of the oldest Neapolitan bianca combinations — potato and rosemary have an affinity that goes beyond pizza. The resinous herb blooms against the starchy sweetness of the potato. Press into the oiled dough before bake.",
   },
 
@@ -563,8 +563,8 @@ const CHEF_TOUCH_RULES = [
   // ── ROASTED GARLIC IN BUILD ──────────────────────────────
   {
     id: "roasted_garlic_rosemary",
-    requires: { veg: ["roasted_garlic_cloves"], notAlready: ["fresh_rosemary","fresh_thyme"] },
-    suggest: "fresh_rosemary",
+    requires: { veg: ["roasted_garlic_cloves"], notAlready: ["rosemary","fresh_thyme"] },
+    suggest: "rosemary",
     reason: "Roasted garlic and rosemary together is a Provençal and Italian combination that makes the kitchen smell extraordinary. The resinous herb amplifies the sweet nuttiness of roasted garlic. Press rosemary into oiled dough before bake so it stays in place.",
   },
 
@@ -574,6 +574,46 @@ const CHEF_TOUCH_RULES = [
     requires: { cuisine: ["levantine"], cheese: ["akawi","shanklish","labneh_balls"], notAlready: ["pistachios"] },
     suggest: "pistachios",
     reason: "Pistachio from Gaziantep is the luxury finish of Levantine cooking — it appears on everything from baklava to mezze platters to grilled meats. Crushed and scattered over a Levantine white pizza it adds color, crunch and a sweet nuttiness that no other nut delivers.",
+  },
+
+  // ── MEXICAN AL PASTOR BUILDS ─────────────────────────────
+  {
+    id: "al_pastor_pineapple",
+    requires: { protein: ["beef_al_pastor"], notAlready: ["charred_pineapple"] },
+    suggest: "charred_pineapple",
+    reason: "Al pastor without pineapple is incomplete — the sweet-acid char of grilled pineapple against the chile-marinated meat IS the dish. This pairing came from Lebanese shawarma technique meeting Mexican chiles in Puebla. The contrast is the whole point.",
+  },
+
+  // ── MEXICAN CHORIZO / TINGA BUILDS ───────────────────────
+  {
+    id: "chorizo_queso_fresco",
+    requires: { protein: ["beef_chorizo","beef_tinga"], notAlready: ["queso_fresco","cotija"] },
+    suggest: "queso_fresco",
+    reason: "Crumbled queso fresco over spiced chorizo or smoky tinga is the Mexican instinct — the cool, milky, slightly tangy cheese calms the chile heat and adds a fresh contrast. Every taquería does this. Crumble post-bake so it stays soft.",
+  },
+
+  // ── MEXICAN MELT-CHEESE BUILDS ───────────────────────────
+  {
+    id: "oaxaca_lime_crema",
+    requires: { cheese: ["oaxaca"], protein: ["carne_asada","pollo_asado","beef_al_pastor","beef_tinga","beef_chorizo"], notAlready: ["lime_crema","avocado_slices"] },
+    suggest: "lime_crema",
+    reason: "A drizzle of lime crema over melted Oaxaca and grilled meat is the tlayuda finish — the cool, tangy cream cuts the richness of the cheese and the char of the meat. The lime brightens everything. This is how a tlayuda arrives at the table in Oaxaca.",
+  },
+
+  // ── MEXICAN CHARRED CORN BUILDS ──────────────────────────
+  {
+    id: "corn_cotija_elote",
+    requires: { veg: ["corn_charred"], cuisine: ["mexican"], notAlready: ["cotija","lime_crema"] },
+    suggest: "cotija",
+    reason: "Charred corn and cotija is elote — Mexican street corn — in pizza form. The salty dry crumble against the sweet smoky char is one of the great Mexican flavor pairings. Add a dusting post-bake. Elote is never served without it.",
+  },
+
+  // ── MEXICAN TOMATILLO / BRIGHT BUILDS ────────────────────
+  {
+    id: "tomatillo_avocado",
+    requires: { sauce: ["tomatillo_sauce"], notAlready: ["avocado_slices","lime_crema"] },
+    suggest: "avocado_slices",
+    reason: "Cool avocado over a tangy tomatillo base is the salsa verde instinct — the creamy richness rounds out the bright acidity of the tomatillo. Add post-bake with a squeeze of lime. The green-on-green of Oaxacan cooking.",
   },
 
 ];
@@ -1334,6 +1374,26 @@ const TOPPINGS = [
     qty:{ unit:"wedge (200g)", yield_g:200, per_pizza_g:30, per_pizza_oz:1.1, shared_yield:6, min_purchase:1 },
   },
   {
+    id:"oaxaca", name:"Oaxaca cheese (quesillo)",
+    layer:"cheese", cuisine:["mexican"],
+    profile:"T", sauceFamilies:["tomato","spicepaste","nosause"],
+    stores:["cm","sara"], 
+    flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
+    desc:"Mexico's great melting cheese — a stretched-curd string cheese like a softer mozzarella, called quesillo in Oaxaca. Melts smooth without turning watery. The cheese on every tlayuda and quesadilla.",
+    note:"The Mexican melt cheese — shred and scatter for full coverage. Melts beautifully at Dome temp in 60-90 seconds. Mozzarella is the closest substitute if unavailable.",
+    qty:{ unit:"bag (200g)", yield_g:200, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:2, min_purchase:1 }
+  },
+  {
+    id:"queso_fresco", name:"Queso fresco (crumbled)",
+    layer:"cheese", cuisine:["mexican"],
+    profile:"T", sauceFamilies:["tomato","spicepaste","nosause"],
+    stores:["cm","sara"],
+    flavorNotes:["cream","acid","brine"], moisture:"medium", weight:"light", presence:"supporting",
+    desc:"Fresh, mild, slightly tangy Mexican cheese — softer and milkier than cotija, less salty. Softens when warm but does not melt into strings. Crumbles over finished dishes for a fresh dairy note.",
+    note:"Add in the last 30-45 seconds at Dome, or crumble post-bake. Softens and warms without fully melting. Milder and fresher than cotija.",
+    qty:{ unit:"round (300g)", yield_g:300, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:7, min_purchase:1 }
+  },
+  {
     id:"paneer", name:"Paneer (cubed, spiced)",
     layer:"cheese", cuisine:["indian"],
     profile:"T", sauceFamilies:["spicepaste","dairy","nosause"],
@@ -1635,6 +1695,77 @@ const TOPPINGS = [
     qty:{ unit:"pack (225g)", yield_g:225, per_pizza_g:80, per_pizza_oz:2.8, shared_yield:2, min_purchase:1 },
   },
   {
+    id:"beef_al_pastor", name:"Beef al pastor (chile-pineapple)",
+    layer:"protein", cuisine:["mexican"],
+    profile:"E", sauceFamilies:["tomato","spicepaste","nosause"], 
+    stores:["sara"], prep:PREP.PRE, make_ahead:true, make_ahead_timing:"day before",
+    flavorNotes:["spice","acid","heat","fat"], moisture:"low", weight:"medium", presence:"anchor",
+    desc:"Beef adaptation of the classic al pastor — marinated in guajillo, achiote and pineapple, then seared. Sweet-savory with a chile depth. Traditionally pork on a vertical spit; the beef version keeps the marinade and the caramelized char.",
+    note:"Fully pre-cook and slice. Add in the last 60 seconds — the pineapple and chile marinade sugars caramelize fast and burn at Dome temp. Pairs with charred pineapple, cilantro and pickled onion.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "500g thinly sliced beef (sirloin or flank)",
+        "2 dried guajillo chiles, soaked and blended",
+        "1 tbsp achiote paste",
+        "3 cloves garlic",
+        "¼ cup pineapple juice",
+        "1 tbsp white vinegar",
+        "1 tsp cumin",
+        "1 tsp oregano",
+        "1 tsp salt",
+      ],
+      method:[
+        "Blend guajillo, achiote, garlic, pineapple juice, vinegar, cumin, oregano and salt into a smooth marinade.",
+        "Coat the sliced beef and marinate at least 4 hours, ideally overnight.",
+        "Sear in a screaming-hot pan or grill in batches until charred at the edges and cooked through. Do not crowd the pan.",
+        "Rest, then slice into strips. Add to pizza in the last 60 seconds.",
+        "Char a few pineapple pieces alongside for the authentic al pastor finish.",
+      ]
+    },
+    qty:{ unit:"500g", yield_g:500, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:5, min_purchase:1 }
+  },
+  {
+    id:"beef_tinga", name:"Beef tinga (chipotle-braised)",
+    layer:"protein", cuisine:["mexican"],
+    profile:"E", sauceFamilies:["tomato","spicepaste","nosause"],
+    stores:["sara"], prep:PREP.PRE, make_ahead:true, make_ahead_timing:"day before",
+    flavorNotes:["heat","smoke","umami","acid"], moisture:"medium", weight:"medium", presence:"anchor",
+    desc:"Shredded beef braised in a smoky chipotle-tomato sauce — tinga is one of the great Mexican home dishes. Traditionally chicken or beef, with the chipotle's smoke and the tomato's acidity carrying the dish.",
+    note:"Fully pre-cooked and shredded. Drain well before adding — tinga sauce is wet and will soak the dough. The chipotle smoke is the signature. Pairs with queso fresco, avocado and crema.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "500g beef chuck",
+        "3 tomatoes, chopped",
+        "2-3 chipotles in adobo, minced",
+        "1 onion, sliced",
+        "3 cloves garlic",
+        "1 tsp oregano",
+        "1 bay leaf",
+        "Salt",
+      ],
+      method:[
+        "Simmer beef chuck in salted water with bay leaf until fork-tender, about 1.5 hours. Shred and reserve.",
+        "Sauté onion until soft. Add garlic, then tomatoes and minced chipotle. Cook down 10 minutes until thick.",
+        "Add shredded beef and oregano. Cook until the sauce coats the meat and most liquid has evaporated.",
+        "Drain any excess liquid before using on pizza — it must be relatively dry.",
+        "Keeps 4 days refrigerated. Freezes well.",
+      ]
+    },
+    qty:{ unit:"500g", yield_g:500, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:5, min_purchase:1 }
+  },
+  {
+    id:"pollo_asado", name:"Pollo asado (grilled chicken)",
+    layer:"protein", cuisine:["mexican"],
+    profile:"T", sauceFamilies:["tomato","spicepaste","nosause"],
+    stores:["sara","cm"], prep:PREP.PRE, make_ahead:true, make_ahead_timing:"same day",
+    flavorNotes:["spice","acid","smoke"], moisture:"low", weight:"medium", presence:"anchor",
+    desc:"Mexican grilled chicken — marinated in citrus, achiote and chile, then grilled and sliced. Brighter and tangier than American grilled chicken, with the achiote giving a warm earthy color and flavor.",
+    note:"Poultry always fully pre-cooked. Marinate in citrus and achiote, grill with char, slice thin. Add in the last 60 seconds. Pairs with charred corn, queso fresco and lime crema.",
+    qty:{ unit:"400g", yield_g:400, per_pizza_g:90, per_pizza_oz:3.2, shared_yield:4, min_purchase:1 }
+  },
+  {
     id:"beef_meatballs", name:"Beef meatballs (sliced)",
     layer:"protein", cuisine:["american"],
     profile:"T", sauceFamilies:["tomato","dairy"],
@@ -1866,6 +1997,31 @@ const TOPPINGS = [
     desc:"The char is the point — it creates a Maillard sweetness and slight bitterness that raw or boiled corn completely lacks. Char kernels directly in a dry cast iron pan over high heat without oil until blackened in spots. Pre-char before the session.",
     note:"Cast iron or open flame — never use canned without charring first",
     qty:{ unit:"ears of corn", yield_g:200, per_pizza_g:50, per_pizza_oz:1.8, per_pizza_unit:0.5, min_purchase:2 },
+  },
+  {
+    id:"rajas_poblano", name:"Rajas (charred poblano strips)",
+    layer:"veg", cuisine:["mexican"],
+    profile:"E", sauceFamilies:["tomato","spicepaste","dairy","nosause"],
+    stores:["sara","cm"], 
+    flavorNotes:["char","sweet","heat"], moisture:"low", weight:"light", presence:"supporting",
+    desc:"Charred, peeled poblano pepper strips — rajas are a Mexican staple, smoky and mild with a gentle heat. The char is essential; raw poblano on pizza is grassy and flat by comparison.",
+    note:"Char the poblanos whole over flame or under the broiler until blackened, steam in a covered bowl, then peel and slice into strips. Pre-charred before the session. Pairs with Oaxaca cheese and crema (rajas con crema).",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "4 poblano peppers",
+        "1 tsp EVOO",
+        "Pinch of salt",
+      ],
+      method:[
+        "Char poblanos whole over an open flame or under a high broiler, turning until blackened all over.",
+        "Place in a covered bowl to steam 10 minutes — this loosens the skin.",
+        "Peel off the charred skin, remove stem and seeds.",
+        "Slice into thin strips. Toss with a little EVOO and salt.",
+        "Use on pizza directly — already cooked. The smoky char is the whole point.",
+      ]
+    },
+    qty:{ unit:"4 peppers", yield_g:200, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:4, min_purchase:1 }
   },
   {
     id:"mushroom_cremini", name:"Cremini mushrooms",
@@ -2259,6 +2415,26 @@ const TOPPINGS = [
     desc:"Post-bake — heat turns cilantro bitter. Tear roughly by hand rather than chopping fine. The essential finish for Mexican and Indian builds where its fresh, slightly citrusy character cuts through rich spiced meats and cheese.",
     note:"Post-bake only",
     qty:{ unit:"bunch", yield_g:20, per_pizza_g:4, per_pizza_oz:0.1, shared_yield:5, min_purchase:1 },
+  },
+  {
+    id:"charred_pineapple", name:"Charred pineapple",
+    layer:"finish", cuisine:["mexican"],
+    profile:"E", sauceFamilies:["tomato","spicepaste","nosause"],
+    stores:["sara","cm"],
+    flavorNotes:["sweet","acid","char"], moisture:"low", weight:"light", presence:"accent",
+    desc:"Grilled pineapple — the sweet-acid counterpoint that defines al pastor. The char caramelizes the sugars and adds smoky depth. Cuts through rich, fatty proteins beautifully.",
+    note:"Char pineapple chunks in a dry hot pan or grill until caramelized and marked. Add post-bake or in the last 30 seconds. The sweet-acid against chile heat is the al pastor signature.",
+    qty:{ unit:"½ pineapple", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:5, min_purchase:1 }
+  },
+  {
+    id:"avocado_slices", name:"Avocado (sliced)",
+    layer:"finish", cuisine:["mexican"],
+    profile:"T", sauceFamilies:["tomato","spicepaste","dairy","nosause"],
+    stores:["sara","cm"],
+    flavorNotes:["fat","fresh","cream"], moisture:"medium", weight:"medium", presence:"supporting",
+    desc:"Fresh avocado — post-bake only, adding cool creaminess against warm spiced toppings. A tlayuda and Mexican pizza staple. Its richness balances heat and acid.",
+    note:"Post-bake always — heat turns avocado bitter and grey. Slice or fan over the hot pizza just before serving. A squeeze of lime keeps it green and adds brightness.",
+    qty:{ unit:"1 avocado", yield_g:140, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:2, min_purchase:1 }
   },
   {
     id:"flat_parsley", name:"Flat-leaf parsley",
