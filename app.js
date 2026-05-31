@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.7.2
+// OMAR'S PIE — app.js v2.7.6
 // The Classics + clean engine
 // ============================================================
 
@@ -244,7 +244,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.7.2 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.7.6 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -645,7 +645,8 @@ function rollPizza() {
   // Crumble cheeses — don't provide puff suppression
   const CRUMBLE_CHEESES = new Set([
     "feta","shanklish","tulum_peynir","goat_cheese",
-    "ricotta_dollop","gorgonzola","gorgonzola_dolce","cotija","parmigiano_primary"
+    "ricotta_dollop","gorgonzola","gorgonzola_dolce","cotija","parmigiano_primary",
+    "paneer","queso_fresco"
   ]);
   const hasCrumbleOnly = hasAnyPreBakeCheese &&
     !hasMeltCheese &&

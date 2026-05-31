@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.5";
+const APP_VERSION = "2.7.6";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -271,7 +271,7 @@ const SAUCE_CHEESE_PREFERENCES = {
 // Feta doesn't melt — on tomato sauce it needs a melt cheese companion (Traditional only)
 // Elevated/Connoisseur: feta can stand alone as post-bake accent
 const FETA_NEEDS_COMPANION_SAUCES = new Set(["tomato"]);
-const MELT_CHEESES = new Set(["fior_di_latte","fresh_mozz","shredded_mozz","kashkaval","fontina","halloumi","akawi","paneer","oaxaca"]);
+const MELT_CHEESES = new Set(["fior_di_latte","fresh_mozz","shredded_mozz","kashkaval","fontina","halloumi","akawi","oaxaca"]);
 
 // ── PROTEIN NECESSITY ────────────────────────────────────────
 // Umami-rich items — if enough present, protein less necessary
@@ -614,6 +614,36 @@ const CHEF_TOUCH_RULES = [
     requires: { sauce: ["tomatillo_sauce"], notAlready: ["avocado_slices","lime_crema"] },
     suggest: "avocado_slices",
     reason: "Cool avocado over a tangy tomatillo base is the salsa verde instinct — the creamy richness rounds out the bright acidity of the tomatillo. Add post-bake with a squeeze of lime. The green-on-green of Oaxacan cooking.",
+  },
+
+  // ── INDIAN SEEKH KEBAB BUILDS ────────────────────────────
+  {
+    id: "seekh_chaat",
+    requires: { protein: ["seekh_kebab_beef","seekh_kebab_lamb"], notAlready: ["chaat_masala"] },
+    suggest: "chaat_masala",
+    reason: "Chaat masala over hot seekh kebab is how every kebab house in Delhi finishes the plate — the amchur (dried mango) and black salt hit the charred meat with a sharp, tangy, almost sour brightness. It is the single most authentic thing you can add. Dust post-bake.",
+  },
+  {
+    id: "seekh_mint",
+    requires: { protein: ["seekh_kebab_beef","seekh_kebab_lamb"], notAlready: ["chaat_masala","fresh_mint","fresh_cilantro"] },
+    suggest: "fresh_mint",
+    reason: "Mint is the cooling partner to spiced grilled meat across the subcontinent — seekh kebab is traditionally served with mint-coriander chutney. Fresh mint torn over the hot kebab cuts the richness and the chile heat. Post-bake, torn by hand.",
+  },
+
+  // ── INDIAN MELT-CHEESE + SPICE BUILDS ────────────────────
+  {
+    id: "indian_malai_cool",
+    requires: { sauce: ["makhani_sauce","tikka_sauce"], protein: ["seekh_kebab_beef","seekh_kebab_lamb","chicken_tikka","chicken_tandoori"], notAlready: ["malai_dollop","fresh_cilantro","chaat_masala"] },
+    suggest: "malai_dollop",
+    reason: "A few dollops of malai over a spicy makhani or tikka build is the shahi (royal) instinct — the clotted cream melts into pockets of cooling richness against the warm spice. This is the principle behind malai kofta: cream as the counterweight to chile.",
+  },
+
+  // ── INDIAN TANDOORI VEG BUILDS ───────────────────────────
+  {
+    id: "tandoori_nigella",
+    requires: { veg: ["tandoori_peppers"], cuisine: ["indian"], notAlready: ["nigella_seeds","chaat_masala"] },
+    suggest: "nigella_seeds",
+    reason: "Nigella seeds (kalonji) scattered over tandoori vegetables add the faint oniony, peppery crackle you taste on the crust of naan. It is a quiet, authentic finishing touch that signals real Indian cooking. Scatter post-bake.",
   },
 
 ];
@@ -1159,7 +1189,7 @@ const TOPPINGS = [
   // ══ CHEESE ══════════════════════════════════════════════════
   {
     id:"fior_di_latte", name:"Fior di latte",
-    layer:"cheese", cuisine:["neapolitan"],
+    layer:"cheese", cuisine:["neapolitan","indian"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
@@ -1199,7 +1229,7 @@ const TOPPINGS = [
   },
   {
     id:"shredded_mozz", name:"Shredded low-moisture mozz",
-    layer:"cheese", cuisine:["american"],
+    layer:"cheese", cuisine:["american","indian"],
     profile:"T", sauceFamilies:["tomato","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
@@ -1426,6 +1456,16 @@ const TOPPINGS = [
     qty:{ unit:"block (200g)", yield_g:200, per_pizza_g:80, per_pizza_oz:2.8, min_purchase:1 },
   },
   {
+    id:"malai_dollop", name:"Malai (clotted cream dollop)",
+    layer:"cheese", cuisine:["indian"],
+    profile:"T", sauceFamilies:["spicepaste","dairy","nosause"],
+    stores:["sara","cm"],
+    flavorNotes:["cream","fat"], moisture:"high", weight:"medium", presence:"supporting",
+    desc:"Thick Indian clotted cream — the richness behind malai kofta and shahi dishes. Adds a cooling, luxurious creaminess against spice. Spoon in small dollops, not a layer.",
+    note:"Dollop in small spoonfuls between toppings — high moisture, so avoid spreading as a layer. Adds richness to makhani and tikka builds. Drain briefly if very loose.",
+    qty:{ unit:"small tub (200g)", yield_g:200, per_pizza_g:40, per_pizza_oz:1.4, shared_yield:5, min_purchase:1 }
+  },
+  {
     id:"aged_cheddar", name:"Aged cheddar",
     layer:"cheese", cuisine:["american"],
     profile:"T", sauceFamilies:["tomato","spicepaste"],
@@ -1593,6 +1633,73 @@ const TOPPINGS = [
     desc:"Tandoori marinade is drier and smokier than tikka — yogurt, Kashmiri chili, cumin, charred finish.",
     note:"⚠️ Poultry — fully cooked. Slice thin off the bone before adding.",
     qty:{ unit:"300g chicken thighs", yield_g:300, per_pizza_g:90, per_pizza_oz:3.2, min_purchase:1 },
+  },
+  {
+    id:"seekh_kebab_beef", name:"Beef seekh kebab",
+    layer:"protein", cuisine:["indian"],
+    profile:"E", sauceFamilies:["spicepaste","dairy","tomato","nosause"],
+    stores:["sara"], prep:PREP.PRE, make_ahead:true, make_ahead_timing:"day before",
+    flavorNotes:["spice","heat","umami","fat"], moisture:"low", weight:"medium", presence:"anchor",
+    desc:"Spiced ground beef skewers from the Mughlai tradition — finely minced beef with ginger, garlic, green chili and toasted whole spices, grilled until charred. Smoky, juicy and bold.",
+    note:"Fully pre-cook and slice. Toasting the whole cumin and coriander before grinding is what removes the raw-spice taste — do not skip it. Gram flour helps the mince bind. Add in the last 60 seconds. Finish with chaat masala.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "500g finely minced beef (twice-ground)",
+        "1 onion, grated and squeezed very dry",
+        "1 tbsp ginger-garlic paste",
+        "1-2 green chilies, minced",
+        "2 tbsp gram flour (besan), toasted",
+        "1 tsp cumin seeds, toasted and ground",
+        "1 tsp coriander seeds, toasted and ground",
+        "1 tsp garam masala",
+        "1 tsp Kashmiri chili powder",
+        "3 tbsp cilantro and mint, chopped",
+        "1 tsp salt",
+      ],
+      method:[
+        "Toast cumin and coriander seeds in a dry pan 60 seconds until fragrant, then grind. Toast the gram flour separately until it smells nutty.",
+        "Grate the onion and squeeze out all moisture — wet onion makes the mince fall apart.",
+        "Combine everything in a bowl. Knead vigorously with your hands for 5 minutes until smooth and sticky — this is what holds the kebabs together.",
+        "Shape onto skewers in sausage shapes, or form into thin logs.",
+        "Grill on high or under a broiler 8-10 minutes, turning, until charred and cooked through. Rest on a rack so juices don't make it soggy.",
+        "Slice and add to pizza in the last 60 seconds.",
+      ]
+    },
+    qty:{ unit:"500g", yield_g:500, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:5, min_purchase:1 }
+  },
+  {
+    id:"seekh_kebab_lamb", name:"Lamb seekh kebab",
+    layer:"protein", cuisine:["indian"],
+    profile:"E", sauceFamilies:["spicepaste","dairy","tomato","nosause"],
+    stores:["sara"], prep:PREP.PRE, make_ahead:true, make_ahead_timing:"day before",
+    flavorNotes:["spice","heat","fat","umami"], moisture:"low", weight:"heavy", presence:"anchor",
+    desc:"Lamb version of the classic seekh kebab — naturally richer and more flavorful than chicken, so it needs fewer spices to shine. The Mughlai grilling tradition at its best.",
+    note:"Fully pre-cook and slice. Lamb is moist and flavorful so go lighter on spice than the beef version. Toast whole spices before grinding. Add in the last 60 seconds. Pairs with mint chutney and pickled onion.",
+    recipe:{
+      makes:"covers 4-5 pizzas",
+      ingredients:[
+        "500g ground lamb",
+        "1 onion, grated and squeezed dry",
+        "1 tbsp ginger-garlic paste",
+        "1-2 green chilies, minced",
+        "1 tsp cumin seeds, toasted and ground",
+        "1 tsp coriander seeds, toasted and ground",
+        "1 tsp garam masala",
+        "½ tsp Kashmiri chili powder",
+        "3 tbsp cilantro and mint, chopped",
+        "1 tsp salt",
+      ],
+      method:[
+        "Toast cumin and coriander 60 seconds until fragrant, then grind.",
+        "Grate onion and squeeze completely dry.",
+        "Combine all ingredients and knead vigorously for 5 minutes until smooth and sticky.",
+        "Shape onto skewers or into thin logs.",
+        "Grill on high 9-10 minutes, turning frequently, until charred and cooked through. Rest on a rack.",
+        "Slice and add to pizza in the last 60 seconds.",
+      ]
+    },
+    qty:{ unit:"500g", yield_g:500, per_pizza_g:100, per_pizza_oz:3.5, shared_yield:5, min_purchase:1 }
   },
   {
     id:"chicken_bbq", name:"BBQ chicken (shredded)",
@@ -2252,6 +2359,34 @@ const TOPPINGS = [
     desc:"Pre-roast at 425°F until deeply golden — the caramelization is what makes roasted cauliflower interesting on a pizza. Raw or lightly steamed cauliflower is bland and wet. Toss with EVOO, cumin and salt before roasting for Indian or North African builds.",
     note:"Roast at 425°F until deeply golden — season with cumin for Indian pies",
     qty:{ unit:"½ head cauliflower", yield_g:300, per_pizza_g:70, per_pizza_oz:2.5, min_purchase:1 },
+  },
+  {
+    id:"tandoori_peppers", name:"Tandoori bell peppers & onion",
+    layer:"veg", cuisine:["indian"],
+    profile:"E", sauceFamilies:["spicepaste","dairy","tomato","nosause"],
+    stores:["sara","cm"],
+    flavorNotes:["spice","char","sweet"], moisture:"low", weight:"light", presence:"supporting",
+    desc:"Bell peppers and onion marinated in spiced yogurt and charred — the vegetables that ride alongside paneer in every paneer tikka. The yogurt marinade and char give them a tandoor character raw peppers can't match.",
+    note:"Toss diced peppers and onion in the same tikka or tandoori marinade as the paneer, then char in a hot pan or under the broiler. Pre-cooked before the session. Adds color and smoky-spiced depth.",
+    recipe:{
+      makes:"covers 3-4 pizzas",
+      ingredients:[
+        "2 bell peppers (mixed colors), diced large",
+        "1 large onion, cut in chunks, layers separated",
+        "3 tbsp thick yogurt",
+        "1 tsp tikka or tandoori spice mix",
+        "½ tsp Kashmiri chili powder",
+        "½ tsp salt",
+        "1 tsp EVOO",
+      ],
+      method:[
+        "Mix yogurt, spice mix, chili powder and salt into a marinade.",
+        "Toss the peppers and onion chunks to coat. Marinate 30 minutes.",
+        "Char in a screaming-hot pan or under a high broiler until edges blacken but vegetables stay crisp-tender, about 6-8 minutes.",
+        "Cool slightly. Use on pizza directly — already cooked and charred.",
+      ]
+    },
+    qty:{ unit:"2 peppers + onion", yield_g:300, per_pizza_g:60, per_pizza_oz:2.1, shared_yield:4, min_purchase:1 }
   },
   {
     id:"green_pepper", name:"Green bell pepper",
