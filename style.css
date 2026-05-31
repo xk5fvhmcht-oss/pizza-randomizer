@@ -2140,3 +2140,21 @@ body::before {
   color: var(--text2);
   border-color: var(--border2);
 }
+
+/* ── WAKE-LOCK TOGGLE ─────────────────────────────────────── */
+.btn-wakelock {
+  position: relative;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.btn-wakelock.wakelock-active {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: var(--gold-light);
+}
+.btn-wakelock.wakelock-active svg {
+  animation: wakelock-pulse 2.4s ease-in-out infinite;
+}
+@keyframes wakelock-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}

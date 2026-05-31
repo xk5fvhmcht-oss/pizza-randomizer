@@ -28,7 +28,7 @@
   <header class="app-header">
     <div class="header-brand">
       <span class="app-name">Omar's <em>Pie</em></span>
-      <span class="version-label" id="version-label">v2.6.0</span>
+      <span class="version-label" id="version-label">v2.7.7</span>
     </div>
     <button class="btn-icon" id="btn-reset" title="Reset" aria-label="Reset">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -180,6 +180,9 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
     <div class="sub-header-nav">
+      <button class="btn-icon btn-wakelock" id="btn-wakelock" title="Keep screen awake" aria-label="Keep screen awake" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
       <button class="btn-icon sub-nav-home" title="Home" aria-label="Home" onclick="showScreen('setup')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       </button>
@@ -345,6 +348,117 @@
 
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script>
+// ── SCREEN WAKE LOCK ─────────────────────────────────────────
+// Keeps the screen awake on the pizza results screen so bakers
+// with full hands don't need to unlock every few seconds.
+// Works on iOS Safari 16.4+ and installed PWAs on iOS 18.4+.
+(function(){
+  if (!("wakeLock" in navigator)) {
+    // API unsupported — hide the toggle entirely
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("btn-wakelock");
+      if (btn) btn.style.display = "none";
+    });
+    return;
+  }
+
+  let wakeLock = null;
+  let userWantsLock = localStorage.getItem("omars_pie_wakelock") === "on";
+
+  const btn = () => document.getElementById("btn-wakelock");
+
+  function reflectButton(){
+    const b = btn();
+    if (!b) return;
+    b.setAttribute("aria-pressed", userWantsLock ? "true" : "false");
+    b.classList.toggle("wakelock-active", userWantsLock && wakeLock !== null);
+    b.title = userWantsLock ? "Screen stays awake — tap to allow sleep" : "Keep screen awake";
+  }
+
+  // Is the pizza results screen currently visible?
+  function onPizzaScreen(){
+    const s = document.getElementById("screen-pizza");
+    return s && s.classList.contains("active");
+  }
+
+  async function acquire(){
+    // Only hold the lock when the user wants it AND we're on the pizza screen
+    if (!userWantsLock || !onPizzaScreen()) return;
+    if (wakeLock) return; // already held
+    try {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => {
+        wakeLock = null;
+        reflectButton();
+      });
+      reflectButton();
+    } catch (err) {
+      // Rejected (low battery, power save, etc) — reflect that it's not active
+      wakeLock = null;
+      reflectButton();
+    }
+  }
+
+  async function release(){
+    if (wakeLock) {
+      try { await wakeLock.release(); } catch(e){}
+      wakeLock = null;
+    }
+    reflectButton();
+  }
+
+  // Toggle handler
+  document.addEventListener("DOMContentLoaded", () => {
+    const b = btn();
+    if (!b) return;
+    reflectButton();
+    b.addEventListener("click", async () => {
+      userWantsLock = !userWantsLock;
+      localStorage.setItem("omars_pie_wakelock", userWantsLock ? "on" : "off");
+      if (userWantsLock) { await acquire(); }
+      else { await release(); }
+      reflectButton();
+    });
+    // If returning to the app with the toggle on, try to acquire
+    if (userWantsLock && onPizzaScreen()) acquire();
+  });
+
+  // Re-acquire when the page becomes visible again (iOS releases on blur/lock)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && userWantsLock && onPizzaScreen()) {
+      acquire();
+    }
+  });
+
+  // Hook into screen changes — wrap showScreen so leaving the pizza
+  // screen releases the lock, and entering it (re)acquires
+  const origShowScreen = window.showScreen;
+  if (typeof origShowScreen === "function") {
+    window.showScreen = function(name){
+      origShowScreen(name);
+      if (name === "pizza") { acquire(); }
+      else { release(); }
+    };
+  } else {
+    // showScreen defined later in app.js — poll briefly to wrap it
+    let tries = 0;
+    const iv = setInterval(() => {
+      tries++;
+      if (typeof window.showScreen === "function") {
+        const orig = window.showScreen;
+        window.showScreen = function(name){
+          orig(name);
+          if (name === "pizza") { acquire(); }
+          else { release(); }
+        };
+        clearInterval(iv);
+      }
+      if (tries > 50) clearInterval(iv);
+    }, 100);
+  }
+})();
+</script>
 <script>
 (function(){
   document.body.classList.remove("preload");
