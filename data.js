@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.8";
+const APP_VERSION = "2.7.9";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -776,7 +776,8 @@ const TOPPINGS = [
     desc:"Spiced North African tomato sauce with peppers and cumin — sold jarred at Sara's.",
     note:"Must be reduced until very thick before applying — watery shakshuka soaks the dough immediately. Crack egg directly into the sauce before the bake. Feta in the last 45 seconds. Flat parsley and Aleppo pepper post-bake always.",
     recipe:{
-      makes:"covers 4-5 pizzas",
+      makes:"covers ~8 pizzas",
+      yields:{ full_g:600, half_g:300, per_pizza_g:75, pizzas_full:8, pizzas_half:4 },
       ingredients:[
         "1 can (800g) crushed tomatoes, or 6 fresh ripe tomatoes, diced",
         "1 red bell pepper, finely diced",
@@ -812,7 +813,8 @@ const TOPPINGS = [
     desc:"Basil, Parmigiano, pine nuts, garlic, EVOO — applied thin directly on the dough as the sauce. Heat dulls pesto's brightness, so compensate post-bake with fresh basil or lemon zest to restore what the oven took away. Oil-based — spread sparingly or the pizza becomes greasy.",
     note:"Apply thin — it is the sauce. Heat dulls pesto brightness. Compensate post-bake: add fresh basil, lemon zest or extra Parmigiano to restore the brightness the oven removes. Oil-based — use sparingly or the pizza becomes greasy.",
     recipe:{
-      makes:"covers 4-6 pizzas — keeps 5 days refrigerated",
+      makes:"covers ~7 pizzas — keeps 5 days refrigerated",
+      yields:{ full_g:270, half_g:135, per_pizza_g:40, pizzas_full:7, pizzas_half:3 },
       ingredients:[
         "70g fresh basil leaves, packed (or fresh za'atar from the garden)",
         "30g pine nuts",
@@ -877,7 +879,8 @@ const TOPPINGS = [
     desc:"Strained yogurt cheese — thick, tangy, creamy. Middle Eastern staple. Replaces tomato entirely.",
     note:"Spread thick, wall to wall — it is sauce AND cheese in one. Must be thick enough to hold its shape. Room temperature spreads best. The tang mellows under heat — pair with brine (feta, olives) or heat (Aleppo) to restore contrast.",
     recipe:{
-      makes:"covers 6-8 pizzas",
+      makes:"covers ~4 pizzas",
+      yields:{ full_g:280, half_g:140, per_pizza_g:80, pizzas_full:4, pizzas_half:2 },
       ingredients:[
         "500g full-fat plain yogurt (not Greek)",
         "½ tsp salt",
@@ -937,6 +940,7 @@ const TOPPINGS = [
     note:"Apply thin — rich and dense. The walnut is essential to what makes it muhammara. Do not add more pomegranate molasses as a topping — it is already in the sauce. Pairs with lamb kofta, kashkaval and roasted peppers.",
     recipe:{
       makes:"covers 6-8 pizzas — keeps 1 week refrigerated",
+      yields:{ full_g:460, half_g:230, per_pizza_g:60, pizzas_full:8, pizzas_half:4 },
       ingredients:[
         "3 large red bell peppers",
         "1 cup walnuts",
@@ -972,7 +976,8 @@ const TOPPINGS = [
     desc:"North African herb marinade — parsley, cilantro, cumin, lemon. Similar to chimichurri but warmer.",
     note:"Apply thin like pesto — intensely flavored. The heat dulls fresh herb brightness — add flat parsley post-bake to restore it. Pairs with merguez, roasted peppers, feta and preserved lemon.",
     recipe:{
-      makes:"covers 6-8 pizzas — keeps 5 days refrigerated",
+      makes:"covers ~5 pizzas — keeps 5 days refrigerated",
+      yields:{ full_g:260, half_g:130, per_pizza_g:50, pizzas_full:5, pizzas_half:2 },
       ingredients:[
         "1 cup fresh cilantro, packed",
         "1 cup fresh flat parsley, packed",
@@ -1017,7 +1022,8 @@ const TOPPINGS = [
     desc:"Creamy tomato-based Indian sauce — garam masala, ginger, garlic. Bold and aromatic.",
     note:"Reduce until thick before applying — never watery",
     recipe:{
-      makes:"covers 6-8 pizzas — freezes well",
+      makes:"covers ~9 pizzas — freezes well",
+      yields:{ full_g:700, half_g:350, per_pizza_g:75, pizzas_full:9, pizzas_half:4 },
       ingredients:[
         "2 medium onions, finely diced",
         "4 cloves garlic, minced",
@@ -1055,7 +1061,8 @@ const TOPPINGS = [
     desc:"Richer, creamier Indian sauce than tikka — butter-forward with gentle spice.",
     note:"Reduce before use — pairs beautifully with paneer",
     recipe:{
-      makes:"covers 6-8 pizzas — freezes well in portions",
+      makes:"covers ~9 pizzas — freezes well in portions",
+      yields:{ full_g:675, half_g:335, per_pizza_g:75, pizzas_full:9, pizzas_half:4 },
       ingredients:[
         "500g ripe tomatoes, roughly chopped (or 1 can crushed tomatoes)",
         "1 medium onion, roughly chopped",
@@ -1092,6 +1099,7 @@ const TOPPINGS = [
     note:"Mexican hard lock — char and reduce before using",
     recipe:{
       makes:"covers 4-6 pizzas — keeps 1 week refrigerated",
+      yields:{ full_g:450, half_g:225, per_pizza_g:75, pizzas_full:6, pizzas_half:3 },
       ingredients:[
         "500g tomatillos, husked and rinsed",
         "1 medium white onion, quartered",
@@ -1124,6 +1132,7 @@ const TOPPINGS = [
     note:"Mexican hard lock — smoky depth, reduce well",
     recipe:{
       makes:"covers 4-6 pizzas — keeps 4 days refrigerated",
+      yields:{ full_g:450, half_g:225, per_pizza_g:75, pizzas_full:6, pizzas_half:3 },
       ingredients:[
         "500g ripe Roma tomatoes, halved",
         "1 medium white onion, quartered",
@@ -1156,6 +1165,7 @@ const TOPPINGS = [
     note:"Spread thin — hummus is dense and can overwhelm. Already contains tahini and garlic — do not add either as separate toppings. Works best at steel oven temps — at Dome the chickpea base can char at the edges.",
     recipe:{
       makes:"covers 6-8 pizzas — keeps 5 days refrigerated",
+      yields:{ full_g:500, half_g:250, per_pizza_g:60, pizzas_full:8, pizzas_half:4 },
       ingredients:[
         "1 can (400g) chickpeas, drained and rinsed",
         "½ cup good tahini (Soom or Cedar's from CM)",
@@ -1648,6 +1658,7 @@ const TOPPINGS = [
     note:"Fully pre-cook and slice. Toasting the whole cumin and coriander before grinding is what removes the raw-spice taste — do not skip it. Gram flour helps the mince bind. Add in the last 60 seconds. Finish with chaat masala.",
     recipe:{
       makes:"covers 4-5 pizzas",
+      yields:{ full_g:440, half_g:220, per_pizza_g:100, pizzas_full:4, pizzas_half:2 },
       ingredients:[
         "500g finely minced beef (twice-ground)",
         "1 onion, grated and squeezed very dry",
@@ -1682,6 +1693,7 @@ const TOPPINGS = [
     note:"Fully pre-cook and slice. Lamb is moist and flavorful so go lighter on spice than the beef version. Toast whole spices before grinding. Add in the last 60 seconds. Pairs with mint chutney and pickled onion.",
     recipe:{
       makes:"covers 4-5 pizzas",
+      yields:{ full_g:440, half_g:220, per_pizza_g:100, pizzas_full:4, pizzas_half:2 },
       ingredients:[
         "500g ground lamb",
         "1 onion, grated and squeezed dry",
@@ -1815,6 +1827,7 @@ const TOPPINGS = [
     note:"Fully pre-cook and slice. Add in the last 60 seconds — the pineapple and chile marinade sugars caramelize fast and burn at Dome temp. Pairs with charred pineapple, cilantro and pickled onion.",
     recipe:{
       makes:"covers 4-5 pizzas",
+      yields:{ full_g:420, half_g:210, per_pizza_g:100, pizzas_full:4, pizzas_half:2 },
       ingredients:[
         "500g thinly sliced beef (sirloin or flank)",
         "2 dried guajillo chiles, soaked and blended",
@@ -1846,6 +1859,7 @@ const TOPPINGS = [
     note:"Fully pre-cooked and shredded. Drain well before adding — tinga sauce is wet and will soak the dough. The chipotle smoke is the signature. Pairs with queso fresco, avocado and crema.",
     recipe:{
       makes:"covers 4-5 pizzas",
+      yields:{ full_g:450, half_g:225, per_pizza_g:100, pizzas_full:5, pizzas_half:2 },
       ingredients:[
         "500g beef chuck",
         "3 tomatoes, chopped",
@@ -2021,6 +2035,7 @@ const TOPPINGS = [
     note:"Cook fully before adding — minimum 30 minutes low heat",
     recipe:{
       makes:"covers 3-4 pizzas",
+      yields:{ full_g:250, half_g:125, per_pizza_g:60, pizzas_full:4, pizzas_half:2 },
       ingredients:[
         "3 large yellow onions, halved and thinly sliced",
         "2 tbsp butter or EVOO",
@@ -2764,7 +2779,7 @@ const TOPPINGS = [
       ]
     },
     
-    qty:{ unit:"jar", yield_g:0, per_pizza_g:0, per_pizza_tbsp:2, shared_yield:8, pantry:true, min_purchase:1 },
+    qty:{ unit:"jar", yield_g:0, per_pizza_g:15, per_pizza_oz:0.5, per_pizza_tbsp:2, shared_yield:8, pantry:true, min_purchase:1 },
   },
   {
     id:"arugula", name:"Arugula (dressed)",
@@ -3679,6 +3694,70 @@ const CLASSICS = [
       protein: [],
       veg:     [T("cauliflower_roasted")],
       finish:  [T("chaat_masala"), T("fresh_cilantro"), T("kashmiri_chili")],
+    },
+  },
+  {
+    id:"al_pastor_pie", name:"Al Pastor",
+    cuisine:"mexican", emoji:"🍍",
+    description:"Chile-pineapple beef, melted Oaxaca, charred pineapple, pickled onion, cilantro. The trompo flavors on a crust.",
+    history:"Al pastor was born in Puebla when Lebanese immigrants' vertical-spit shawarma met Mexican chiles. The pineapple is structural, not garnish — its sweet acid against the chile marinade is the dish.",
+    chefNote:"Al pastor in the last 60 seconds — the marinade sugars burn fast at Dome temp. Pineapple post-bake or final 30 seconds. Pickled onion and cilantro after the pull.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [],
+      sauce:   [T("roja_sauce")],
+      cheese:  [T("oaxaca")],
+      protein: [T("beef_al_pastor")],
+      veg:     [],
+      finish:  [T("charred_pineapple"), T("pickled_red_onion"), T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"tinga_tlayuda", name:"Tinga Tlayuda",
+    cuisine:"mexican", emoji:"🫓",
+    description:"Chipotle smear, melted quesillo, smoky shredded tinga, queso fresco, avocado. Oaxaca's street flatbread, pizza-fied.",
+    history:"The tlayuda is Oaxaca's giant toasted tortilla — beans, quesillo, meat, avocado. A chipotle smear stands in for the bean layer; the logic stays: melt below, cool cream above.",
+    chefNote:"Drain the tinga hard — its braising sauce will soak a bianca in seconds. Oaxaca melts wall to wall, queso fresco crumbles on in the last 30 seconds, avocado post-bake with a squeeze of lime.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("chipotle_base")],
+      sauce:   [T("nosause")],
+      cheese:  [T("oaxaca"), T("queso_fresco")],
+      protein: [T("beef_tinga")],
+      veg:     [],
+      finish:  [T("avocado_slices"), T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"paneer_tikka_pie", name:"Paneer Tikka Pizza",
+    cuisine:"indian", emoji:"🧀",
+    description:"Tikka sauce, mozzarella melt, seared marinated paneer, charred tandoori peppers, cilantro. What Indian pizzerias actually serve.",
+    history:"Paneer tikka pizza is India's favorite pizza-night order — the tandoor starter laid over a mozzarella melt. Raw paneer is bland and squeaky; the marinade-and-sear is the whole dish.",
+    chefNote:"Paneer and peppers charred in the same spiced-yogurt marinade before the bake. Mozzarella melts below; paneer rides on top for the last 90 seconds. Cilantro post-bake — chaat masala dust if you have it.",
+    ovenMode:"steel",
+    pizza:{
+      base:    [],
+      sauce:   [T("tikka_sauce")],
+      cheese:  [T("shredded_mozz"), T("paneer")],
+      protein: [],
+      veg:     [T("tandoori_peppers"), T("red_onion")],
+      finish:  [T("fresh_cilantro")],
+    },
+  },
+  {
+    id:"seekh_kebab_pie", name:"Seekh Kebab Pie",
+    cuisine:"indian", emoji:"🍢",
+    description:"Garlic-oil bianca, fior di latte, charred lamb seekh, pickled onion, torn mint. The kebab plate as a pie.",
+    history:"Seekh kebab is Mughlai grill-craft — spiced mince kneaded sticky and charred on skewers, always served with mint and raw onion. On a garlic naan-style base, the table partners become the topping set.",
+    chefNote:"Kebab fully cooked and sliced — last 60 seconds only. Knead the mince five full minutes or it crumbles. Mint torn post-bake; finish with a dust of chaat masala, the Delhi move.",
+    ovenMode:"dome",
+    pizza:{
+      base:    [T("garlic_oil")],
+      sauce:   [T("nosause")],
+      cheese:  [T("fior_di_latte")],
+      protein: [T("seekh_kebab_lamb")],
+      veg:     [],
+      finish:  [T("pickled_red_onion"), T("fresh_mint")],
     },
   },
 ];

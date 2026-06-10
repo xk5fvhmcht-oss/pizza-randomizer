@@ -2158,3 +2158,80 @@ body::before {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.55; }
 }
+
+/* ── COOK MODE ───────────────────────────────────────────── */
+.cook-mode-btn {
+  display: inline-block;
+  margin: 4px 0 10px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--terra);
+  background: var(--terra-light);
+  border: 1px solid var(--terra);
+  border-radius: 14px;
+  cursor: pointer;
+}
+.cook-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px calc(18px + env(safe-area-inset-bottom));
+}
+.cook-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cook-title {
+  font-size: 0.85rem;
+  color: var(--text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cook-counter {
+  margin-top: 18px;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--terra);
+  font-weight: 700;
+}
+.cook-step {
+  flex: 1;
+  margin-top: 10px;
+  font-size: clamp(1.15rem, 4.6vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--text);
+  overflow-y: auto;
+}
+.cook-timer { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
+.cook-clock {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.3rem;
+  color: var(--text);
+  min-width: 74px;
+}
+.cook-tbtn {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.cook-nav { display: flex; gap: 10px; }
+.cook-nbtn {
+  flex: 1;
+  min-height: 50px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.cook-nbtn:disabled { opacity: 0.4; }
+.cook-next { background: var(--terra); border-color: var(--terra); color: #fff; }

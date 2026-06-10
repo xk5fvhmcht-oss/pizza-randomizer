@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.7.8
+// OMAR'S PIE — app.js v2.7.9
 // The Classics + clean engine
 // ============================================================
 
@@ -246,7 +246,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.7.8 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.7.9 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -1337,25 +1337,29 @@ if (!state.librarySectionState)   state.librarySectionState   = {};
 function renderRecipeInner(recipe) {
   if (!recipe) return "";
 
-  // Build yield badge if we have yield data
+  // Yield badges — all fields optional so partial data still renders
   let yieldBadge = "";
   if (recipe.yields) {
     const y = recipe.yields;
-    yieldBadge = `
-      <div class="recipe-yield-row">
-        <span class="recipe-yield-badge">Full batch: ${y.full_g}g · ~${y.pizzas_full} pizzas</span>
-        <span class="recipe-yield-badge recipe-yield-half">Half batch: ${y.half_g}g · ~${y.pizzas_half} pizzas</span>
-        <span class="recipe-yield-badge recipe-yield-per">30g per pizza</span>
-      </div>`;
+    const parts = [];
+    if (y.full_g && y.pizzas_full)
+      parts.push(`<span class="recipe-yield-badge">Full batch: ${y.full_g}g · ~${y.pizzas_full} pizzas</span>`);
+    if (y.half_g && y.pizzas_half)
+      parts.push(`<span class="recipe-yield-badge recipe-yield-half">Half batch: ${y.half_g}g · ~${y.pizzas_half} pizzas</span>`);
+    if (y.per_pizza_g)
+      parts.push(`<span class="recipe-yield-badge recipe-yield-per">${y.per_pizza_g}g per pizza</span>`);
+    if (parts.length) yieldBadge = `<div class="recipe-yield-row">${parts.join("")}</div>`;
   }
 
   return `<div class="recipe-makes">${recipe.makes||""}</div>
     ${yieldBadge}
+    <button class="cook-mode-btn" type="button">👨‍🍳 Cook mode — step by step</button>
     <div class="recipe-heading">Ingredients</div>
     <ul class="recipe-list">${(recipe.ingredients||[]).map(i=>`<li>${i}</li>`).join("")}</ul>
     <div class="recipe-heading">Method</div>
     <ol class="recipe-list recipe-method">${(recipe.method||[]).map(m=>`<li>${m}</li>`).join("")}</ol>`;
 }
+
 
 function renderLibrary() {
   const filters   = state.libraryCuisineFilters || new Set();
@@ -1908,3 +1912,85 @@ function init() {
 }
 
 init();
+
+
+// ── COOK MODE ────────────────────────────────────────────────
+// Full-screen, one-step-at-a-time recipe view with a stopwatch.
+// DOM-delegated so it works in every recipe section (pizza cards
+// and Library) and survives re-renders — no per-render wiring.
+function openCookMode(steps, title){
+  if (!steps || !steps.length) return;
+  let idx = 0, secs = 0, iv = null;
+
+  const ov = document.createElement("div");
+  ov.className = "cook-overlay";
+  ov.innerHTML = `
+    <div class="cook-top">
+      <div class="cook-title"></div>
+      <button class="btn-icon cook-close" aria-label="Close cook mode">✕</button>
+    </div>
+    <div class="cook-counter"></div>
+    <div class="cook-step"></div>
+    <div class="cook-timer">
+      <span class="cook-clock">00:00</span>
+      <button class="cook-tbtn cook-startpause" type="button">Start</button>
+      <button class="cook-tbtn cook-reset" type="button">Reset</button>
+    </div>
+    <div class="cook-nav">
+      <button class="cook-nbtn cook-prev" type="button">‹ Back</button>
+      <button class="cook-nbtn cook-next" type="button">Next ›</button>
+    </div>`;
+  document.body.appendChild(ov);
+
+  ov.querySelector(".cook-title").textContent = title || "Recipe";
+  const stepEl = ov.querySelector(".cook-step");
+  const cntEl  = ov.querySelector(".cook-counter");
+  const nextB  = ov.querySelector(".cook-next");
+  const prevB  = ov.querySelector(".cook-prev");
+  const clock  = ov.querySelector(".cook-clock");
+  const spB    = ov.querySelector(".cook-startpause");
+
+  function fmt(s){ return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+  function paint(){
+    stepEl.textContent = steps[idx];
+    cntEl.textContent  = "Step " + (idx+1) + " of " + steps.length;
+    prevB.disabled = idx === 0;
+    nextB.textContent = idx === steps.length-1 ? "Done ✓" : "Next ›";
+  }
+  function close(){
+    if (iv) clearInterval(iv);
+    document.removeEventListener("keydown", onKey);
+    ov.remove();
+  }
+  function onKey(e){ if (e.key === "Escape") close(); }
+
+  prevB.addEventListener("click", () => { if (idx > 0){ idx--; paint(); } });
+  nextB.addEventListener("click", () => {
+    if (idx < steps.length-1){ idx++; paint(); } else { close(); }
+  });
+  ov.querySelector(".cook-close").addEventListener("click", close);
+  spB.addEventListener("click", () => {
+    if (iv){ clearInterval(iv); iv = null; spB.textContent = "Start"; }
+    else {
+      iv = setInterval(() => { secs++; clock.textContent = fmt(secs); }, 1000);
+      spB.textContent = "Pause";
+    }
+  });
+  ov.querySelector(".cook-reset").addEventListener("click", () => {
+    secs = 0; clock.textContent = fmt(0);
+  });
+  document.addEventListener("keydown", onKey);
+  paint();
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".cook-mode-btn");
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const sec = btn.closest(".recipe-section");
+  if (!sec) return;
+  const steps = Array.from(sec.querySelectorAll(".recipe-method li")).map(li => li.textContent.trim());
+  const makesEl = sec.querySelector(".recipe-makes");
+  openCookMode(steps, makesEl ? makesEl.textContent.trim() : "Recipe");
+});
