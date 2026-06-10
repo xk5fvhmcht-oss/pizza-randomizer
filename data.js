@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.6";
+const APP_VERSION = "2.7.8";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -174,14 +174,18 @@ const HARD_CONFLICTS = [
   { sauceFamily:"dairy",    topping:"burrata",        reason:"cream on cream" },
   { sauceFamily:"dairy",    topping:"fresh_mozz",     reason:"cream on cream — use feta or halloumi instead" },
   { sauceFamily:"dairy",    topping:"fior_di_latte",  reason:"cream on cream" },
-  { sauceFamily:"spicepaste", topping:"feta",         reason:"wrong flavor universe for Indian" },
-  { sauceFamily:"spicepaste", topping:"kashkaval",    reason:"wrong flavor universe for Indian" },
+  { sauce:"tikka_sauce",   topping:"feta",      reason:"wrong flavor universe for Indian builds" },
+  { sauce:"makhani_sauce", topping:"feta",      reason:"wrong flavor universe for Indian builds" },
+  { sauce:"tikka_sauce",   topping:"kashkaval", reason:"wrong flavor universe for Indian builds" },
+  { sauce:"makhani_sauce", topping:"kashkaval", reason:"wrong flavor universe for Indian builds" },
   // Topping → topping conflicts (presence-based)
   { sauce:"pesto",        topping:"fresh_basil",    reason:"basil on basil — pesto IS basil" },
   { sauce:"hummus_sauce", topping:"tahini_drizzle", reason:"hummus already contains tahini" },
   { topping1:"bufala",        topping2:"fresh_mozz",     reason:"same fresh mozzarella family" },
   { topping1:"nduja_homemade",topping2:"sujuk",          reason:"two rendering cured meats — too much fat" },
   { topping1:"nduja_homemade",topping2:"calabrian_chili_oil", reason:"same Calabrian chili character — heat stacking, not contrast" },
+  { topping1:"seekh_kebab_beef",topping2:"seekh_kebab_lamb", reason:"same kebab in two meats — pick one" },
+  { topping1:"cotija",        topping2:"queso_fresco",   reason:"two fresh Mexican crumbles — same role" },
   { topping1:"gorgonzola",    topping2:"gorgonzola_dolce",reason:"same cheese two forms" },
   { topping1:"chermoula",     topping2:"fresh_cilantro",  reason:"cilantro on cilantro" },
   { topping1:"fior_di_latte", topping2:"fresh_mozz",    reason:"same ingredient different form" },
@@ -252,9 +256,9 @@ const CHEESE_PREFERENCES = {
   turkish:      ["kasar_peyniri","beyaz_peynir","kashkaval","mihalic","akawi","halloumi","feta","tulum_peynir"],
   greek:        ["feta","halloumi","ricotta_dollop","goat_cheese"],
   northafrican: ["feta","goat_cheese","ricotta_dollop"],
-  mexican:      ["cotija"],
+  mexican:      ["oaxaca","cotija","queso_fresco"],
   american:     ["shredded_mozz","aged_cheddar","gorgonzola_dolce","gorgonzola","fontina","fresh_mozz","ricotta_dollop","provolone"],
-  indian:       ["paneer"],
+  indian:       ["paneer","fior_di_latte","shredded_mozz","malai_dollop"],
 };
 
 // ── SAUCE FAMILY CHEESE PREFERENCES ─────────────────────────
@@ -1190,7 +1194,7 @@ const TOPPINGS = [
   {
     id:"fior_di_latte", name:"Fior di latte",
     layer:"cheese", cuisine:["neapolitan","indian"],
-    profile:"T", sauceFamilies:["tomato","dairy","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"medium", weight:"medium", presence:"anchor",
     desc:"Fresh cow's milk mozzarella — the classic Neapolitan cheese. Lower moisture than bufala.",
@@ -1230,7 +1234,7 @@ const TOPPINGS = [
   {
     id:"shredded_mozz", name:"Shredded low-moisture mozz",
     layer:"cheese", cuisine:["american","indian"],
-    profile:"T", sauceFamilies:["tomato","nosause"],
+    profile:"T", sauceFamilies:["tomato","dairy","spicepaste","nosause"],
     stores:["sara","cm"],
     flavorNotes:["cream","fat"], moisture:"low", weight:"medium", presence:"anchor",
     desc:"The American pizza standard — engineered for consistent melt and full coverage. Shredding from a block gives a better melt than pre-shredded, which contains anti-caking agents. Covers wall to wall and browns beautifully at Dome temp in 60-90 seconds.",
@@ -2565,7 +2569,7 @@ const TOPPINGS = [
     id:"avocado_slices", name:"Avocado (sliced)",
     layer:"finish", cuisine:["mexican"],
     profile:"T", sauceFamilies:["tomato","spicepaste","dairy","nosause"],
-    stores:["sara","cm"],
+    stores:["sara","cm"], postbake:true,
     flavorNotes:["fat","fresh","cream"], moisture:"medium", weight:"medium", presence:"supporting",
     desc:"Fresh avocado — post-bake only, adding cool creaminess against warm spiced toppings. A tlayuda and Mexican pizza staple. Its richness balances heat and acid.",
     note:"Post-bake always — heat turns avocado bitter and grey. Slice or fan over the hot pizza just before serving. A squeeze of lime keeps it green and adds brightness.",

@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.7.6
+// OMAR'S PIE — app.js v2.7.8
 // The Classics + clean engine
 // ============================================================
 
@@ -45,6 +45,8 @@ function uid()           { return Math.random().toString(36).slice(2,9); }
 function gToOz(g)        { return (g/28.35).toFixed(1); }
 
 // ── SCREEN NAV ───────────────────────────────────────────────
+const VALID_LAYER_KEYS = new Set(["base","sauce","cheese","protein","veg","finish"]);
+
 function showScreen(name) {
   document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id==="screen-"+name));
   window.scrollTo(0,0);
@@ -244,7 +246,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.7.6 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.7.8 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -897,7 +899,10 @@ function renderPizza(pizza) {
 
       newAdd.addEventListener("click", () => {
         if (!state.currentPizza) return;
-        state.currentPizza.finish = [...(state.currentPizza.finish||[]), item];
+        // Add to the item's own layer — cheese suggestions (cotija, queso
+        // fresco, malai) belong in cheese, not finish
+        const lay = VALID_LAYER_KEYS.has(item.layer) ? item.layer : "finish";
+        state.currentPizza[lay] = [...(state.currentPizza[lay]||[]), item];
         state.currentPizza._chefTouch = null;
         chefsTouchEl.style.display = "none";
         saveToHistory(state.currentPizza);
