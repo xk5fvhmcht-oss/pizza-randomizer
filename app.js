@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.7.9
+// OMAR'S PIE — app.js v2.8.0
 // The Classics + clean engine
 // ============================================================
 
@@ -246,7 +246,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.7.9 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.8.0 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -1128,16 +1128,12 @@ function wirePizzaActions() {
 }
 
 function renderRecipe(recipe) {
+  if (!recipe) return "";
   return `
     <button class="recipe-toggle">Show recipe ▼</button>
-    <div class="recipe-section">
-      <div class="recipe-makes">Makes: ${recipe.makes}</div>
-      <div class="recipe-heading">Ingredients</div>
-      <ul class="recipe-list">${recipe.ingredients.map(i=>`<li>${i}</li>`).join("")}</ul>
-      <div class="recipe-heading">Method</div>
-      <ol class="recipe-list recipe-method">${recipe.method.map(m=>`<li>${m}</li>`).join("")}</ol>
-    </div>`;
+    <div class="recipe-section">${renderRecipeInner(recipe)}</div>`;
 }
+
 
 // ── SWAP SIMILARITY SCORING ──────────────────────────────────
 function swapSimilarityScore(original, candidate) {
@@ -1354,11 +1350,18 @@ function renderRecipeInner(recipe) {
   return `<div class="recipe-makes">${recipe.makes||""}</div>
     ${yieldBadge}
     <button class="cook-mode-btn" type="button">👨‍🍳 Cook mode — step by step</button>
+    <div class="recipe-scale-row" role="group" aria-label="Scale recipe">
+      <button class="recipe-scale-btn active" type="button" data-f="1" aria-pressed="true">Full</button>
+      <button class="recipe-scale-btn" type="button" data-f="0.5" aria-pressed="false">½</button>
+      <button class="recipe-scale-btn" type="button" data-f="0.25" aria-pressed="false">¼</button>
+    </div>
+    <div class="scale-note" style="display:none">Method steps show full-batch amounts — follow the scaled ingredient list for quantities.</div>
     <div class="recipe-heading">Ingredients</div>
-    <ul class="recipe-list">${(recipe.ingredients||[]).map(i=>`<li>${i}</li>`).join("")}</ul>
+    <ul class="recipe-list recipe-ingredients">${(recipe.ingredients||[]).map(i=>`<li>${i}</li>`).join("")}</ul>
     <div class="recipe-heading">Method</div>
     <ol class="recipe-list recipe-method">${(recipe.method||[]).map(m=>`<li>${m}</li>`).join("")}</ol>`;
 }
+
 
 
 function renderLibrary() {
@@ -1992,5 +1995,70 @@ document.addEventListener("click", (e) => {
   if (!sec) return;
   const steps = Array.from(sec.querySelectorAll(".recipe-method li")).map(li => li.textContent.trim());
   const makesEl = sec.querySelector(".recipe-makes");
-  openCookMode(steps, makesEl ? makesEl.textContent.trim() : "Recipe");
+  const f = parseFloat(sec.dataset.scale || "1");
+  const tag = f === 0.5 ? " · ½ batch" : f === 0.25 ? " · ¼ batch" : "";
+  openCookMode(steps, (makesEl ? makesEl.textContent.trim() : "Recipe") + tag);
+});
+
+
+// ── INGREDIENT SCALER ────────────────────────────────────────
+// Display-layer scaling of ingredient quantities. Parses numbers
+// out of the ingredient text on tap — data is never modified.
+// Guards: digit/digit ratios (80/20) are left alone; metric
+// amounts ≥10 round to one decimal; small amounts become cook-
+// friendly fractions (⅛ ¼ ⅓ ½ ⅔ ¾). Ranges (2-3) scale both ends.
+function scaleIngredient(text, f){
+  if (f === 1) return text;
+  const UF = {"¼":0.25,"½":0.5,"¾":0.75,"⅓":1/3,"⅔":2/3,"⅛":0.125};
+  const re = /(\d+\/\d+)|(\d+(?:\.\d+)?\s*[-–—]\s*\d+(?:\.\d+)?)|(\d+\s*[¼½¾⅓⅔⅛])|([¼½¾⅓⅔⅛])|(\d+(?:\.\d+)?)/g;
+  return text.replace(re, (tok, ratio, range, mixed, frac, num) => {
+    if (ratio) return ratio;
+    if (range){
+      const m = range.match(/^(\d+(?:\.\d+)?)\s*([-–—])\s*(\d+(?:\.\d+)?)$/);
+      return fmtScaleNum(parseFloat(m[1])*f) + m[2] + fmtScaleNum(parseFloat(m[3])*f);
+    }
+    if (mixed){
+      const m = mixed.match(/^(\d+)\s*([¼½¾⅓⅔⅛])$/);
+      return fmtScaleNum((parseInt(m[1],10) + UF[m[2]]) * f);
+    }
+    if (frac) return fmtScaleNum(UF[frac] * f);
+    return fmtScaleNum(parseFloat(num) * f);
+  });
+}
+function fmtScaleNum(v){
+  if (v >= 10) {
+    const r = Math.round(v * 10) / 10;
+    return String(r);
+  }
+  const whole = Math.floor(v + 1e-9);
+  const frac = v - whole;
+  if (frac < 0.03) return String(whole);
+  const F = [[0.125,"⅛"],[0.25,"¼"],[1/3,"⅓"],[0.5,"½"],[2/3,"⅔"],[0.75,"¾"]];
+  for (const pair of F){
+    if (Math.abs(frac - pair[0]) < 0.03) return whole ? String(whole) + pair[1] : pair[1];
+  }
+  return String(Math.round(v * 100) / 100);
+}
+// ── end scaler ──
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest(".recipe-scale-btn");
+  if (!b) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const sec = b.closest(".recipe-section");
+  if (!sec) return;
+  const f = parseFloat(b.dataset.f) || 1;
+  sec.dataset.scale = String(f);
+  sec.querySelectorAll(".recipe-scale-btn").forEach(x => {
+    const on = x === b;
+    x.classList.toggle("active", on);
+    x.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  sec.querySelectorAll(".recipe-ingredients li").forEach(li => {
+    if (li.dataset.orig === undefined) li.dataset.orig = li.textContent;
+    li.textContent = scaleIngredient(li.dataset.orig, f);
+  });
+  const note = sec.querySelector(".scale-note");
+  if (note) note.style.display = f === 1 ? "none" : "block";
 });

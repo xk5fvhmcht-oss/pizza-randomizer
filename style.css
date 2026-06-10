@@ -2235,3 +2235,28 @@ body::before {
 }
 .cook-nbtn:disabled { opacity: 0.4; }
 .cook-next { background: var(--terra); border-color: var(--terra); color: #fff; }
+
+/* ── RECIPE SCALER ───────────────────────────────────────── */
+.recipe-scale-row { display: flex; gap: 6px; margin: 2px 0 10px; }
+.recipe-scale-btn {
+  min-width: 54px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+}
+.recipe-scale-btn.active {
+  background: var(--gold-light);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.scale-note {
+  font-size: 0.72rem;
+  color: var(--text2);
+  margin: -4px 0 10px;
+  line-height: 1.4;
+}

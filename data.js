@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.7.9";
+const APP_VERSION = "2.8.0";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -1933,13 +1933,13 @@ const TOPPINGS = [
       makes:"~620g (full) / ~310g (half) — recipe by Yusuf @Slicedltd",
       yields:{ full_g:620, half_g:310, per_pizza_g:30, pizzas_full:20, pizzas_half:10 },
       ingredients:[
-        "450g sujuk — full / 225g — half (Sara's or Altin, casing removed)",
-        "1 clove garlic — full / ½ clove — half",
-        "1 tbsp honey — full / ½ tbsp — half",
-        "1 tsp fennel seeds — full / ½ tsp — half",
-        "1 tsp cumin seeds — full / ½ tsp — half",
-        "1 tsp red chili flakes — full / ½ tsp — half",
-        "150ml EVOO — full / 75ml — half (start with ⅔, add rest while blending)",
+        "450g sujuk (Sara's or Altin), casing removed",
+        "1 clove garlic",
+        "1 tbsp honey",
+        "1 tsp fennel seeds",
+        "1 tsp cumin seeds",
+        "1 tsp red chili flakes",
+        "150ml EVOO (start with \u2154, add the rest while blending)",
       ],
       method:[
         "Cut sujuk into rough pieces after removing casing.",
