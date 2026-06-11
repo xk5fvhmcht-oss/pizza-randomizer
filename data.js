@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.8.1";
+const APP_VERSION = "2.8.2";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -1961,8 +1961,8 @@ const TOPPINGS = [
     profile:"T", sauceFamilies:["tomato","dairy","herb","nosause"],
     stores:["sara","cm"],
     flavorNotes:["acid","sweet","fresh"], moisture:"high", weight:"light", presence:"supporting",
-    desc:"Halve and pat dry before adding. At Dome temp they burst and their juice concentrates beautifully in 60-90 seconds. Avoid adding to already-wet builds — fresh mozz, tomato sauce and cherry tomatoes together is too much moisture.",
-    note:"Universal — high moisture, don't overload. Fresh burst against cooked sauce is classic.",
+    desc:"Halve, pat very dry, and place cut-side up so the juice steams off instead of soaking the base. At Dome temp they soften and blister in 60-90 seconds; on the Steel they roast and genuinely concentrate — for deeper flavor, pre-roast 10 minutes at 425°F first. Avoid stacking with already-wet builds like fresh mozz plus tomato sauce.",
+    note:"Universal — high moisture, don't overload. Cut-side up; the fresh acidity against cooked sauce is classic.",
     qty:{ unit:"punnet (250g)", yield_g:250, per_pizza_g:50, per_pizza_oz:1.8, shared_yield:5, min_purchase:1 },
   },
   {
@@ -2098,10 +2098,10 @@ const TOPPINGS = [
     id:"jalapeno_pickled", name:"Pickled jalapeños",
     layer:"veg", cuisine:["mexican","american"],
     profile:"T", sauceFamilies:["tomato","spicepaste"],
-    stores:["cm"], postbake:true,
-    flavorNotes:["heat","acid","brine"], moisture:"postbake", weight:"light", presence:"accent",
-    desc:"The American pizza standard for heat — vinegar-brined jalapeño is milder and more rounded than fresh. The acidity is as important as the heat. Pat dry before adding to avoid excess liquid on the base.",
-    note:"Post-bake — preserves tang and crunch",
+    stores:["cm"],
+    flavorNotes:["heat","acid","brine"], moisture:"medium", weight:"light", presence:"accent",
+    desc:"The American pizza standard for heat — vinegar-brined jalapeño is milder and more rounded than fresh. The acidity is as important as the heat. Drain and pat dry, then bake on the pie — they char and mellow at Dome temp.",
+    note:"Bakes well — chars and mellows. Prefer maximum vinegar snap and crunch? Add post-bake instead.",
     qty:{ unit:"jar (300g)", yield_g:150, per_pizza_g:20, per_pizza_oz:0.7, shared_yield:7, pantry:true, min_purchase:1 },
   },
   {
