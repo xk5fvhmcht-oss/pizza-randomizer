@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.8.0
+// OMAR'S PIE — app.js v2.8.1
 // The Classics + clean engine
 // ============================================================
 
@@ -246,7 +246,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.8.0 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.8.1 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -1998,7 +1998,7 @@ document.addEventListener("click", (e) => {
   const f = parseFloat(sec.dataset.scale || "1");
   const tag = f === 0.5 ? " · ½ batch" : f === 0.25 ? " · ¼ batch" : "";
   openCookMode(steps, (makesEl ? makesEl.textContent.trim() : "Recipe") + tag);
-});
+}, true);
 
 
 // ── INGREDIENT SCALER ────────────────────────────────────────
@@ -2061,4 +2061,12 @@ document.addEventListener("click", (e) => {
   });
   const note = sec.querySelector(".scale-note");
   if (note) note.style.display = f === 1 ? "none" : "block";
-});
+}, true);
+
+// ── CLASSICS COUNT BADGE ─────────────────────────────────────
+// Live count on the setup-screen Classics banner — stays correct
+// as Classics are added, no hardcoded number to drift.
+(function(){
+  const el = document.querySelector(".classics-tile-count");
+  if (el && typeof CLASSICS !== "undefined") el.textContent = CLASSICS.length + " pies";
+})();

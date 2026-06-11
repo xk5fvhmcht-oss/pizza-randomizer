@@ -2260,3 +2260,35 @@ body::before {
   margin: -4px 0 10px;
   line-height: 1.4;
 }
+
+/* ── CLASSICS FEATURE BANNER ─────────────────────────────── */
+.cuisine-and-classics { flex-direction: column; }
+.classics-tile {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: 12px;
+  padding: 13px 14px;
+  background: var(--gold-light);
+  border-color: var(--gold);
+}
+.classics-tile:active { transform: scale(0.985); }
+.classics-tile-emoji { font-size: 1.55rem; }
+.classics-tile-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.classics-tile-title { font-size: 0.95rem; text-align: left; }
+.classics-tile-sub { font-size: 0.72rem; color: var(--text2); text-align: left; }
+.classics-tile-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: var(--surface);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.classics-tile-chev { font-size: 1.25rem; color: var(--gold); line-height: 1; }
