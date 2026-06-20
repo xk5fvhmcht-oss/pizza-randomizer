@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.8.3";
+const APP_VERSION = "2.8.4";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -3472,7 +3472,7 @@ const CLASSICS = [
       sauce:   [T("san_marzano")],
       cheese:  [T("feta")],
       protein: [T("lamb_mince")],
-      veg:     [T("dried_apricots")],
+      veg:     [T("dried_apricots"), T("preserved_lemon")],
       finish:  [T("flat_parsley"), T("smoked_paprika"), T("lemon_zest")],
     },
   },
