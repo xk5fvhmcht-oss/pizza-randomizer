@@ -1,5 +1,5 @@
 // ============================================================
-// OMAR'S PIE — app.js v2.8.4
+// OMAR'S PIE — app.js v2.8.5
 // The Classics + clean engine
 // ============================================================
 
@@ -43,6 +43,34 @@ function saveSession()   { localStorage.setItem("op_session",   JSON.stringify(s
 function saveSaved()     { localStorage.setItem("op_saved",     JSON.stringify(state.saved)); }
 function uid()           { return Math.random().toString(36).slice(2,9); }
 function gToOz(g)        { return (g/28.35).toFixed(1); }
+// Per-pizza quantity line for topping cards. Reads the same qty
+// fields the shopping list uses. Returns "" when nothing useful.
+function perPizzaQty(item){
+  const q = item.qty || {};
+  const g = q.per_pizza_g || 0;
+  const frac = n => {
+    if (n >= 1 && Number.isInteger(n)) return String(n);
+    const map = {0.25:"\u00bc",0.33:"\u2153",0.34:"\u2153",0.5:"\u00bd",0.66:"\u2154",0.67:"\u2154",0.75:"\u00be"};
+    const r = Math.round(n*100)/100;
+    if (map[r]) return map[r];
+    if (n < 0.4) return "a little";
+    return String(r);
+  };
+  // Primary: weight when it is a real amount
+  if (g >= 1) {
+    const oz = q.per_pizza_oz || parseFloat(gToOz(g));
+    let sec = "";
+    if (q.per_pizza_unit && q.per_pizza_unit >= 1) sec = frac(q.per_pizza_unit) + (q.per_pizza_unit === 1 ? " whole" : " whole");
+    return sec ? `${g}g \u00b7 ${oz}oz (${sec})` : `${g}g \u00b7 ${oz}oz`;
+  }
+  // Small-measure items (spices, oils, zest): show the spoon/unit amount
+  if (q.per_pizza_tbsp) { const v = frac(q.per_pizza_tbsp); return v === "a little" ? "a drizzle" : `${v} tbsp`; }
+  if (q.per_pizza_tsp)  { const v = frac(q.per_pizza_tsp);  return v === "a little" ? "a pinch"   : `${v} tsp`; }
+  if (q.per_pizza_unit) { const v = frac(q.per_pizza_unit); return v === "a little" ? "a little"  : `${v} whole`; }
+  // Pantry shave-to-taste cheeses (parmigiano, pecorino) and anything else
+  if (q.pantry) return "to taste";
+  return "";
+}
 
 // ── SCREEN NAV ───────────────────────────────────────────────
 const VALID_LAYER_KEYS = new Set(["base","sauce","cheese","protein","veg","finish"]);
@@ -246,7 +274,7 @@ $("btn-roll").addEventListener("click", () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// ROLL ENGINE v2.8.4 — Scoring-based, offensive not defensive
+// ROLL ENGINE v2.8.5 — Scoring-based, offensive not defensive
 // Principles:
 //   1. Score candidates by contribution, not just conflict avoidance
 //   2. Cheese preference by cuisine + sauce family
@@ -990,6 +1018,7 @@ function renderPizza(pizza) {
           <div class="topping-actions">${actions}</div>
         </div>
         <div class="topping-meta">${roleBadge}${prepBadge}${postbakeFlag}${homemadeFlag}${makeAheadFlag}${domeFlag}</div>
+        ${(() => { const qd = perPizzaQty(item); return qd ? `<div class="topping-qty"><span class="topping-qty-label">per pizza</span> ${qd}</div>` : ""; })()}
         ${item.desc?`<div class="topping-desc">${item.desc}</div>`:""}
         ${item.note?`<div class="topping-note">${item.note}</div>`:""}
         ${item.recipe?renderRecipe(item.recipe):""}

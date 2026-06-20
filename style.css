@@ -2292,3 +2292,21 @@ body::before {
   white-space: nowrap;
 }
 .classics-tile-chev { font-size: 1.25rem; color: var(--gold); line-height: 1; }
+
+/* ── PER-PIZZA QUANTITY LINE ──────────────────────────────── */
+.topping-qty {
+  margin-top: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.74rem;
+  color: var(--terra);
+  font-weight: 600;
+}
+.topping-qty-label {
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text2);
+  margin-right: 4px;
+}
