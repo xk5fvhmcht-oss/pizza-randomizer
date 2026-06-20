@@ -5,7 +5,7 @@
 // Eight cuisines · Three stores · Chef-driven roll engine
 // ============================================================
 
-const APP_VERSION = "2.8.2";
+const APP_VERSION = "2.8.3";
 const APP_NAME    = "Omar's Pie";
 
 // ── STORES ──────────────────────────────────────────────────
@@ -2333,6 +2333,16 @@ const TOPPINGS = [
     qty:{ unit:"fennel bulb", yield_g:200, per_pizza_g:60, per_pizza_oz:2.1, per_pizza_unit:0.5, min_purchase:1 },
   },
   {
+    id:"raw_garlic_sliced", name:"Raw garlic (thin-sliced)",
+    layer:"veg", cuisine:["neapolitan","levantine","greek"],
+    profile:"T", sauceFamilies:["tomato"],
+    stores:["sara","cm"],
+    flavorNotes:["pungent","sharp","aromatic"], moisture:"low", weight:"light", presence:"accent",
+    desc:"Thin-sliced raw garlic — the Marinara's defining ingredient. On a sauced pizza the tomato shields the slices and a fast Dome bake mellows them just enough, leaving the sharp, pungent bite that is the whole point of a Pizza Marinara. Slice paper-thin so it cooks through without burning.",
+    note:"Slice paper-thin and scatter over the sauce before baking — the tomato protects it from scorching. Only safe on a wet, sauced base: on a dry bianca raw garlic burns bitter. This is the authentic Marinara garlic — do not substitute roasted.",
+    qty:{ unit:"a few cloves", yield_g:15, per_pizza_g:5, per_pizza_oz:0.2, per_pizza_unit:0.1, min_purchase:1 },
+  },
+  {
     id:"roasted_garlic_cloves", name:"Roasted garlic cloves",
     layer:"veg", cuisine:["neapolitan","greek","levantine","turkish","northafrican","american"],
     profile:"T", sauceFamilies:["tomato","dairy","nosause","herb","spicepaste"],
@@ -2974,7 +2984,7 @@ const CLASSICS = [
       sauce:   [T("san_marzano")],
       cheese:  [],
       protein: [],
-      veg:     [T("roasted_garlic_cloves")],
+      veg:     [T("raw_garlic_sliced")],
       finish:  [T("dried_oregano"), T("finish_evoo")],
     },
   },
